@@ -1,5 +1,32 @@
 {
     "manifest_version": 2,
-    "name": "Dark Mode",
-    "version": "0.1"
+    "name": "Dark Mode - Rest your eyes",
+    "version": "0.1",
+
+    "content_scripts": [
+        {
+            "all_frames": true,
+            "matches": ["<all_urls>"],
+            "js":  ["content.js"],
+            "run_at": "document_start",
+            "css": ["dark-mode.css"]
+        }
+    ],
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "web_accessible_resources": [
+        "dark-mode.css"
+    ],
+    "description": "Make websites easier on your eyes.",
+    "icons": {
+        "128": "img/dark-mode-128.png",
+        "48": "img/dark-mode-48.png",
+        "16": "img/dark-mode-16.png"
+    },
+    "browser_action": {
+        "default_icon": "img/dark-mode-48.png",
+        "default_title": "Dark mode settings",
+        "default_popup": "index.html"
+    }
 }
