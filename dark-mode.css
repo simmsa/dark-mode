@@ -1,0 +1,34 @@
+html[dark-mode="on"]{
+    /* min-height: 100%; */
+    /* height: inherit; */
+    -webkit-filter: invert() contrast(85%);
+    /* -webkit-transform: translateZ(0); */
+}
+
+/* From this point on to cancel out any inversions we re invert */
+
+/* All images */
+html[dark-mode="on"] img,
+/* Video element */
+html[dark-mode="on"] video,
+/* Youtube video, and player */
+html[dark-mode="on"] #movie_player,
+html[dark-mode="on"] .html5-video-container,
+html[dark-mode="on"] .html5-video-controls *,
+html[dark-mode="on"] .videowall-endscreen,
+html[dark-mode="on"] .ideal-aspect,
+html[dark-mode="on"] .ytp-thumbnail,
+/* Vimeo video and player */
+html[dark-mode="on"] .flideo, .video-wrapper
+/* Anything flash */
+html[dark-mode="on"] object[type="application/x-shockwave-flash"],
+html[dark-mode="on"] embed[type="application/x-shockwave-flash"],
+/* Netflix */
+html[dark-mode="on"] #SLPlayer,
+/* Google Images */
+html[dark-mode="on"] #irc_cc,
+/* Google Maps */
+html[dark-mode="on"] .widget-scene > html[dark-mode="on"] canvas, html[dark-mode="on"] .gb_da, html[dark-mode="on"] .irc_pt
+{
+    -webkit-filter: invert() contrast(100%);
+}
