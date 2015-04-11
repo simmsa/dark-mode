@@ -28,5 +28,8 @@
         "default_icon": "img/dark-mode-48.png",
         "default_title": "Dark mode settings",
         "default_popup": "index.html"
-    }
+    },
+    "permissions": [
+        "tabs"
+    ]
 }
