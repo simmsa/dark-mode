@@ -12,9 +12,7 @@ html[dark-mode="on"] img,
 /* Video element */
 html[dark-mode="on"] video,
 /* Youtube video, and player */
-html[dark-mode="on"] #movie_player,
-html[dark-mode="on"] .html5-video-container,
-html[dark-mode="on"] .html5-video-controls *,
+html[dark-mode="on"] .html5-video-controls,
 html[dark-mode="on"] .videowall-endscreen,
 html[dark-mode="on"] .ideal-aspect,
 html[dark-mode="on"] .ytp-thumbnail,
