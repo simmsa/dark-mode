@@ -1,12 +1,17 @@
-html[dark-mode="on"]{
+html[dark-mode="on"],
+html[dark-mode="on"] .dark-mode{
     /* min-height: 100%; */
     /* height: inherit; */
-    -webkit-filter: invert() contrast(85%);
+    /* -webkit-filter: invert() contrast(85%); */
+    -webkit-filter: invert(100%) contrast(85%);
     /* -webkit-transform: translateZ(0); */
 }
 
 /* From this point on to cancel out any inversions we re invert */
 
+/* Anything with a background-image */
+html[dark-mode="on"] .no-dark-mode,
+/* html[dark-mode="on"] .dark-mode > *, */
 /* All images */
 html[dark-mode="on"] img,
 /* Video element */
@@ -29,4 +34,11 @@ html[dark-mode="on"] #irc_cc,
 html[dark-mode="on"] .widget-scene > html[dark-mode="on"] canvas, html[dark-mode="on"] .gb_da, html[dark-mode="on"] .irc_pt
 {
     -webkit-filter: invert() contrast(100%);
+    /* -webkit-filter: invert(0%) contrast(100%); */
+    /* -webkit-filter: none; */
+}
+html[dark-mode="on"] .dark-mode > *,
+html[dark-mode="on"] .dark-mode > * > * > *,
+html[dark-mode="on"] .dark-mode > * > * > * > * > *{
+    -webkit-filter: invert() contrast(1);
 }
