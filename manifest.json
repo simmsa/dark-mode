@@ -7,7 +7,7 @@
         {
             "all_frames": true,
             "matches": ["<all_urls>"],
-            "js":  ["parseWhitelist.js", "content.js"],
+            "js":  ["lib/jquery.min.js","parseWhitelist.js", "content.js"],
             "run_at": "document_start",
             "css": ["dark-mode.css"]
         }
