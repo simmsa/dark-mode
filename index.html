@@ -2,54 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title></title>
-  <style>
-    html {
-      background-color: #001b22;
-      color: #0cf;
-      font-size: 12px;
-    }
-
-    body{
-      margin: 0 auto;
-    }
-
-    button{
-      margin: 25px;
-      border: 2px solid #002c39;
-      background-color: #001b22;
-      color: #0cf;
-      padding: 5px;
-      border-radius: 5px;
-      text-align: center;
-      width: 150px;
-      font-size: 18px;
-      display: block;
-      float: left;
-      outline: none;
-      box-shadow: 0 0 2px #fff;
-      transition: .3s;
-    }
-
-    button:hover{
-      color: #0ff;
-      box-shadow: 0 0 7px #fff;
-    }
-
-    button:active{
-      color: #001b22;
-      background-color: #fff;
-      box-shadow: 0 0 20px #fff;
-    }
-  </style>
-  <script type="text/javascript">
-    alert("Hello");
-  </script>
-  <script type="text/javascript" src="popup.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dark Mode Settings</title>
+  <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="dark-mode.css">
 </head>
 <body>
-  <div style="width: 200px;">
-    <button id="toggle-button">Toggle Dark Mode</button>
+  <div style="width: 250px; padding: 10px;" class="container-fluid">
+    <div class="row">
+      <div class="col-xs-12">
+        <a id="toggle-button" class="btn btn-primary btn-block">Toggle Dark Mode</a>
+      </div>
+    </div>
   </div>
+  <script type="text/javascript" src="parseWhitelist.js"></script>
+  <script type="text/javascript" src="popup.js"></script>
 </body>
 </html>
