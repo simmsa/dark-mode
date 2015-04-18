@@ -34,11 +34,7 @@ function getUrlAndWhitelist(callback){
 }
 
 function toggleWhitelistFromPopup(whitelist, url){
-    console.log("Passing ");
-    console.log(whitelist);
-    console.log("and " + url);
     var result = toggleDarkModeOff(whitelist, url);
-    console.log("result from toggleDarkModeOff  is " + result);
     setWindowDarkModeState(result);
 }
 
@@ -47,7 +43,7 @@ function checkWhitelistFromPopup(whitelist, url){
     setWindowDarkModeState(result);
 }
 
-// function checkWhitelistStem(whitelist, url){
+// function checkWhitelistStemFromPopup(whitelist, url){
 //     var result = false;
 //     if(whitelist[getUrlStem(url)]){
 //         result = true;
