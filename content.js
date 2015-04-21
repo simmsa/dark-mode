@@ -12,13 +12,16 @@ function logDarkMode(){
 toggleDarkMode(mode);
 
 // Get whitelist from chrome storage, inside callback set up dark mode.
-chrome.storage.local.get("whitelist", function(result){
-    var whitelist = result;
-    var darkModeOff = checkDarkModeOff(whitelist, document.documentURI);
-    mode = darkModeOff ? "off" : "on";
-    toggleDarkMode(mode);
-    logDarkMode();
-});
+function readDarkMode(){
+    chrome.storage.local.get("whitelist", function(result){
+        var whitelist = result;
+        var darkMode = checkDarkMode(whitelist, document.documentURI);
+        mode = darkMode ? "on" : "off";
+        toggleDarkMode(mode);
+        logDarkMode();
+    });
+}
+readDarkMode();
 
 function activateAdvancedMode(){
     // Use jQuery to add "no-dark-mode" class to css with background images.
@@ -37,12 +40,7 @@ function activateAdvancedMode(){
 chrome.extension.onMessage.addListener(function(message, sender, sendResponse){
     switch(message.type){
         case "toggle-dark-mode":
-            if(mode == "on"){
-                mode = "off";
-            } else {
-                mode = "on";
-            }
-            toggleDarkMode(mode);
+            readDarkMode();
             break;
         default:
             console.log("Unknown message sent to dark-mode: " + message.type);
