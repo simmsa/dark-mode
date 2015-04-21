@@ -20,17 +20,19 @@ chrome.storage.local.get("whitelist", function(result){
     logDarkMode();
 });
 
-// Use jQuery to add "no-dark-mode" class to css with background images.
-$("document").ready(function(){
-    jQuery.each(jQuery("*"), function(){
-        if(!jQuery(this).is("html", "body", "script", "iframe", "blockquote")){
-            if(jQuery(this).css("background-image").length > 4 && jQuery(this).children().length < 6){
-                jQuery(this).addClass("no-dark-mode").removeClass("dark-mode");
-                jQuery(this).children().toggleClass("dark-mode");
+function activateAdvancedMode(){
+    // Use jQuery to add "no-dark-mode" class to css with background images.
+    $("document").ready(function(){
+        jQuery.each(jQuery("*"), function(){
+            if(!jQuery(this).is("html", "body", "script", "iframe", "blockquote")){
+                if(jQuery(this).css("background-image").length > 4 && jQuery(this).children().length < 6){
+                    jQuery(this).addClass("no-dark-mode").removeClass("dark-mode");
+                    jQuery(this).children().toggleClass("dark-mode");
+                }
             }
-        }
+        });
     });
-});
+}
 
 chrome.extension.onMessage.addListener(function(message, sender, sendResponse){
     switch(message.type){
