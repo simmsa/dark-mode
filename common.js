@@ -228,15 +228,9 @@ function getUrlStem(url){
  */
 function cleanUrl(url){
     var cleanUrlWithQueryStringRegex = /^.*:\/\/.*\/(.*(?=\?|#))?/;
-    // var cleanUrlRegex = /^.*:\/\/.*\//;
 
-    // console.log("Input url: " + url);
     url = addTrailingSlash(url);
     var result = cleanUrlWithQueryStringRegex.exec(url)[0];
-    // console.log("Clean url: " + result);
-    // console.log("Clean url with trailing slash: " + addTrailingSlash(result));
-
-    // console.log("Cleaned url: " + addTrailingSlash(result));
     return addTrailingSlash(result);
 }
 
@@ -244,10 +238,6 @@ function addTrailingSlash(url){
     var hasQueryString = url.indexOf("?") > -1;
     var hasFragmentString = url.indexOf("#") > -1;
     var hasTrailingSlash = url.charAt(url.length - 1) == "/";
-
-    // console.log(url);
-    // console.log("hasQueryString: " + hasQueryString + " hasFragmentString: " + hasFragmentString + " hasTrailingSlash: " + hasTrailingSlash);
-    // console.log();
 
     if(!hasQueryString && !hasFragmentString && !hasTrailingSlash){
         return url += "/";
