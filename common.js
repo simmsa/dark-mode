@@ -7,15 +7,15 @@
  * and advanced dark mode.
  *
  * { "whitelist": "urlStem":
- *   { "dark-mode-off": true,
- *     "advanced-mode-on": false,
+ *   { "dark-mode": true,
+ *     "advanced-mode": false,
  *     "fullUrl": {
- *       "dark-mode-off": true,
- *       "advanced-mode-on": false
+ *       "dark-mode": true,
+ *       "advanced-mode": false
  *     },
  *     "fullUrl": {
- *       "dark-mode-off": true,
- *       "advanced-mode-on": false
+ *       "dark-mode": true,
+ *       "advanced-mode": false
  *     }
  *   }
  * }
@@ -26,94 +26,170 @@
  * @param {String} url The current raw url
  * @return [{Whitelist}, {Boolean}] Result of whitelist search for url
  */
-function toggleOrCheckWhitelist(option, whitelist, url, field){
-    checkOptions(["toggle", "check"], option);
-    checkOptions(["dark-mode-off", "advanced-mode-on"], field);
-
-    var toggle = (option === "toggle") ? true : false;
-    // var toggle = false;
-    // if(option === "toggle"){
-    //     toggle = true;
-    // }
-
+function checkWhitelist(whitelist, url, field){
+    var result;
+    whitelist = cleanWhitelist(whitelist);
     var urlStem = getUrlStem(url);
     var cleanedUrl = cleanUrl(url);
-    var isUrlStem = urlStem === cleanedUrl;
-
-    var current;
-
-    if(whitelist === undefined){
-        whitelist = {};
-    }
-
-    whitelist = whitelist.whitelist;
-
-    if(whitelist === undefined){
-        whitelist = {};
-    }
-
-    // Make a url prove it is in the whitelist
-    var result = false;
-
     if(objExists(whitelist[urlStem])){
-        // Check the specific url first
         if(objExists(whitelist[urlStem][cleanedUrl])){
             if(objExists(whitelist[urlStem][cleanedUrl][field])){
                 result = whitelist[urlStem][cleanedUrl][field];
             }
-            if(toggle){
-                whitelist[urlStem][cleanedUrl][field] = !whitelist[urlStem][cleanedUrl][field];
-                result = whitelist[urlStem][cleanedUrl][field];
-                // saveWhitelist(whitelist);
-            }
-        // Then check for the stem
-        } else if(objExists(whitelist[urlStem][field])){
-            result = whitelist[urlStem][field];
-            if(toggle){
-                whitelist[urlStem][field] = !whitelist[urlStem][field];
-                result = whitelist[urlStem][field];
-                // saveWhitelist(whitelist);
-            }
         }
-    } else if (toggle){
-        // If the field doesn't exist, create it and set it to true.
-        whitelist[urlStem] = {};
-        whitelist[urlStem][cleanedUrl] = {};
-        whitelist[urlStem][cleanedUrl][field] = true;
-        // Can't use expressions for identifiers in an object literal
-        // whitelist[urlStem] = { cleanedUrl: {field: true} };
-        // saveWhitelist(whitelist);
-        result = true;
     }
-    saveWhitelist(whitelist);
     return result;
 }
+
+
+function checkWhitelistStem(whitelist, url, field){
+    var result;
+    whitelist = cleanWhitelist(whitelist);
+    var urlStem = getUrlStem(url);
+    if(objExists(whitelist[urlStem])){
+        if(objExists(whitelist[urlStem][field])){
+            result = whitelist[urlStem][field];
+        }
+    }
+    return result;
+}
+
+function checkDarkMode(whitelist, url){
+    // Various scenarios for checking dark mode.
+    // | Dark Mode | Url   | Url Stem | Result |
+    // | ---       | ---   | ---      | ---    |
+    // | On        | Undef | Undef    | True   |
+    // | On        | Undef | True     | True   |
+    // | On        | True  | True     | True   |
+    // | On        | True  | Undef    | True   |
+    // | On        | False | True     | False  |
+    // | Off       | False | Undef    | False  |
+    // | Off       | Undef | False    | False  |
+    // | Off       | True  | False    | False  |
+    // | Off       | False | False    | False  |
+
+    var urlResult = checkWhitelist(whitelist, url, "dark-mode");
+    var urlStemResult = checkWhitelistStem(whitelist, url, "dark-mode");
+
+    console.log("Url is: " + urlResult + ", Url Stem is: " + urlStemResult);
+
+    // Results that turn dark mode ON
+    if(urlResult === undefined && urlStemResult === undefined){
+        return true;
+    }
+    if(urlResult === undefined && urlStemResult === true){
+        return true;
+    }
+    if(urlResult === true && urlStemResult === true){
+        return true;
+    }
+    if(urlResult === true && urlStemResult === undefined){
+        return true;
+    }
+    if(urlResult === true && urlStemResult === false){
+        return true;
+    }
+
+    // Results that turn dark mode OFF
+    if(urlResult === false && urlStemResult === true){
+        return false;
+    }
+    if(urlResult === false && urlStemResult === undefined){
+        return false;
+    }
+    if(urlResult === undefined && urlStemResult === false){
+        return false;
+    }
+    if(urlResult === false && urlStemResult === false){
+        return false;
+    }
+    console.log("Error: checkWhitelist returned without a result");
+}
+
+function checkStemDarkMode(whitelist, url){
+    var stemResult = checkWhitelistStem(whitelist, url, "dark-mode");
+    if(stemResult === false){
+        return false;
+    } else {
+        return true;
+    }
+}
+
+function toggleWhitelist(whitelist, url, field){
+    whitelist = cleanWhitelist(whitelist);
+    var urlStem = getUrlStem(url);
+    var cleanedUrl = cleanUrl(url);
+    if(objExists(whitelist[urlStem])){
+        if(objExists(whitelist[urlStem][cleanedUrl])){
+            if(objExists(whitelist[urlStem][cleanedUrl][field])){
+                whitelist[urlStem][cleanedUrl][field] = !whitelist[urlStem][cleanedUrl][field];
+            } else {
+                // Turns dark mode off
+                whitelist[urlStem][cleanedUrl][field] = false;
+            }
+        } else {
+            whitelist[urlStem][cleanedUrl] = {};
+            whitelist[urlStem][cleanedUrl][field] = false;
+        }
+    } else {
+        whitelist[urlStem] = {};
+        whitelist[urlStem][cleanedUrl] = {};
+        whitelist[urlStem][cleanedUrl][field] = false;
+    }
+
+    saveWhitelist(whitelist);
+    return whitelist;
+}
+
+function toggleWhitelistStem(whitelist, url, field){
+    whitelist = cleanWhitelist(whitelist);
+    var urlStem = getUrlStem(url);
+    if(objExists(whitelist[urlStem])){
+        if(objExists(whitelist[urlStem][field])){
+            whitelist[urlStem][field] = !whitelist[urlStem][field];
+        } else {
+            whitelist[urlStem][field] = false;
+        }
+    } else {
+        whitelist[urlStem] = {};
+        // Deactivate the stem
+        whitelist[urlStem][field] = false;
+    }
+
+    saveWhitelist(whitelist);
+    return whitelist;
+}
+
+function toggleDarkMode(whitelist, url){
+    return toggleWhitelist(whitelist, url, "dark-mode");
+}
+
+function toggleStemDarkMode(whitelist, url){
+    return toggleWhitelistStem(whitelist, url, "dark-mode");
+}
+
+// Helper Functions
 
 function saveWhitelist(whitelist){
     chrome.storage.local.remove("whitelist");
     chrome.storage.local.set({"whitelist": whitelist});
 }
 
-function checkWhitelist(whitelist, url, field){
-    return toggleOrCheckWhitelist("check", whitelist, url, field);
-}
+function cleanWhitelist(whitelist){
+    if(whitelist === undefined){
+        whitelist = {};
+    }
 
-function checkDarkModeOff(whitelist, url){
-    return checkWhitelist(whitelist, url, "dark-mode-off");
-}
+    if(objExists(whitelist["whitelist"])){
+        whitelist = whitelist["whitelist"];
+    }
 
-function toggleWhitelist(whitelist, url, field){
-    return toggleOrCheckWhitelist("toggle", whitelist, url, field);
-}
-
-function toggleDarkModeOff(whitelist, url){
-    return toggleWhitelist(whitelist, url, "dark-mode-off");
+    return whitelist;
 }
 
 function checkOptions(options, passedValue){
     if(options.indexOf(passedValue) == -1){
-        console.log("Error: " + passedValue + " is an invalid option!");
-        throw new Error("Error: " + passedValue + " is an invalid option!");
+        throw new Error(passedValue + " is an invalid option!");
     }
 }
 
@@ -139,7 +215,7 @@ function objExists(object){
  */
 function getUrlStem(url){
     var urlStemRegex = /^.*:\/\/.*?(\/)/;
-    return urlStemRegex.exec(url)[0];
+    return addTrailingSlash(urlStemRegex.exec(url)[0]);
 }
 
 /**
@@ -154,10 +230,33 @@ function cleanUrl(url){
     var cleanUrlWithQueryStringRegex = /^.*:\/\/.*\/(.*(?=\?|#))?/;
     // var cleanUrlRegex = /^.*:\/\/.*\//;
 
+    // console.log("Input url: " + url);
+    url = addTrailingSlash(url);
     var result = cleanUrlWithQueryStringRegex.exec(url)[0];
-    if(result.charAt(result.length - 1) != "/"){
-        result += "/";
-    }
+    // console.log("Clean url: " + result);
+    // console.log("Clean url with trailing slash: " + addTrailingSlash(result));
 
-    return result;
+    // console.log("Cleaned url: " + addTrailingSlash(result));
+    return addTrailingSlash(result);
+}
+
+function addTrailingSlash(url){
+    var hasQueryString = url.indexOf("?") > -1;
+    var hasFragmentString = url.indexOf("#") > -1;
+    var hasTrailingSlash = url.charAt(url.length - 1) == "/";
+
+    // console.log(url);
+    // console.log("hasQueryString: " + hasQueryString + " hasFragmentString: " + hasFragmentString + " hasTrailingSlash: " + hasTrailingSlash);
+    // console.log();
+
+    if(!hasQueryString && !hasFragmentString && !hasTrailingSlash){
+        return url += "/";
+    } else {
+        return url;
+    }
+}
+
+function getMinimalUrl(url){
+    var minUrlRegex = /\/\/.*\//;
+    return minUrlRegex.exec(getUrlStem(url))[0].replace(/\//g, "");
 }
