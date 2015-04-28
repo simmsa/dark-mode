@@ -1,8 +1,8 @@
 @media screen{
     html[dark-mode="on"],
     html[dark-mode="on"] .dark-mode{
-        /* min-height: 100%; */
-        /* height: inherit; */
+        min-height: 100%;
+        height: inherit;
         /* -webkit-filter: invert() contrast(85%); */
         -webkit-filter: invert(100%) contrast(85%);
         /* -webkit-transform: translateZ(0); */
