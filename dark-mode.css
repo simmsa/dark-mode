@@ -1,44 +1,46 @@
-html[dark-mode="on"],
-html[dark-mode="on"] .dark-mode{
-    /* min-height: 100%; */
-    /* height: inherit; */
-    /* -webkit-filter: invert() contrast(85%); */
-    -webkit-filter: invert(100%) contrast(85%);
-    /* -webkit-transform: translateZ(0); */
-}
+@media screen{
+    html[dark-mode="on"],
+    html[dark-mode="on"] .dark-mode{
+        /* min-height: 100%; */
+        /* height: inherit; */
+        /* -webkit-filter: invert() contrast(85%); */
+        -webkit-filter: invert(100%) contrast(85%);
+        /* -webkit-transform: translateZ(0); */
+    }
 
-/* From this point on to cancel out any inversions we re invert */
+    /* From this point on to cancel out any inversions we re invert */
 
-/* Anything with a background-image */
-html[dark-mode="on"] .no-dark-mode,
-/* html[dark-mode="on"] .dark-mode > *, */
-/* All images */
-html[dark-mode="on"] img,
-/* Video element */
-html[dark-mode="on"] video,
-/* Youtube video, and player */
-html[dark-mode="on"] .html5-video-controls,
-html[dark-mode="on"] .videowall-endscreen,
-html[dark-mode="on"] .ideal-aspect,
-html[dark-mode="on"] .ytp-thumbnail,
-/* Vimeo video and player */
-html[dark-mode="on"] .flideo, .video-wrapper
-/* Anything flash */
-html[dark-mode="on"] object[type="application/x-shockwave-flash"],
-html[dark-mode="on"] embed[type="application/x-shockwave-flash"],
-/* Netflix */
-html[dark-mode="on"] #SLPlayer,
-/* Google Images */
-html[dark-mode="on"] #irc_cc,
-/* Google Maps */
-html[dark-mode="on"] .widget-scene > html[dark-mode="on"] canvas, html[dark-mode="on"] .gb_da, html[dark-mode="on"] .irc_pt
-{
-    -webkit-filter: invert() contrast(100%);
-    /* -webkit-filter: invert(0%) contrast(100%); */
-    /* -webkit-filter: none; */
-}
-html[dark-mode="on"] .dark-mode > *,
-html[dark-mode="on"] .dark-mode > * > * > *,
-html[dark-mode="on"] .dark-mode > * > * > * > * > *{
-    -webkit-filter: invert() contrast(1);
+    /* Anything with a background-image */
+    html[dark-mode="on"] .no-dark-mode,
+    /* html[dark-mode="on"] .dark-mode > *, */
+    /* All images */
+    html[dark-mode="on"] img,
+    /* Video element */
+    html[dark-mode="on"] video,
+    /* Youtube video, and player */
+    html[dark-mode="on"] .html5-video-controls,
+    html[dark-mode="on"] .videowall-endscreen,
+    html[dark-mode="on"] .ideal-aspect,
+    html[dark-mode="on"] .ytp-thumbnail,
+    /* Vimeo video and player */
+    html[dark-mode="on"] .flideo, .video-wrapper
+    /* Anything flash */
+    html[dark-mode="on"] object[type="application/x-shockwave-flash"],
+    html[dark-mode="on"] embed[type="application/x-shockwave-flash"],
+    /* Netflix */
+    html[dark-mode="on"] #SLPlayer,
+    /* Google Images */
+    html[dark-mode="on"] #irc_cc,
+    /* Google Maps */
+    html[dark-mode="on"] .widget-scene > html[dark-mode="on"] canvas, html[dark-mode="on"] .gb_da, html[dark-mode="on"] .irc_pt
+    {
+        -webkit-filter: invert() contrast(100%);
+        /* -webkit-filter: invert(0%) contrast(100%); */
+        /* -webkit-filter: none; */
+    }
+    html[dark-mode="on"] .dark-mode > *,
+    html[dark-mode="on"] .dark-mode > * > * > *,
+    html[dark-mode="on"] .dark-mode > * > * > * > * > *{
+        -webkit-filter: invert() contrast(1);
+    }
 }
