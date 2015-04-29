@@ -43,4 +43,11 @@
     html[dark-mode="on"] .dark-mode > * > * > * > * > *{
         -webkit-filter: invert() contrast(1);
     }
+
+    /* Fix images with black text */
+    html[dark-mode="on"] img{
+        background-color: #fff;
+    }
+
+
 }
