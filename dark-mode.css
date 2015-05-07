@@ -46,9 +46,9 @@
     }
 
     /* Fix images with black text */
-    html[dark-mode="on"] img{
-        background-color: #fff;
-    }
+    /* html[dark-mode="on"] img{ */
+    /*     background-color: #fff; */
+    /* } */
 
 
 }
