@@ -23,6 +23,7 @@
     html[dark-mode="on"] .ideal-aspect,
     html[dark-mode="on"] .ytp-thumbnail,
     html[dark-mode="on"] .player-api,
+    html[dark-mode="on"] #placeholder-player,
     /* Vimeo video and player */
     html[dark-mode="on"] .flideo, .video-wrapper
     /* Anything flash */
