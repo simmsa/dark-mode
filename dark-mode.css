@@ -16,14 +16,22 @@
     /* All images */
     html[dark-mode="on"] img,
     /* Video element */
-    html[dark-mode="on"] video,
+    /* html[dark-mode="on"] video, */
     /* Youtube video, and player */
-    html[dark-mode="on"] .html5-video-controls,
-    html[dark-mode="on"] .videowall-endscreen,
-    html[dark-mode="on"] .ideal-aspect,
-    html[dark-mode="on"] .ytp-thumbnail,
+    /* html[dark-mode="on"] .html5-video-controls, */
+    /* html[dark-mode="on"] .html5-video-container, */
+    /* html[dark-mode="on"] .html5-player-chrome, */
+    /* html[dark-mode="on"] .html5-progress-bar, */
+    /* html[dark-mode="on"] .videowall-endscreen, */
+    /* html[dark-mode="on"] .videowall-still, */
+    /* html[dark-mode="on"] .ideal-aspect, */
+    /* html[dark-mode="on"] .ytp-thumbnail, */
+    /* html[dark-mode="on"] .player-api, */
+    /* html[dark-mode="on"] #player-api, */
+    /* html[dark-mode="on"] #placeholder-player, */
+    /* html[dark-mode="on"] embed#movie_player, */
+    /* html[dark-mode="on"] #player, */
     html[dark-mode="on"] .player-api,
-    html[dark-mode="on"] #placeholder-player,
     /* Vimeo video and player */
     html[dark-mode="on"] .flideo, .video-wrapper
     /* Anything flash */
