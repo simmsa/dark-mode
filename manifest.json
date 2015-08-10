@@ -5,7 +5,6 @@
 
     "content_scripts": [
         {
-            "all_frames": true,
             "matches": ["<all_urls>"],
             "js":  ["lib/jquery.min.js","common.js", "content.js"],
             "run_at": "document_start",
