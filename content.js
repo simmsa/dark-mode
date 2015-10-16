@@ -1,6 +1,6 @@
 var mode = "on";
 
-function toggleDarkMode(mode){
+function toggleDarkModeAttribute(mode){
     document.documentElement.setAttribute('dark-mode', mode);
 }
 
@@ -9,7 +9,7 @@ function logDarkMode(){
 }
 
 // To avoid white flash, turn on dark mode on initialization
-toggleDarkMode(mode);
+toggleDarkModeAttribute(mode);
 
 // Get whitelist from chrome storage, inside callback set up dark mode.
 function readDarkMode(){
@@ -17,11 +17,20 @@ function readDarkMode(){
         var whitelist = result;
         var darkMode = checkDarkMode(whitelist, document.documentURI);
         mode = darkMode ? "on" : "off";
-        toggleDarkMode(mode);
+        toggleDarkModeAttribute(mode);
         logDarkMode();
     });
 }
 readDarkMode();
+
+function forceToggleDarkMode(){
+    if(mode === "on"){
+        mode = "off";
+    } else {
+        mode = "on";
+    }
+    toggleDarkModeAttribute(mode);
+}
 
 function activateAdvancedMode(){
     // Use jQuery to add "no-dark-mode" class to css with background images.
@@ -41,6 +50,16 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse){
     switch(message.type){
         case "toggle-dark-mode":
             readDarkMode();
+            break;
+        case "toggle-dark-mode-on-keystroke":
+            console.log("Toggling via keystroke?");
+            getWhitelist(toggleDarkMode, document.documentURI);
+            // There is a delay when writing to the whitelist and reading
+            // from it, so here we force the inversion with forceToggleDarkMode
+            // and check with a short delay using readDarkMode.
+            // forceToggleDarkMode();
+            setTimeout(readDarkMode, 10);
+            // readDarkMode();
             break;
         default:
             console.log("Unknown message sent to dark-mode: " + message.type);

@@ -31,5 +31,13 @@
     "permissions": [
         "tabs",
         "storage"
-    ]
+    ],
+    "commands": {
+        "toggle-dark-mode": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+I"
+            },
+            "description": "Toggle dark mode"
+        }
+    }
 }
