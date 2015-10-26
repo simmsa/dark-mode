@@ -9,7 +9,7 @@
     /* Add a black background to the html element, otherwise, everything */
     /* is inverted on a white background, and effectively unreadable */
     html[dark-mode="on"] {
-        background-color: #111;
+        background-color: #171717;
     }
 
     /* Re-invert things we don't want inverted */
