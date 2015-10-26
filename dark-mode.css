@@ -18,10 +18,10 @@
     html[dark-mode="on"] .no-dark-mode,
     /* All images */
     html[dark-mode="on"] img,
-    /* Youtube video, and player */
+    /* Youtube player */
     html[dark-mode="on"] .player-api,
     /* Vimeo video and player */
-    html[dark-mode="on"] .flideo, .video-wrapper
+    html[dark-mode="on"] .player_container,
     /* Anything flash */
     html[dark-mode="on"] object[type="application/x-shockwave-flash"],
     html[dark-mode="on"] embed[type="application/x-shockwave-flash"],
