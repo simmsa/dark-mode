@@ -29,8 +29,8 @@
     html[dark-mode="on"] #SLPlayer,
     /* Google Images */
     html[dark-mode="on"] #irc_cc,
-    /* Google Maps */
-    html[dark-mode="on"] .widget-scene > html[dark-mode="on"] canvas, html[dark-mode="on"] .gb_da, html[dark-mode="on"] .irc_pt
+    /* Anything with a background image set in html */
+    html[dark-mode="on"] *[style*=background-image]
     {
         -webkit-filter: invert() hue-rotate(-180deg) contrast(100%);
     }
