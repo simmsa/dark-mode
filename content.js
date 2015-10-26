@@ -51,15 +51,16 @@ chrome.extension.onMessage.addListener(function(message, sender, sendResponse){
         case "toggle-dark-mode":
             readDarkMode();
             break;
-        case "toggle-dark-mode-on-keystroke":
-            console.log("Toggling via keystroke?");
+        case "toggle-dark-mode-from-background":
             getWhitelist(toggleDarkMode, document.documentURI);
             // There is a delay when writing to the whitelist and reading
             // from it, so here we force the inversion with forceToggleDarkMode
             // and check with a short delay using readDarkMode.
-            // forceToggleDarkMode();
             setTimeout(readDarkMode, 10);
-            // readDarkMode();
+            break;
+        case "toggle-dark-mode-stem-from-background":
+            getWhitelist(toggleStemDarkMode, document.documentURI);
+            setTimeout(readDarkMode, 10);
             break;
         default:
             console.log("Unknown message sent to dark-mode: " + message.type);

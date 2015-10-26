@@ -216,7 +216,12 @@ function objExists(object){
  */
 function getUrlStem(url){
     var urlStemRegex = /^.*:\/\/.*?(\/)/;
-    return addTrailingSlash(urlStemRegex.exec(url)[0]);
+    try{
+        return addTrailingSlash(urlStemRegex.exec(url)[0]);
+    } catch(e) {
+        console.log("Url " + url + " could not be parsed");
+        return url;
+    }
 }
 
 /**
@@ -249,7 +254,26 @@ function addTrailingSlash(url){
 
 function getMinimalUrl(url){
     var minUrlRegex = /\/\/.*\//;
-    return minUrlRegex.exec(getUrlStem(url))[0].replace(/\//g, "");
+    try {
+        return minUrlRegex.exec(getUrlStem(url))[0].replace(/\//g, "").replace("www.", "");
+    } catch (e) {
+        console.log("Url " + url + " could not be minimalized.");
+        return url;
+    }
+}
+
+var urlBlacklist = [
+    "chrome://",
+    "chrome-extension://"
+]
+
+function urlInBlacklist(url){
+    for(var i = 0; i < urlBlacklist.length; i++){
+        if(url.indexOf(urlBlacklist[i]) > -1){
+            return true;
+        }
+    }
+    return false;
 }
 
 // From popup.js
@@ -296,7 +320,9 @@ function getUrlAndWhitelist(callback){
 
 function toggleWhitelistFromPopup(whitelist, url){
     var toggledWhitelist = toggleDarkMode(whitelist, url);
-    setWindowDarkModeState(checkDarkMode(toggledWhitelist, url));
+    setTimeout(function() {
+        setWindowDarkModeState(checkDarkMode(toggledWhitelist, url));
+    }, 100);
     setUrlStemToggleState(checkStemDarkMode(toggledWhitelist, url), url);
 }
 
