@@ -33,7 +33,10 @@
     "permissions": [
         "tabs",
         "storage",
-        "contextMenus"
+        "contextMenus",
+        "activeTab",
+        "http://*/*",
+        "https://*/*"
     ],
     "commands": {
         "toggle-dark-mode": {

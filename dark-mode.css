@@ -1,20 +1,19 @@
 @media screen{
     /* Invert Everything! */
     html[dark-mode="on"],
-    html[dark-mode="on"] .dark-mode{
-        -webkit-filter: invert(100%) hue-rotate(180deg) contrast(85%);
+    html[dark-mode="on"] .dark-mode {
+        /* -webkit-filter: invert(100%) hue-rotate(180deg) contrast(85%); */
+        -webkit-filter: invert() hue-rotate(180deg) brightness(105%) contrast(85%);
     }
 
-    /* Chrome 45 madness! */
-    /* Add a black background to the html element, otherwise, everything */
-    /* is inverted on a white background, and effectively unreadable */
-    html[dark-mode="on"] {
-        background-color: #171717;
+    /* Fix double inversion with iframes */
+    html[dark-mode-iframe="true"] {
+        -webkit-filter: invert(0%) hue-rotate(0deg) contrast(115%);
     }
 
     /* Re-invert things we don't want inverted */
 
-    /* Anything with a background-image */
+    Anything with a background-image
     html[dark-mode="on"] .no-dark-mode,
     /* All images */
     html[dark-mode="on"] img,
@@ -32,7 +31,7 @@
     /* Anything with a background image set in html */
     html[dark-mode="on"] *[style*=background-image]
     {
-        -webkit-filter: invert() hue-rotate(-180deg) contrast(100%);
+        -webkit-filter: hue-rotate(180deg) contrast(100%)  invert();
     }
 
     /* jQuery Background Image Inversion */

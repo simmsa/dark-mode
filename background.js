@@ -1,10 +1,21 @@
+// Whitelist --------------------------------------------------------------- {{{
+
+var globalWhitelist = {};
+function setGlobalWhitelist(){
+    chrome.storage.local.get("whitelist", function(whitelist){
+        globalWhitelist = whitelist;
+        console.log(globalWhitelist);
+    });
+}
+setGlobalWhitelist();
+
+// End Whitelist ----------------------------------------------------------- }}}
 // Messages ---------------------------------------------------------------- {{{
 
 // Listen for an event / one-time request from the popup
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
     switch(request.type){
         case "toggle-dark-mode":
-            // alert("recieved request in background.");
             activateDarkMode();
             break;
     }
@@ -26,7 +37,6 @@ chrome.extension.onConnect.addListener(function(port){
 // Send a message to the content script
 var activateDarkMode = function(){
     chrome.tabs.getSelected(null, function(tab){
-        // alert("sending request from background.");
         chrome.tabs.sendMessage(tab.id, {type: "toggle-dark-mode"});
     });
 }
@@ -38,8 +48,43 @@ var sendMessageToCurrentTabContext = function(message){
     });
 }
 
-function sendToggleDarkModeMessage(){
-    sendMessageToCurrentTabContext("toggle-dark-mode-from-background");
+function executeScriptInCurrentWindow(filename){
+    chrome.tabs.getSelected(null, function(tab){
+        chrome.tabs.executeScript(tab.id, {
+            "file": filename,
+            "allFrames": true,
+            "matchAboutBlank": true,
+            "runAt": "document_start",
+        }, function(){
+            console.log("Executing " + filename + " in " + tab.title);
+        });
+    });
+}
+
+function executeTurnOnDarkModeScript(){
+    executeScriptInCurrentWindow("turnOnDarkMode.js");
+}
+
+function executeTurnOffDarkModeScript(){
+    executeScriptInCurrentWindow("turnOffDarkMode.js");
+}
+
+function executeDarkModeScript(whitelist, url, choice){
+    if(choice === "toggle"){
+        // This could make more sense!
+        globalWhitelist = toggleDarkMode(whitelist, url)
+        whitelist = globalWhitelist;
+    }
+    if(choice === "toggleStem"){
+        // This could make more sense!
+        globalWhitelist = toggleStemDarkMode(whitelist, url)
+        whitelist = globalWhitelist;
+    }
+    if(checkDarkMode(whitelist, url)){
+        executeTurnOnDarkModeScript();
+    } else {
+        executeTurnOffDarkModeScript();
+    }
 }
 
 function sendToggleDarkModeStemMessage(){
@@ -53,7 +98,7 @@ chrome.commands.onCommand.addListener(function(command){
     switch(command){
         case "toggle-dark-mode":
             console.log("Keyboard Shortcut caught");
-            sendToggleDarkModeMessage();
+            executeDarkModeScript(globalWhitelist, currentUrl, "toggle");
             break;
     }
 });
@@ -66,7 +111,9 @@ function createToggleDarkModeContextMenu(){
     chrome.contextMenus.create({
         "id": "toggleDarkMode",
         "title": "Toggle Dark Mode",
-        "onclick": sendToggleDarkModeMessage,
+        "onclick": function(){
+            executeDarkModeScript(globalWhitelist, currentUrl, "toggle");
+        },
         "contexts": ["all"]
     });
 }
@@ -92,7 +139,9 @@ function createToggleStemContextMenu(){
     chrome.contextMenus.create({
         "id": "toggleStemFromContextMenu",
         "title": "Toggle Dark Mode for all " + currentUrl  + " urls",
-        "onclick": sendToggleDarkModeStemMessage,
+        "onclick": function(){
+            executeDarkModeScript(globalWhitelist, currentUrl, "toggleStem");
+        },
         "contexts": ["all"]
     });
 }
@@ -124,6 +173,7 @@ function updateContextMenu(){
                     contextMenusRemoved = true;
                 }
             } else {
+                executeDarkModeScript(globalWhitelist, currentUrl, "init");
                 if(showContextMenus){
                     // Update the relevant context menus
                     chrome.contextMenus.update("toggleStemFromContextMenu", {
@@ -165,4 +215,3 @@ chrome.windows.onFocusChanged.addListener(function(){
 
 // End Context Menu Events ------------------------------------------------- }}}
 // End Context (Right Click) Menus ----------------------------------------- }}}
-

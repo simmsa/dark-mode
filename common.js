@@ -1,3 +1,5 @@
+// Whitelist Functions ----------------------------------------------------- {{{
+
 /**
  * toggleOrCheckWhitelist manages the whitelist data structure and returns
  * the boolean result of a search for a url
@@ -201,6 +203,8 @@ function objExists(object){
     return false;
 }
 
+// End Whitelist Functions ------------------------------------------------- }}}
+// Url Parsing ------------------------------------------------------------- {{{
 /**
  * getUrlStem returns the url stem of a url.
  *
@@ -236,8 +240,13 @@ function cleanUrl(url){
     var cleanUrlWithQueryStringRegex = /^.*:\/\/.*\/(.*(?=\?|#))?/;
 
     url = addTrailingSlash(url);
-    var result = cleanUrlWithQueryStringRegex.exec(url)[0];
-    return addTrailingSlash(result);
+    try{
+        var result = cleanUrlWithQueryStringRegex.exec(url)[0];
+        return addTrailingSlash(result);
+    } catch (e) {
+        console.log("Url " + url + " could not be cleaned");
+        return url;
+    }
 }
 
 function addTrailingSlash(url){
@@ -275,6 +284,8 @@ function urlInBlacklist(url){
     }
     return false;
 }
+
+// End Url Parsing --------------------------------------------------------- }}}
 
 // From popup.js
 function toggleDarkModeOnClick(buttonId, nextAction, nextActionArgs){
