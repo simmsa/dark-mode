@@ -21,12 +21,12 @@
     ],
     "description": "Make websites easier on your eyes.",
     "icons": {
-        "128": "img/dark-mode-128.png",
-        "48": "img/dark-mode-48.png",
-        "16": "img/dark-mode-16.png"
+        "128": "img/dark-mode-on-128.png",
+        "48": "img/dark-mode-on-48.png",
+        "16": "img/dark-mode-on-16.png"
     },
     "browser_action": {
-        "default_icon": "img/dark-mode-48.png",
+        "default_icon": "img/dark-mode-on-48.png",
         "default_title": "Dark mode settings",
         "default_popup": "index.html"
     },
