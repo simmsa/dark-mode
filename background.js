@@ -58,6 +58,23 @@ function executeScriptInCurrentWindow(filename){
         }, function(){
             console.log("Executing " + filename + " in " + tab.title);
         });
+        if(filename.indexOf("Off") > -1){
+            chrome.browserAction.setIcon({
+                "path": {
+                    "19": "img/dark-mode-off-19.png",
+                    "38": "img/dark-mode-off-38.png"
+                },
+                "tabId": tab.id
+            });
+        } else {
+            chrome.browserAction.setIcon({
+                "path": {
+                    "19": "img/dark-mode-on-19.png",
+                    "38": "img/dark-mode-on-38.png"
+                },
+                "tabId": tab.id
+            });
+        }
     });
 }
 
@@ -92,6 +109,38 @@ function sendToggleDarkModeStemMessage(){
 }
 
 // End Messages ------------------------------------------------------------ }}}
+// Browser Action ---------------------------------------------------------- {{{
+
+function deactivateBrowserAction(){
+    console.log("Deactivating browser action!");
+    chrome.tabs.getSelected(null, function(tab){
+        chrome.browserAction.disable(tab.id);
+        chrome.browserAction.setIcon({
+            "path": {
+                "19": "img/dark-mode-inactive-19.png",
+                "38": "img/dark-mode-inactive-38.png"
+            },
+            "tabId": tab.id
+        });
+    });
+}
+
+function activateBrowserAction(){
+    console.log("Activating browser action!");
+    chrome.tabs.getSelected(null, function(tab){
+        chrome.browserAction.enable(tab.id);
+        chrome.browserAction.setIcon({
+            // "path": "img/dark-mode-48.png",
+            "path": {
+                "19": "img/dark-mode-19.png",
+                "38": "img/dark-mode-38.png"
+            },
+            "tabId": tab.id
+        });
+    });
+}
+
+// End Browser Action ------------------------------------------------------ }}}
 // Listen for Keystrokes --------------------------------------------------- {{{
 
 chrome.commands.onCommand.addListener(function(command){
@@ -165,9 +214,10 @@ function updateContextMenu(){
                 console.log("Could not get url for updating context menu: " + e);
             }
             if(urlInBlacklist(currentUrl)){
-                // Remove both context menus
+                // Remove both context menus and browser action
                 showContextMenus = false;
                 if(!contextMenusRemoved){
+                    deactivateBrowserAction();
                     chrome.contextMenus.remove("toggleDarkMode");
                     chrome.contextMenus.remove("toggleStemFromContextMenu");
                     contextMenusRemoved = true;
@@ -180,10 +230,11 @@ function updateContextMenu(){
                         "title": "Toggle Dark Mode for all " + getMinimalUrl(currentUrl)  + " urls",
                     });
                 } else {
-                    // Create all context menus
+                    // Create all context menus and browser action
                     showContextMenus = true;
                     createToggleDarkModeContextMenu();
                     createToggleStemContextMenu();
+                    activateBrowserAction();
                     contextMenusRemoved = false;
                 }
             }
