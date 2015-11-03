@@ -7,9 +7,16 @@ function setGlobalWhitelist(){
         console.log(globalWhitelist);
     });
 }
-setGlobalWhitelist();
 
 // End Whitelist ----------------------------------------------------------- }}}
+// Setup ------------------------------------------------------------------- {{{
+
+setGlobalWhitelist();
+setTimeout(function(){
+    updateContextMenu();
+}, 5);
+
+// End Setup --------------------------------------------------------------- }}}
 // Messages ---------------------------------------------------------------- {{{
 
 // Listen for an event / one-time request from the popup
