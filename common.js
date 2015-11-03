@@ -273,7 +273,8 @@ function getMinimalUrl(url){
 
 var urlBlacklist = [
     "chrome://",
-    "chrome-extension://"
+    "chrome-extension://",
+    "about:blank"
 ]
 
 function urlInBlacklist(url){
