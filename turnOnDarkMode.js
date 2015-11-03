@@ -1,3 +1,3 @@
-document.documentElement.setAttribute("dark-mode", "on");
+document.documentElement.setAttribute("data-dark-mode", "on");
 console.log("Turning on dark mode in " + document.documentURI);
 
