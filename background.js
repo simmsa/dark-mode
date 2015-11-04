@@ -137,10 +137,9 @@ function activateBrowserAction(){
     chrome.tabs.getSelected(null, function(tab){
         chrome.browserAction.enable(tab.id);
         chrome.browserAction.setIcon({
-            // "path": "img/dark-mode-48.png",
             "path": {
-                "19": "img/dark-mode-19.png",
-                "38": "img/dark-mode-38.png"
+                "19": "img/dark-mode-on-19.png",
+                "38": "img/dark-mode-on-38.png"
             },
             "tabId": tab.id
         });
