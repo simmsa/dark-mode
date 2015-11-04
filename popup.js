@@ -1,11 +1,9 @@
-// Keep
 function setWindowDarkModeState(darkMode){
     var state = darkMode ? "on" : "off";
     console.log("Turning dark-mode " + state);
-    document.documentElement.setAttribute("dark-mode", state);
+    document.documentElement.setAttribute("data-dark-mode", state);
 }
 
-// Keep
 function setUrlStemToggleState(darkModeStem, url){
     var urlStem = getMinimalUrl(url);
     document.getElementById("url-stem-div").innerHTML = 'Deactivate Dark Mode for all "' + urlStem + '" urls.';
@@ -18,16 +16,30 @@ function setUrlStemToggleState(darkModeStem, url){
 }
 
 function setDarkMode(){
-    getUrlAndWhitelist(checkWhitelistFromPopup);
+    // Send message to background
+    chrome.runtime.sendMessage("request-dark-mode-status");
+
+    // Handle the recieved message
+    chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
+        if(typeof(message) === "object"){
+            if(message.name === "dark-mode-status"){
+                setWindowDarkModeState(message["dark-mode"]);
+                setUrlStemToggleState(message["dark-mode-stem"], message["url"]);
+            }
+        }
+    });
 }
 
-
-// Keep
 // Set visual status of dark-mode in window
 setDarkMode();
 
-// Keep
 // Setup handlers for button clicks
-toggleDarkModeOnClick("toggle-button", getUrlAndWhitelist, toggleWhitelistFromPopup);
-// Keep
-toggleDarkModeOnClick("url-stem", getUrlAndWhitelist, toggleWhitelistStemFromPopup);
+function toggleDarkModeOnClick(buttonId, message){
+    document.getElementById(buttonId).onclick = function(){
+        chrome.runtime.sendMessage(message);
+        chrome.runtime.sendMessage("request-dark-mode-status");
+    }
+}
+
+toggleDarkModeOnClick("toggle-button", "toggle-dark-mode-from-popup");
+toggleDarkModeOnClick("url-stem", "toggle-dark-mode-stem");

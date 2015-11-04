@@ -19,26 +19,34 @@ setTimeout(function(){
 // End Setup --------------------------------------------------------------- }}}
 // Messages ---------------------------------------------------------------- {{{
 
-// Listen for an event / one-time request from the popup
-chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
-    switch(request.type){
-        case "toggle-dark-mode":
-            activateDarkMode();
-            break;
-    }
-    return true;
-});
+function sendDarkModeStatusMessage(){
+    chrome.runtime.sendMessage({
+        "name": "dark-mode-status",
+        "dark-mode": checkDarkMode(globalWhitelist, currentUrl),
+        "dark-mode-stem": checkStemDarkMode(globalWhitelist, currentUrl),
+        "url": currentUrl
+    });
+}
 
-// Listen for an event / long-lived connections coming
-// from devtools
-chrome.extension.onConnect.addListener(function(port){
-    port.onMessage.addListener(function(message){
-        switch(port.name){
-            case "toggle-dark-mode-port":
-                activateDarkMode();
-                break;
+// Listen for an event / one-time request from the popup
+function darkModeStatusListener(listenerMessage, actionFunction){
+    chrome.extension.onMessage.addListener(function(message, sender, sendResponse) {
+        if(message === listenerMessage){
+            console.log("Received Message: " + message);
+            if(typeof(actionFunction) === "function"){
+                actionFunction();
+            }
+            sendDarkModeStatusMessage();
         }
     });
+}
+
+darkModeStatusListener("request-dark-mode-status");
+darkModeStatusListener("toggle-dark-mode-from-popup", function() {
+    executeDarkModeScript(globalWhitelist, currentUrl, "toggle");
+});
+darkModeStatusListener("toggle-dark-mode-stem", function(){
+    executeDarkModeScript(globalWhitelist, currentUrl, "toggleStem");
 });
 
 // Send a message to the content script
@@ -249,6 +257,7 @@ function updateContextMenu(){
     }
 }
 
+// End Context (Right Click) Menus ----------------------------------------- }}}
 // Context Menu Events ----------------------------------------------------- {{{
 
 chrome.tabs.onHighlighted.addListener(function(){
@@ -271,4 +280,3 @@ chrome.windows.onFocusChanged.addListener(function(){
 });
 
 // End Context Menu Events ------------------------------------------------- }}}
-// End Context (Right Click) Menus ----------------------------------------- }}}

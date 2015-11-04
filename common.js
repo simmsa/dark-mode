@@ -288,21 +288,6 @@ function urlInBlacklist(url){
 
 // End Url Parsing --------------------------------------------------------- }}}
 
-// From popup.js
-function toggleDarkModeOnClick(buttonId, nextAction, nextActionArgs){
-        document.getElementById(buttonId).onclick = function(){
-
-            // Run the callbacks
-            if(typeof nextAction === "function"){
-                nextAction(nextActionArgs);
-            }
-            // Send Message to content.js to toggle dark mode after the callback is executed
-            chrome.runtime.sendMessage({
-                type: "toggle-dark-mode"
-            });
-        };
-}
-
 function toggleDarkModeOnKeyStroke(nextAction, nextActionArgs){
     chrome.runtime.sendMessage({
         type: "toggle-dark-mode"
@@ -329,25 +314,3 @@ function getCurrentUrl(callback, callback2){
 function getUrlAndWhitelist(callback){
     getCurrentUrl(getWhitelist, callback);
 }
-
-function toggleWhitelistFromPopup(whitelist, url){
-    var toggledWhitelist = toggleDarkMode(whitelist, url);
-    setTimeout(function() {
-        setWindowDarkModeState(checkDarkMode(toggledWhitelist, url));
-    }, 100);
-    setUrlStemToggleState(checkStemDarkMode(toggledWhitelist, url), url);
-}
-
-function checkWhitelistFromPopup(whitelist, url){
-    var result = checkDarkMode(whitelist, url);
-    setWindowDarkModeState(result);
-    setUrlStemToggleState(checkStemDarkMode(whitelist, url), url);
-}
-
-function toggleWhitelistStemFromPopup(whitelist, url){
-    var toggledWhitelist = toggleStemDarkMode(whitelist, url);
-    setWindowDarkModeState(checkDarkMode(toggledWhitelist, url));
-    setUrlStemToggleState(checkStemDarkMode(toggledWhitelist, url), url);
-
-}
-
