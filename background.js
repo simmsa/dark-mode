@@ -167,6 +167,46 @@ chrome.commands.onCommand.addListener(function(command){
 });
 
 // End Listen for Keystrokes ----------------------------------------------- }}}
+// Detect If Page Is Dark -------------------------------------------------- {{{
+
+// Runs on the currently active tab in the current window
+function isPageDark(lightCallback){
+    if(debug) console.log("Starting isPageDark");
+    var brightnessThreshold = 50;
+    chrome.tabs.captureVisibleTab(function(screenshot){
+        resemble(screenshot).onComplete(function(data){
+            if(data.brightness < brightnessThreshold){
+                if(debug) console.log("Page is dark! Brightness: " + data.brightness);
+                // return true;
+            } else {
+                if(debug) console.log("Page is light! Brightness: " + data.brightness);
+                // return false;
+                if(typeof(lightCallback) === "function"){
+                    lightCallback();
+                }
+            }
+        });
+    });
+}
+
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
+    if(message === "check-is-page-dark"){
+        if(debug) console.log("check-is-page-dark");
+        // isPageDark(executeTurnOffDarkModeScript);
+        isPageDark(function(){
+            // executeDarkModeScript(globalWhitelist, currentUrl, "toggle");
+            executeTurnOffDarkModeScript();
+        });
+        // var darkPage = isPageDark();
+        // if(debug) console.log("darkPage: " + darkPage);
+        // if(darkPage === false){
+        //     if(debug) console.log("Should be turning off dark mode");
+        //     executeTurnOffDarkModeScript();
+        // }
+    }
+});
+
+// End Detect If Page Is Dark ---------------------------------------------- }}}
 // Context (Right Click) Menus --------------------------------------------- {{{
 
 // Setup Basic Toggle context menu
