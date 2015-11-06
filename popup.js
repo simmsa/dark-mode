@@ -5,8 +5,7 @@ function setWindowDarkModeState(darkMode){
 }
 
 function setUrlStemToggleState(darkModeStem, url){
-    var urlStem = getMinimalUrl(url);
-    document.getElementById("url-stem-div").innerHTML = 'Deactivate Dark Mode for all "' + urlStem + '" urls.';
+    document.getElementById("url-stem-div").innerHTML = 'Deactivate Dark Mode for all "' + url + '" urls.';
     // If Dark Mode is deactivated for the stem
     if(darkModeStem === false){
         document.getElementById("url-stem").checked = true;
@@ -23,8 +22,10 @@ function setDarkMode(){
     chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
         if(typeof(message) === "object"){
             if(message.name === "dark-mode-status"){
+                // Run functions that need message results
                 setWindowDarkModeState(message["dark-mode"]);
-                setUrlStemToggleState(message["dark-mode-stem"], message.url);
+                setUrlStemToggleState(message["dark-mode-stem"], message["url-stem"]);
+                setupTooltips(message["url-stem"]);
             }
         }
     });
@@ -44,3 +45,16 @@ function toggleDarkModeOnClick(buttonId, message){
 
 toggleDarkModeOnClick("toggle-button", "toggle-dark-mode-from-popup");
 toggleDarkModeOnClick("url-stem", "toggle-dark-mode-stem");
+
+function requestUrlStem(){
+
+}
+
+// Tooltips
+function setupTooltips(urlStem){
+    $("document").ready(function(){
+        $("#stem-tooltip").tooltip({
+            title: "Toggle dark mode for every url starting with " + urlStem + "."
+        });
+    });
+}

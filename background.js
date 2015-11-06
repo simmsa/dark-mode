@@ -338,7 +338,8 @@ function sendDarkModeStatusMessage(){
         "name": "dark-mode-status",
         "dark-mode": checkDarkMode(globalWhitelist, currentUrl),
         "dark-mode-stem": checkStemDarkMode(globalWhitelist, currentUrl),
-        "url": currentUrl
+        "url": currentUrl,
+        "url-stem": getMinimalUrl(currentUrl)
     });
 }
 
