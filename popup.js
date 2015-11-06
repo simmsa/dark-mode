@@ -24,7 +24,7 @@ function setDarkMode(){
         if(typeof(message) === "object"){
             if(message.name === "dark-mode-status"){
                 setWindowDarkModeState(message["dark-mode"]);
-                setUrlStemToggleState(message["dark-mode-stem"], message["url"]);
+                setUrlStemToggleState(message["dark-mode-stem"], message.url);
             }
         }
     });
@@ -38,7 +38,8 @@ function toggleDarkModeOnClick(buttonId, message){
     document.getElementById(buttonId).onclick = function(){
         chrome.runtime.sendMessage(message);
         chrome.runtime.sendMessage("request-dark-mode-status");
-    }
+    };
+    // var urlStem = getMinimalUrl(url);
 }
 
 toggleDarkModeOnClick("toggle-button", "toggle-dark-mode-from-popup");
