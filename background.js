@@ -183,8 +183,8 @@ function cleanWhitelist(whitelist){
         whitelist = {};
     }
 
-    if(objExists(whitelist["whitelist"])){
-        whitelist = whitelist["whitelist"];
+    if(objExists(whitelist.whitelist)){
+        whitelist = whitelist.whitelist;
     }
 
     return whitelist;
@@ -275,7 +275,7 @@ var urlBlacklist = [
     "chrome://",
     "chrome-extension://",
     "about:blank"
-]
+];
 
 function urlInBlacklist(url){
     for(var i = 0; i < urlBlacklist.length; i++){
@@ -368,14 +368,14 @@ var activateDarkMode = function(){
     chrome.tabs.getSelected(null, function(tab){
         chrome.tabs.sendMessage(tab.id, {type: "toggle-dark-mode"});
     });
-}
+};
 
 // Send a message to the content script
 var sendMessageToCurrentTabContext = function(message){
     chrome.tabs.getSelected(null, function(tab){
         chrome.tabs.sendMessage(tab.id, {type: message});
     });
-}
+};
 // End Messages ------------------------------------------------------------ }}}
 // ExecuteScripts ---------------------------------------------------------- {{{
 
@@ -420,12 +420,12 @@ function executeTurnOffDarkModeScript(){
 function executeDarkModeScript(whitelist, url, choice){
     if(choice === "toggle"){
         // This could make more sense!
-        globalWhitelist = toggleDarkMode(whitelist, url)
+        globalWhitelist = toggleDarkMode(whitelist, url);
         whitelist = globalWhitelist;
     }
     if(choice === "toggleStem"){
         // This could make more sense!
-        globalWhitelist = toggleStemDarkMode(whitelist, url)
+        globalWhitelist = toggleStemDarkMode(whitelist, url);
         whitelist = globalWhitelist;
     }
     if(checkDarkMode(whitelist, url)){
