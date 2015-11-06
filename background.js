@@ -316,7 +316,7 @@ var debug = true;
 
 setGlobalWhitelist();
 setTimeout(function(){
-    updateContextMenu();
+    updateContextMenuAndBrowserAction();
 }, 5);
 
 // End Setup --------------------------------------------------------------- }}}
@@ -362,6 +362,15 @@ darkModeStatusListener("toggle-dark-mode-from-popup", function() {
 darkModeStatusListener("toggle-dark-mode-stem", function(){
     executeDarkModeScript(globalWhitelist, currentUrl, "toggleStem");
 });
+
+function darkModeActivatorListener(){
+    chrome.extension.onMessage.addListener(function(message, sender, sendResponse){
+        if(message === "activate-dark-mode"){
+            executeDarkModeScript(globalWhitelist, currentUrl, "init");
+        }
+    });
+}
+darkModeActivatorListener();
 
 // Send a message to the content script
 var activateDarkMode = function(){
@@ -489,12 +498,17 @@ function isPageDark(lightCallback){
         resemble(screenshot).onComplete(function(data){
             if(data.brightness < brightnessThreshold){
                 if(debug) console.log("Page is dark! Brightness: " + data.brightness);
-                // return true;
             } else {
                 if(debug) console.log("Page is light! Brightness: " + data.brightness);
-                // return false;
                 if(typeof(lightCallback) === "function"){
-                    lightCallback();
+                    // Check if "dark-mode" for url is undefined
+                    if(debug) console.log("Before check whitelist");
+                    var shouldRunCallback = checkWhitelist(globalWhitelist, currentUrl, "dark-mode");
+                    if(debug) console.log("shouldRunCallback = " + shouldRunCallback);
+                    if(typeof(shouldRunCallback) === "undefined"){
+                        console.log("Running light callback");
+                        lightCallback();
+                    }
                 }
             }
         });
@@ -504,17 +518,10 @@ function isPageDark(lightCallback){
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
     if(message === "check-is-page-dark"){
         if(debug) console.log("check-is-page-dark");
-        // isPageDark(executeTurnOffDarkModeScript);
         isPageDark(function(){
             // executeDarkModeScript(globalWhitelist, currentUrl, "toggle");
             executeTurnOffDarkModeScript();
         });
-        // var darkPage = isPageDark();
-        // if(debug) console.log("darkPage: " + darkPage);
-        // if(darkPage === false){
-        //     if(debug) console.log("Should be turning off dark mode");
-        //     executeTurnOffDarkModeScript();
-        // }
     }
 });
 
@@ -541,7 +548,7 @@ createToggleDarkModeContextMenu();
 // Choosing what events update this menu is tricky. There is no definitive
 // one tab event or window event that satifies a window or tab "change".
 // Therefore multiple events are listening to call the
-// `updateContextMenu` function. That function is rate limited
+// `updateContextMenuAndBrowserAction` function. That function is rate limited
 // by waiting at least 10ms to call `context.contextMenus.update`.
 //
 // There is probably a better way to do this, but this works for now.
@@ -568,7 +575,7 @@ var updateIntervalMs = 10;
 var showContextMenus = true;
 var contextMenusRemoved = false;
 
-function updateContextMenu(){
+function updateContextMenuAndBrowserAction(){
     // My solution to rate limit changing this too often
     // If one of the events triggers this function don't do it again for
     // `updateIntervals` milliseconds.
@@ -590,7 +597,6 @@ function updateContextMenu(){
                     contextMenusRemoved = true;
                 }
             } else {
-                executeDarkModeScript(globalWhitelist, currentUrl, "init");
                 if(showContextMenus){
                     // Update the relevant context menus
                     chrome.contextMenus.update("toggleStemFromContextMenu", {
@@ -615,26 +621,26 @@ function updateContextMenu(){
 
 chrome.tabs.onHighlighted.addListener(function(){
     if(debug) console.log("onHighlighted @ " + Date.now());
-    updateContextMenu();
+    updateContextMenuAndBrowserAction();
 });
 
 chrome.tabs.onUpdated.addListener(function(){
     if(debug) console.log("onUpdated @ " + Date.now());
-    updateContextMenu();
+    updateContextMenuAndBrowserAction();
 });
 chrome.tabs.onActivated.addListener(function(){
     if(debug) console.log("onActivated @ " + Date.now());
-    updateContextMenu();
+    updateContextMenuAndBrowserAction();
 });
 
 chrome.windows.onCreated.addListener(function(){
     if(debug) console.log("onCreated @ " + Date.now());
-    updateContextMenu();
+    updateContextMenuAndBrowserAction();
 });
 
 chrome.windows.onFocusChanged.addListener(function(){
     if(debug) console.log("onFocusChanged @ " + Date.now());
-    updateContextMenu();
+    updateContextMenuAndBrowserAction();
 });
 
 // End Context Menu Events ------------------------------------------------- }}}

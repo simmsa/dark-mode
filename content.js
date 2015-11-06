@@ -6,8 +6,10 @@ if(window.location != window.parent.location){
     // This works immediately, no need to wait for the page to load
     document.documentElement.setAttribute("data-dark-mode", "on");
     document.documentElement.setAttribute("data-dark-mode-parent", "true");
+    chrome.runtime.sendMessage("activate-dark-mode");
 
-    // Check if page is dark before images are loaded
+    // If the page is dark before the images load, then it is a dark page
+    // and dark-mode should be set to off
     document.addEventListener("DOMContentLoaded", function(event){
         chrome.runtime.sendMessage("check-is-page-dark");
     });
