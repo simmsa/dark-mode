@@ -1,27 +1,26 @@
-function setWindowDarkModeState(darkMode){
+function setWindowDarkModeState(darkMode) {
     var state = darkMode ? "on" : "off";
     console.log("Turning dark-mode " + state);
     document.documentElement.setAttribute("data-dark-mode", state);
 }
-
-function setUrlStemToggleState(darkModeStem, url){
+function setUrlStemToggleState(darkModeStem, url) {
     document.getElementById("url-stem-div").innerHTML = 'Deactivate Dark Mode for all "' + url + '" urls.';
     // If Dark Mode is deactivated for the stem
-    if(darkModeStem === false){
-        document.getElementById("url-stem").checked = true;
-    } else {
-        document.getElementById("url-stem").checked = false;
+    if (darkModeStem === false) {
+        // document.getElementById("url-stem").checked = true;
+        document.getElementById("url-stem")["checked"] = true;
+    }
+    else {
+        document.getElementById("url-stem")["checked"] = false;
     }
 }
-
-function setDarkMode(){
+function setDarkMode() {
     // Send message to background
     chrome.runtime.sendMessage("request-dark-mode-status");
-
     // Handle the recieved message
-    chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
-        if(typeof(message) === "object"){
-            if(message.name === "dark-mode-status"){
+    chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+        if (typeof (message) === "object") {
+            if (message.name === "dark-mode-status") {
                 // Run functions that need message results
                 setWindowDarkModeState(message["dark-mode"]);
                 setUrlStemToggleState(message["dark-mode-stem"], message["url-stem"]);
@@ -30,29 +29,23 @@ function setDarkMode(){
         }
     });
 }
-
 // Set visual status of dark-mode in window
 setDarkMode();
-
 // Setup handlers for button clicks
-function toggleDarkModeOnClick(buttonId, message){
-    document.getElementById(buttonId).onclick = function(){
+function toggleDarkModeOnClick(buttonId, message) {
+    document.getElementById(buttonId).onclick = function () {
         chrome.runtime.sendMessage(message);
         chrome.runtime.sendMessage("request-dark-mode-status");
     };
     // var urlStem = getMinimalUrl(url);
 }
-
 toggleDarkModeOnClick("toggle-button", "toggle-dark-mode-from-popup");
 toggleDarkModeOnClick("url-stem", "toggle-dark-mode-stem");
-
-function requestUrlStem(){
-
+function requestUrlStem() {
 }
-
 // Tooltips
-function setupTooltips(urlStem){
-    $("document").ready(function(){
+function setupTooltips(urlStem) {
+    $("document").ready(function () {
         $("#stem-tooltip").tooltip({
             title: "Toggle dark mode for every url starting with " + urlStem + "."
         });

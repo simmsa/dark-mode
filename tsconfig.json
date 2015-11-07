@@ -1,0 +1,9 @@
+{
+    "compilerOptions":{
+        "rootDir": "src",
+        "outDir": "js"
+    },
+    "exclude": [
+        "lib"
+    ]
+}
