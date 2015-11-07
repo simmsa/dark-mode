@@ -491,29 +491,49 @@ chrome.commands.onCommand.addListener(function(command){
 // End Listen for Keystrokes ----------------------------------------------- }}}
 // Detect If Page Is Dark -------------------------------------------------- {{{
 
+// Pages where auto dark mode fails
+var autoDarkBlacklist = [
+    // I think this is because of js loading timing problems
+    "pdf"
+];
+
 // Runs on the currently active tab in the current window
 function isPageDark(lightCallback){
     if(debug) console.log("Starting isPageDark");
     var brightnessThreshold = 50;
-    chrome.tabs.captureVisibleTab(function(screenshot){
-        resemble(screenshot).onComplete(function(data){
-            if(data.brightness < brightnessThreshold){
-                if(debug) console.log("Page is dark! Brightness: " + data.brightness);
-            } else {
-                if(debug) console.log("Page is light! Brightness: " + data.brightness);
-                if(typeof(lightCallback) === "function"){
-                    // Check if "dark-mode" for url is undefined
-                    if(debug) console.log("Before check whitelist");
-                    var shouldRunCallback = checkWhitelist(globalWhitelist, currentUrl, "dark-mode");
-                    if(debug) console.log("shouldRunCallback = " + shouldRunCallback);
-                    if(typeof(shouldRunCallback) === "undefined"){
-                        console.log("Running light callback");
-                        lightCallback();
+    // Test if url is in auto dark blacklist
+    var runScreenshot = true;
+    for(var i = 0; i <= autoDarkBlacklist.length; i++){
+        console.log("Testing: " + autoDarkBlacklist[i] + " in " + currentUrl);
+        if(currentUrl.indexOf(autoDarkBlacklist[i]) > -1){
+            runScreenshot = false;
+            console.log(autoDarkBlacklist[i] + " in " + currentUrl);
+            console.log("Not taking screenshot!");
+            break;
+        }
+    }
+
+    if(runScreenshot){
+        chrome.tabs.captureVisibleTab(function(screenshot){
+            resemble(screenshot).onComplete(function(data){
+                if(data.brightness < brightnessThreshold){
+                    if(debug) console.log("Page is dark! Brightness: " + data.brightness);
+                } else {
+                    if(debug) console.log("Page is light! Brightness: " + data.brightness);
+                    if(typeof(lightCallback) === "function"){
+                        // Check if "dark-mode" for url is undefined
+                        if(debug) console.log("Before check whitelist");
+                        var shouldRunCallback = checkWhitelist(globalWhitelist, currentUrl, "dark-mode");
+                        if(debug) console.log("shouldRunCallback = " + shouldRunCallback);
+                        if(typeof(shouldRunCallback) === "undefined"){
+                            console.log("Running light callback");
+                            lightCallback();
+                        }
                     }
                 }
-            }
+            });
         });
-    });
+    }
 }
 
 chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
@@ -579,7 +599,7 @@ var contextMenusRemoved = false;
 function updateContextMenuAndBrowserAction(){
     // My solution to rate limit changing this too often
     // If one of the events triggers this function don't do it again for
-    // `updateIntervals` milliseconds.
+    // `updateIntervalMs` milliseconds.
     if(Date.now() > updateContextMenuToggleUrlStemTimestamp + updateIntervalMs){
         if(debug) console.log("In event loop @ " + Date.now());
         chrome.tabs.query({"active": true, "currentWindow": true}, function(tabs){
