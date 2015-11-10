@@ -218,14 +218,37 @@ function objExists(object){
  * @param {String} url A url from document.documentURI or chrome.tabs api
  * @return {String} urlStem
  */
-function getUrlStem(url){
-    var urlStemRegex = /^.*:\/\/.*?(\/)/;
-    try{
-        return addTrailingSlash(urlStemRegex.exec(url)[0]);
-    } catch(e) {
-        console.log("Url " + url + " could not be parsed");
-        return url;
+
+var abnormalStems = [
+    "file://",
+    "about:blank",
+];
+
+function getAbnormalStem(url){
+    // Uri.js is pretty useful, but fails on local file, "file://" urls.
+    // This is the unideal solution to fix these, and probably other, urls.
+    for(var i = 0; i <= abnormalStems.length; i++){
+        if(url.indexOf(abnormalStems[i]) == 0){
+            console.log("Found abnormalStem: " + abnormalStems[i]  + " in " + url);
+            return abnormalStems[i];
+        }
     }
+    return "";
+}
+
+function getUrlStem(url){
+    if(debug) console.log("Getting url stem from " + url);
+    var abnormalStem = getAbnormalStem(url);
+    if(abnormalStem.length > 0){
+        return abnormalStem;
+    }
+    var fullUrl = URI(url);
+    var urlStem = new URI({
+        protocol: fullUrl.protocol(),
+        hostname: fullUrl.hostname(),
+    }).toString();
+    if(debug) console.log("The stem of " + url + " is '" + urlStem + "'?");
+    return urlStem;
 }
 
 /**
@@ -237,16 +260,15 @@ function getUrlStem(url){
  * @return {String} cleaned url
  */
 function cleanUrl(url){
-    var cleanUrlWithQueryStringRegex = /^.*:\/\/.*\/(.*(?=\?|#))?/;
-
-    url = addTrailingSlash(url);
-    try{
-        var result = cleanUrlWithQueryStringRegex.exec(url)[0];
-        return addTrailingSlash(result);
-    } catch (e) {
-        console.log("Url " + url + " could not be cleaned");
-        return url;
-    }
+    // var cleanUrlWithQueryStringRegex = /^.*:\/\/.*\/(.*(?=\?|#))?/;
+    var fullUrl = URI(url);
+    var cleanedUrl = new URI({
+        protocol: fullUrl.protocol(),
+        hostname: fullUrl.hostname(),
+        path: fullUrl.path()
+    }).toString();
+    console.log("The cleaned url of " + url + " is '" + cleanedUrl + "'?");
+    return cleanedUrl;
 }
 
 function addTrailingSlash(url){
@@ -262,12 +284,19 @@ function addTrailingSlash(url){
 }
 
 function getMinimalUrl(url){
-    var minUrlRegex = /\/\/.*\//;
+    console.log("Minimizing url: " + url);
+    var abnormalStem = getAbnormalStem(url);
+    if(abnormalStem.length > 0){
+        console.log("The minimal url of " + url + " is '" + abnormalStem + "'?");
+        return abnormalStem;
+    }
     try {
-        return minUrlRegex.exec(getUrlStem(url))[0].replace(/\//g, "").replace("www.", "");
-    } catch (e) {
-        console.log("Url " + url + " could not be minimalized.");
-        return url;
+        var fullUrl = URI(url);
+        var minimalUrl = fullUrl.hostname().toString();
+        console.log("The minimal url of " + url + " is '" + minimalUrl + "'?");
+        return minimalUrl;
+    } catch(e) {
+        console.log("Cannot minimize url: " + url);
     }
 }
 
@@ -313,12 +342,18 @@ function getUrlAndWhitelist(callback){
 // Setup ------------------------------------------------------------------- {{{
 
 var debug = true;
+var setup = true;
 
 setGlobalWhitelist();
 setTimeout(function(){
     updateContextMenuAndBrowserAction();
     console.log("Hello from Typescript!");
 }, 5);
+
+// Wait 10 seconds to declare setup is over
+setTimeout(function(){
+    setup = false;
+}, 10000);
 
 // End Setup --------------------------------------------------------------- }}}
 // Whitelist --------------------------------------------------------------- {{{
@@ -514,7 +549,9 @@ function isPageDark(lightCallback){
         }
     }
 
-    if(runScreenshot){
+    // Don't try to take screen shots while chrome is loading.
+    // It blocks the background from doing other processing.
+    if(runScreenshot && setup === false){
         chrome.tabs.captureVisibleTab(function(screenshot){
             resemble(screenshot).onComplete(function(data){
                 if(data.brightness < brightnessThreshold){

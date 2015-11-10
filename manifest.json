@@ -14,7 +14,7 @@
         }
     ],
     "background": {
-        "scripts": ["lib/resemblejs/resemble.js", "js/background.js"]
+        "scripts": ["lib/resemblejs/resemble.js", "./lib/urijs/src/URI.min.js", "js/background.js"]
     },
     "web_accessible_resources": [
         "dark-mode.css"
