@@ -187,6 +187,53 @@ function objExists(object) {
     return false;
 }
 // End Whitelist Functions ------------------------------------------------- }}}
+// PersistentStorage Class ------------------------------------------------ {{{
+var PersistentStorage = (function () {
+    function PersistentStorage(name) {
+        this.setData(name);
+    }
+    PersistentStorage.prototype.setData = function (savedObjectName) {
+        var _this = this;
+        this.name = savedObjectName;
+        // Special syntax for using `this` inside a callback
+        chrome.storage.local.get(savedObjectName, function (result) {
+            _this.dataObject = result;
+        });
+    };
+    PersistentStorage.prototype.getAll = function () {
+        return this.dataObject;
+    };
+    PersistentStorage.prototype.get = function (key) {
+        try {
+            return this.dataObject[key];
+        }
+        catch (e) {
+            console.log(key + " does not exist in PersistentStorage object named: " + this.name);
+        }
+    };
+    PersistentStorage.prototype.add = function (key, data) {
+        this.dataObject[name] = data;
+    };
+    PersistentStorage.prototype.exists = function (key) {
+        if (this.dataObject.hasOwnProperty()) {
+            return true;
+        }
+        return false;
+    };
+    PersistentStorage.prototype.remove = function (key) {
+        if (this.exists(key)) {
+            delete this.dataObject[key];
+        }
+    };
+    PersistentStorage.prototype.save = function () {
+        chrome.storage.local.remove(this.name);
+        // Typescript, or maybe js, doesn't like `this.name` as an object key
+        var thisName = this.name;
+        chrome.storage.local.set({ thisName: this.dataObject });
+    };
+    return PersistentStorage;
+})();
+// End PersistentStorage Class -------------------------------------------- }}}
 // Url Parsing ------------------------------------------------------------- {{{
 /**
  * getUrlStem returns the url stem of a url.
