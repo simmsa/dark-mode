@@ -207,26 +207,27 @@ function objExists(object){
 // PersistentStorage Class ------------------------------------------------ {{{
 
 class PersistentStorage {
-    private dataObject: any;
+    protected dataObject: any;
     private name: string;
 
-    constructor(name: string) {
-        this.setData(name);
+    constructor(name: string, namedObject: any) {
+        this.setData(name, namedObject);
     }
 
-    private setData(savedObjectName: string) {
+    private setData(savedObjectName: string, namedObject: any) {
         this.name = savedObjectName;
         // Special syntax for using `this` inside a callback
         chrome.storage.local.get(savedObjectName, (result) => {
             this.dataObject = result;
+            namedObject = this.dataObject;
         });
     }
 
-    getAll(): any {
+    protected getAll(): any {
         return this.dataObject;
     }
 
-    get(key: string): any{
+    protected get(key: string): any{
         try{
             return this.dataObject[key];
         } catch (e){
@@ -234,24 +235,24 @@ class PersistentStorage {
         }
     }
 
-    add(key: string, data: any){
+    protected add(key: string, data: any){
         this.dataObject[name] = data;
     }
 
-    exists(key: string): boolean{
-        if(this.dataObject.hasOwnProperty()){
+    protected exists(key: string, object: any): boolean{
+        if(object.dataObject.hasOwnProperty(key)){
             return true;
         }
         return false;
     }
 
-    remove(key: string){
-        if(this.exists(key)){
+    protected remove(key: string){
+        if(this.exists(key, this.dataObject)){
             delete this.dataObject[key];
         }
     }
 
-    private save(){
+    protected save(){
         chrome.storage.local.remove(this.name);
         // Typescript, or maybe js, doesn't like `this.name` as an object key
         var thisName: string = this.name;
@@ -260,6 +261,264 @@ class PersistentStorage {
 }
 
 // End PersistentStorage Class -------------------------------------------- }}}
+// UrlSettings Class ------------------------------------------------------ {{{
+
+// I would like to put this inside the `UrlSettings` class but typescript does
+// not allow this.
+enum QueryResult {True, False, Undefined };
+
+class UrlSettings extends PersistentStorage {
+    urlSettings: any;
+    fields: any;
+
+    constructor(){
+        super("urlInfo", this.urlSettings);
+        // List the fields that exist and can be accessed
+        this.fields = {
+            "darkMode": {
+                "name": "darkMode",
+                "type": "boolean"
+            }
+        }
+    }
+
+    private returnQueryResultIfBool(input: any): any {
+        if(input === true){
+            return QueryResult.True;
+        } else if (input === false){
+            return QueryResult.False;
+        } else {
+            return input;
+        }
+    }
+
+    private checkUrlStem(url: string): QueryResult{
+        var urlStem = getUrlStem(url);
+        if(this.exists(urlStem, this.urlSettings)){
+            return QueryResult.True;
+        }
+        return QueryResult.Undefined;
+    }
+
+    private checkUrlForField(url: string, field: string): QueryResult {
+        var urlStem = getUrlStem(url);
+        var cleanedUrl = cleanUrl(url);
+        if(this.exists(urlStem, this.urlSettings)){
+            if(this.exists(cleanedUrl, this.urlSettings[urlStem])){
+                if(this.exists(field, this.urlSettings[urlStem][cleanedUrl])){
+                     return this.returnQueryResultIfBool(this.urlSettings[urlStem][cleanedUrl][field]);
+                }
+            }
+        }
+        return QueryResult.Undefined;
+    }
+
+    private checkUrlStemForField(url: string, field: string): QueryResult{
+        var urlStem = getUrlStem(url);
+        if(this.exists(urlStem, this.urlSettings)){
+            if(this.exists(field, this.urlSettings[urlStem])){
+                return this.returnQueryResultIfBool(this.urlSettings[urlStem][field]);
+            }
+        }
+        return QueryResult.Undefined;
+    }
+
+    private checkUrlStemForUrl(url: string): QueryResult{
+        var urlStem = getUrlStem(url);
+        if(this.exists(urlStem, this.urlSettings)){
+            if(this.exists(url, this.urlSettings[urlStem])){
+                return QueryResult.True;
+            }
+        }
+        return QueryResult.Undefined;
+    }
+
+    private checkUrlForFieldBool(url: string, field: string, resultIfUndefined: boolean): boolean {
+        // Various scenarios for checking bool fields.
+        //  Url Query Result | Url Stem Query Result | Result            |
+        //  ---              | ---                   | ---               |
+        //  Undef            | Undef                 | resultIfUndefined |
+        //  Undef            | True                  | True              |
+        //  True             | True                  | True              |
+        //  True             | Undef                 | True              |
+        //  False            | True                  | False             |
+        //  False            | Undef                 | False             |
+        //  Undef            | False                 | False             |
+        //  True             | False                 | False             |
+        //  False            | False                 | False             |
+
+        // var urlResult = checkWhitelist(whitelist, url, "dark-mode");
+        var urlResult = this.checkUrlForField(url, field);
+        // var urlStemResult = checkWhitelistStem(whitelist, url, "dark-mode");
+        var urlStemResult = this.checkUrlStemForField(url, field);
+
+        console.log("Url is: " + urlResult + ", Url Stem is: " + urlStemResult);
+
+        // The default case: both fields are undefined, return the default value
+        if(urlResult === QueryResult.Undefined && urlStemResult === QueryResult.Undefined){
+            return resultIfUndefined;
+        }
+
+        // True Results
+        if(urlResult === QueryResult.Undefined && urlStemResult === QueryResult.True){
+            return true;
+        }
+        if(urlResult === QueryResult.True && urlStemResult === QueryResult.True){
+            return true;
+        }
+        if(urlResult === QueryResult.True && urlStemResult === QueryResult.Undefined){
+            return true;
+        }
+        if(urlResult === QueryResult.True && urlStemResult === QueryResult.False){
+            return true;
+        }
+
+        // False Results
+        if(urlResult === QueryResult.False && urlStemResult === QueryResult.True){
+            return false;
+        }
+        if(urlResult === QueryResult.False && urlStemResult === QueryResult.Undefined){
+            return false;
+        }
+        if(urlResult === QueryResult.Undefined && urlStemResult === QueryResult.False){
+            return false;
+        }
+        if(urlResult === QueryResult.False && urlStemResult === QueryResult.False){
+            return false;
+        }
+        console.log("Error: checkWhitelist returned without a result");
+        return;
+    }
+
+    private checkUrlStemForFieldBool(url: string, field: string, defaultValue: boolean): boolean {
+        var result = this.checkUrlStemForField(url, field);
+
+        switch(result){
+            case QueryResult.Undefined:
+                return defaultValue;
+                break;
+            case QueryResult.True:
+                return true;
+                break;
+            case QueryResult.False:
+                return false;
+                break;
+        }
+    }
+
+    checkDarkMode(url: string): boolean{
+        // If the stem and the url are undefined turn dark mode ON!
+        return this.checkUrlForFieldBool(url, this.fields.darkMode.name, true);
+    }
+
+    checkDarkModeStem(url: string): boolean{
+        return this.checkUrlStemForFieldBool(url, this.fields.darkMode.name, true);
+    }
+
+    // Helper function for toggle
+    private isQueryUndefined(input: QueryResult){
+        if(input === QueryResult.Undefined){
+            return true;
+        }
+        return false;
+    }
+
+    // Helper function for toggle
+    private allArgsFalse(...input: boolean[]){
+        for(var i = 0; i <= arguments.length; i++){
+            if(arguments[i] === true){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private checkFieldIsBoolean(field: string){
+        if(this.fields.field.type != "boolean"){
+            throw new Error("Cannot toggle UrlSettings field: " + field + " because it is not of type boolean!");
+        }
+    }
+
+    private toggleUrl(url: string, field: string, defaultValue: boolean){
+        this.checkFieldIsBoolean(field);
+
+        // Testing which fields are undefined
+        // Check if stem exists
+        // Check if stem -> url exists
+        // Check if stem -> url -> field exists
+        var stem = this.isQueryUndefined(this.checkUrlStem(url));
+        var stem_Url = this.isQueryUndefined(this.checkUrlStemForUrl(url));
+        var stem_Url_Field = this.isQueryUndefined(this.checkUrlForField(url, field));
+
+        var urlStem = getUrlStem(url);
+        var cleanedUrl = cleanUrl(url);
+
+        var isNotUndefined = this.allArgsFalse(true, true);
+
+        // The value exists, successfully run toggle
+        if(this.allArgsFalse(stem, stem_Url, stem_Url_Field)){
+            this.urlSettings[urlStem][cleanedUrl][field] = !this.urlSettings[urlStem][cleanedUrl][field];
+        }
+
+        // There is a stem and a url but no matching field
+        else if(this.allArgsFalse(stem, stem_Url)){
+            // Create the field and insert the default value
+            this.urlSettings[urlStem][cleanedUrl][field] = defaultValue;
+        }
+
+        // There is only a stem
+        else if(this.allArgsFalse(stem)){
+            // Create the url within the stem and add the field
+            this.urlSettings[urlStem][cleanedUrl] = {field: defaultValue};
+        }
+
+        // The is no record of the url
+        else {
+            this.urlSettings[urlStem] = {cleanedUrl: {field: defaultValue}};
+        }
+        this.save();
+    }
+
+    private toggleUrlStem(url: string, field: string, defaultValue: boolean){
+        this.checkFieldIsBoolean(field);
+
+        // Check if stem exists
+        // Check if stem -> field exists
+        var stem = this.isQueryUndefined(this.checkUrlStem(url));
+        var stem_Field = this.isQueryUndefined(this.checkUrlStemForField(url, field));
+
+        var urlStem = getUrlStem(url);
+
+        // The stem -> field exists, run toggle
+        if(this.allArgsFalse(stem, stem_Field)){
+            this.urlSettings[urlStem][field] = !this.urlSettings[urlStem][field];
+        }
+
+        // The stem exists but the field doesn't
+        else if(this.allArgsFalse(stem)){
+            this.urlSettings[urlStem][field] = defaultValue;
+        }
+
+        // The is no record of the url Stem
+        else {
+            this.urlSettings[urlStem] = {field: defaultValue};
+        }
+        this.save();
+    }
+
+    toggleDarkMode(url: string){
+        // Dark mode is always on (true), so when it is toggled for the first
+        // time set the value to off (false)
+        this.toggleUrl(url, this.fields.darkMode.name, false);
+    }
+
+    toggleDarkModeStem(url: string){
+        this.toggleUrlStem(url, this.fields.darkMode.name, false);
+    }
+}
+
+// End UrlSettings Class -------------------------------------------------- }}}
+
 // Url Parsing ------------------------------------------------------------- {{{
 /**
  * getUrlStem returns the url stem of a url.
