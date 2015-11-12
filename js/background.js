@@ -194,16 +194,19 @@ function objExists(object) {
 // End Whitelist Functions ------------------------------------------------- }}}
 // PersistentStorage Class ------------------------------------------------ {{{
 var PersistentStorage = (function () {
-    function PersistentStorage(name, namedObject) {
-        this.setData(name, namedObject);
+    function PersistentStorage(name) {
+        this.setData(name);
     }
-    PersistentStorage.prototype.setData = function (savedObjectName, namedObject) {
+    PersistentStorage.prototype.setData = function (savedObjectName) {
         var _this = this;
         this.name = savedObjectName;
         // Special syntax for using `this` inside a callback
         chrome.storage.local.get(savedObjectName, function (result) {
-            _this.dataObject = result;
-            namedObject = _this.dataObject;
+            _this.dataObject = result[_this.name];
+            // Guard against undefined `dataObject`
+            if (typeof (_this.dataObject) === "undefined") {
+                _this.dataObject = {};
+            }
         });
     };
     PersistentStorage.prototype.getAll = function () {
@@ -218,10 +221,10 @@ var PersistentStorage = (function () {
         }
     };
     PersistentStorage.prototype.add = function (key, data) {
-        this.dataObject[name] = data;
+        this.dataObject[key] = data;
     };
     PersistentStorage.prototype.exists = function (key, object) {
-        if (object.dataObject.hasOwnProperty(key)) {
+        if (object.hasOwnProperty(key)) {
             return true;
         }
         return false;
@@ -235,7 +238,15 @@ var PersistentStorage = (function () {
         chrome.storage.local.remove(this.name);
         // Typescript, or maybe js, doesn't like `this.name` as an object key
         var thisName = this.name;
-        chrome.storage.local.set({ thisName: this.dataObject });
+        console.log("Saving: " + this.name);
+        var saveObject = {};
+        saveObject[this.name] = this.dataObject;
+        console.log(saveObject);
+        chrome.storage.local.set(saveObject);
+    };
+    PersistentStorage.prototype.clear = function () {
+        chrome.storage.local.remove(this.name);
+        this.setData(this.name);
     };
     return PersistentStorage;
 })();
@@ -253,15 +264,22 @@ var QueryResult;
 var UrlSettings = (function (_super) {
     __extends(UrlSettings, _super);
     function UrlSettings() {
-        _super.call(this, "urlInfo", this.urlSettings);
+        _super.call(this, "urlInfo");
         // List the fields that exist and can be accessed
         this.fields = {
             "darkMode": {
                 "name": "darkMode",
                 "type": "boolean"
+            },
+            "hueRotate": {
+                "name": "hueRotate",
+                "type": "boolean"
             }
         };
     }
+    UrlSettings.prototype.getSettings = function () {
+        return this.dataObject;
+    };
     UrlSettings.prototype.returnQueryResultIfBool = function (input) {
         if (input === true) {
             return QueryResult.True;
@@ -275,7 +293,7 @@ var UrlSettings = (function (_super) {
     };
     UrlSettings.prototype.checkUrlStem = function (url) {
         var urlStem = getUrlStem(url);
-        if (this.exists(urlStem, this.urlSettings)) {
+        if (this.exists(urlStem, this.dataObject)) {
             return QueryResult.True;
         }
         return QueryResult.Undefined;
@@ -283,10 +301,10 @@ var UrlSettings = (function (_super) {
     UrlSettings.prototype.checkUrlForField = function (url, field) {
         var urlStem = getUrlStem(url);
         var cleanedUrl = cleanUrl(url);
-        if (this.exists(urlStem, this.urlSettings)) {
-            if (this.exists(cleanedUrl, this.urlSettings[urlStem])) {
-                if (this.exists(field, this.urlSettings[urlStem][cleanedUrl])) {
-                    return this.returnQueryResultIfBool(this.urlSettings[urlStem][cleanedUrl][field]);
+        if (this.exists(urlStem, this.dataObject)) {
+            if (this.exists(cleanedUrl, this.dataObject[urlStem])) {
+                if (this.exists(field, this.dataObject[urlStem][cleanedUrl])) {
+                    return this.returnQueryResultIfBool(this.dataObject[urlStem][cleanedUrl][field]);
                 }
             }
         }
@@ -294,17 +312,18 @@ var UrlSettings = (function (_super) {
     };
     UrlSettings.prototype.checkUrlStemForField = function (url, field) {
         var urlStem = getUrlStem(url);
-        if (this.exists(urlStem, this.urlSettings)) {
-            if (this.exists(field, this.urlSettings[urlStem])) {
-                return this.returnQueryResultIfBool(this.urlSettings[urlStem][field]);
+        if (this.exists(urlStem, this.dataObject)) {
+            if (this.exists(field, this.dataObject[urlStem])) {
+                return this.returnQueryResultIfBool(this.dataObject[urlStem][field]);
             }
         }
         return QueryResult.Undefined;
     };
     UrlSettings.prototype.checkUrlStemForUrl = function (url) {
         var urlStem = getUrlStem(url);
-        if (this.exists(urlStem, this.urlSettings)) {
-            if (this.exists(url, this.urlSettings[urlStem])) {
+        var cleanedUrl = cleanUrl(url);
+        if (this.exists(urlStem, this.dataObject)) {
+            if (this.exists(cleanedUrl, this.dataObject[urlStem])) {
                 return QueryResult.True;
             }
         }
@@ -382,6 +401,13 @@ var UrlSettings = (function (_super) {
     UrlSettings.prototype.checkDarkModeStem = function (url) {
         return this.checkUrlStemForFieldBool(url, this.fields.darkMode.name, true);
     };
+    UrlSettings.prototype.checkHueRotate = function (url) {
+        // If the stem and the url are undefined turn hue rotate ON!
+        return this.checkUrlForFieldBool(url, this.fields.hueRotate.name, true);
+    };
+    UrlSettings.prototype.checkHueRotateStem = function (url) {
+        return this.checkUrlStemForFieldBool(url, this.fields.hueRotate.name, true);
+    };
     // Helper function for toggle
     UrlSettings.prototype.isQueryUndefined = function (input) {
         if (input === QueryResult.Undefined) {
@@ -403,7 +429,7 @@ var UrlSettings = (function (_super) {
         return true;
     };
     UrlSettings.prototype.checkFieldIsBoolean = function (field) {
-        if (this.fields.field.type != "boolean") {
+        if (this.fields[field].type != "boolean") {
             throw new Error("Cannot toggle UrlSettings field: " + field + " because it is not of type boolean!");
         }
     };
@@ -419,20 +445,33 @@ var UrlSettings = (function (_super) {
         var urlStem = getUrlStem(url);
         var cleanedUrl = cleanUrl(url);
         var isNotUndefined = this.allArgsFalse(true, true);
+        console.log("stem: " + stem);
+        console.log("stem_Url: " + stem_Url);
+        console.log("stem_Url_Field: " + stem_Url_Field);
         // The value exists, successfully run toggle
         if (this.allArgsFalse(stem, stem_Url, stem_Url_Field)) {
-            this.urlSettings[urlStem][cleanedUrl][field] = !this.urlSettings[urlStem][cleanedUrl][field];
+            // this.dataObject[urlStem][cleanedUrl][field] = !this.dataObject[urlStem][cleanedUrl][field];
+            if (this.dataObject[urlStem][cleanedUrl][field] === true) {
+                this.dataObject[urlStem][cleanedUrl][field] = false;
+            }
+            else {
+                this.dataObject[urlStem][cleanedUrl][field] = true;
+            }
         }
         else if (this.allArgsFalse(stem, stem_Url)) {
             // Create the field and insert the default value
-            this.urlSettings[urlStem][cleanedUrl][field] = defaultValue;
+            this.dataObject[urlStem][cleanedUrl][field] = defaultValue;
         }
         else if (this.allArgsFalse(stem)) {
             // Create the url within the stem and add the field
-            this.urlSettings[urlStem][cleanedUrl] = { field: defaultValue };
+            this.dataObject[urlStem][cleanedUrl] = {};
+            this.dataObject[urlStem][cleanedUrl][field] = defaultValue;
         }
         else {
-            this.urlSettings[urlStem] = { cleanedUrl: { field: defaultValue } };
+            // this.dataObject[urlStem] = {cleanedUrl: {field: defaultValue}};
+            this.dataObject[urlStem] = {};
+            this.dataObject[urlStem][cleanedUrl] = {};
+            this.dataObject[urlStem][cleanedUrl][field] = defaultValue;
         }
         this.save();
     };
@@ -445,13 +484,14 @@ var UrlSettings = (function (_super) {
         var urlStem = getUrlStem(url);
         // The stem -> field exists, run toggle
         if (this.allArgsFalse(stem, stem_Field)) {
-            this.urlSettings[urlStem][field] = !this.urlSettings[urlStem][field];
+            this.dataObject[urlStem][field] = !this.dataObject[urlStem][field];
         }
         else if (this.allArgsFalse(stem)) {
-            this.urlSettings[urlStem][field] = defaultValue;
+            this.dataObject[urlStem][field] = defaultValue;
         }
         else {
-            this.urlSettings[urlStem] = { field: defaultValue };
+            this.dataObject[urlStem] = {};
+            this.dataObject[urlStem][field] = defaultValue;
         }
         this.save();
     };
@@ -462,6 +502,50 @@ var UrlSettings = (function (_super) {
     };
     UrlSettings.prototype.toggleDarkModeStem = function (url) {
         this.toggleUrlStem(url, this.fields.darkMode.name, false);
+    };
+    UrlSettings.prototype.toggleHueRotate = function (url) {
+        this.toggleUrl(url, this.fields.hueRotate.name, false);
+    };
+    UrlSettings.prototype.toggleHueRotateStem = function (url) {
+        this.toggleUrlStem(url, this.fields.hueRotate.name, false);
+    };
+    // stem
+    UrlSettings.prototype.removeStem = function (url) {
+        delete this.dataObject[getUrlStem(url)];
+        this.save();
+    };
+    // stem -> field
+    UrlSettings.prototype.removeStemField = function (url, field) {
+        delete this.dataObject[getUrlStem(url)][this.fields[field].name];
+        this.save();
+    };
+    // stem -> url
+    UrlSettings.prototype.removeUrl = function (url) {
+        delete this.dataObject[getUrlStem(url)][cleanUrl(url)];
+        this.save();
+    };
+    // stem -> url -> field
+    UrlSettings.prototype.removeField = function (url, field) {
+        delete this.dataObject[getUrlStem(url)][cleanUrl(url)][this.fields[field].name];
+        this.save();
+    };
+    UrlSettings.prototype.clearUrl = function (url) {
+        this.removeUrl(url);
+    };
+    UrlSettings.prototype.clearUrlStem = function (url) {
+        this.removeStem(url);
+    };
+    UrlSettings.prototype.clearDarkMode = function (url) {
+        this.removeField(url, this.fields.darkMode.name);
+    };
+    UrlSettings.prototype.clearDarkModeStem = function (url) {
+        this.removeStemField(url, this.fields.darkMode.name);
+    };
+    UrlSettings.prototype.clearHueRotate = function (url) {
+        this.removeField(url, this.fields.hueRotate.name);
+    };
+    UrlSettings.prototype.clearHueRotateStem = function (url) {
+        this.removeStemField(url, this.fields.hueRotate.name);
     };
     return UrlSettings;
 })(PersistentStorage);
@@ -599,6 +683,8 @@ setTimeout(function () {
     updateContextMenuAndBrowserAction();
     console.log("Hello from Typescript!");
 }, 5);
+var u = new UrlSettings();
+var g = "http://www.google.com";
 // Wait 10 seconds to declare setup is over
 setTimeout(function () {
     setup = false;
