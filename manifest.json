@@ -6,7 +6,7 @@
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
-            "js":  ["lib/jquery.min.js", "js/content.js"],
+            "js":  ["lib/jquery.min.js", "build/content.js"],
             "run_at": "document_start",
             "css": ["dark-mode.css"],
             "all_frames": true,
@@ -14,7 +14,7 @@
         }
     ],
     "background": {
-        "scripts": ["lib/resemblejs/resemble.js", "./lib/urijs/src/URI.min.js", "js/background.js"]
+        "scripts": ["lib/resemblejs/resemble.js", "./lib/urijs/src/URI.min.js", "build/background.js"]
     },
     "web_accessible_resources": [
         "dark-mode.css"

@@ -606,7 +606,7 @@ var sendMessageToCurrentTabContext = function(message){
 function executeScriptInCurrentWindow(filename){
     chrome.tabs.getSelected(null, function(tab){
         chrome.tabs.executeScript(tab.id, {
-            "file": "js/" + filename,
+            "file": "build/" + filename,
             "allFrames": true,
             "matchAboutBlank": true,
             "runAt": "document_start",

@@ -1,7 +1,7 @@
 {
     "compilerOptions":{
         "rootDir": "src",
-        "outDir": "js"
+        "outDir": "build"
     },
     "exclude": [
         "lib"
