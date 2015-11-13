@@ -1,209 +1,3 @@
-// Whitelist Functions ----------------------------------------------------- {{{
-
-/**
- * toggleOrCheckWhitelist manages the whitelist data structure and returns
- * the boolean result of a search for a url
- *
- * The whitelist is formatted with the first level keys as "url stems"
- * and the second level as sub urls, both with options for dark-mode
- * and advanced dark mode.
- *
- * { "whitelist": "urlStem":
- *   { "dark-mode": true,
- *     "advanced-mode": false,
- *     "fullUrl": {
- *       "dark-mode": true,
- *       "advanced-mode": false
- *     },
- *     "fullUrl": {
- *       "dark-mode": true,
- *       "advanced-mode": false
- *     }
- *   }
- * }
- *
- * checkWhitelist first checks if the url stem exists, the mode of the stem, then if necessary the full url and the mode
- *
- * @param {Object} whitelist The whitelist pulled from chrome storage
- * @param {String} url The current raw url
- * @return [{Whitelist}, {Boolean}] Result of whitelist search for url
- */
-function checkWhitelist(whitelist, url, field){
-    var result;
-    whitelist = cleanWhitelist(whitelist);
-    var urlStem = getUrlStem(url);
-    var cleanedUrl = cleanUrl(url);
-    if(objExists(whitelist[urlStem])){
-        if(objExists(whitelist[urlStem][cleanedUrl])){
-            if(objExists(whitelist[urlStem][cleanedUrl][field])){
-                result = whitelist[urlStem][cleanedUrl][field];
-            }
-        }
-    }
-    return result;
-}
-
-
-function checkWhitelistStem(whitelist, url, field){
-    var result;
-    whitelist = cleanWhitelist(whitelist);
-    var urlStem = getUrlStem(url);
-    if(objExists(whitelist[urlStem])){
-        if(objExists(whitelist[urlStem][field])){
-            result = whitelist[urlStem][field];
-        }
-    }
-    return result;
-}
-
-function checkDarkMode(whitelist, url){
-    // Various scenarios for checking dark mode.
-    // | Dark Mode | Url   | Url Stem | Result |
-    // | ---       | ---   | ---      | ---    |
-    // | On        | Undef | Undef    | True   |
-    // | On        | Undef | True     | True   |
-    // | On        | True  | True     | True   |
-    // | On        | True  | Undef    | True   |
-    // | On        | False | True     | False  |
-    // | Off       | False | Undef    | False  |
-    // | Off       | Undef | False    | False  |
-    // | Off       | True  | False    | False  |
-    // | Off       | False | False    | False  |
-
-    var urlResult = checkWhitelist(whitelist, url, "dark-mode");
-    var urlStemResult = checkWhitelistStem(whitelist, url, "dark-mode");
-
-    console.log("Url is: " + urlResult + ", Url Stem is: " + urlStemResult);
-
-    // Results that turn dark mode ON
-    if(urlResult === undefined && urlStemResult === undefined){
-        return true;
-    }
-    if(urlResult === undefined && urlStemResult === true){
-        return true;
-    }
-    if(urlResult === true && urlStemResult === true){
-        return true;
-    }
-    if(urlResult === true && urlStemResult === undefined){
-        return true;
-    }
-    if(urlResult === true && urlStemResult === false){
-        return true;
-    }
-
-    // Results that turn dark mode OFF
-    if(urlResult === false && urlStemResult === true){
-        return false;
-    }
-    if(urlResult === false && urlStemResult === undefined){
-        return false;
-    }
-    if(urlResult === undefined && urlStemResult === false){
-        return false;
-    }
-    if(urlResult === false && urlStemResult === false){
-        return false;
-    }
-    console.log("Error: checkWhitelist returned without a result");
-}
-
-function checkStemDarkMode(whitelist, url){
-    var stemResult = checkWhitelistStem(whitelist, url, "dark-mode");
-    if(stemResult === false){
-        return false;
-    } else {
-        return true;
-    }
-}
-
-function toggleWhitelist(whitelist, url, field){
-    whitelist = cleanWhitelist(whitelist);
-    var urlStem = getUrlStem(url);
-    var cleanedUrl = cleanUrl(url);
-    if(objExists(whitelist[urlStem])){
-        if(objExists(whitelist[urlStem][cleanedUrl])){
-            if(objExists(whitelist[urlStem][cleanedUrl][field])){
-                whitelist[urlStem][cleanedUrl][field] = !whitelist[urlStem][cleanedUrl][field];
-            } else {
-                // Turns dark mode off
-                whitelist[urlStem][cleanedUrl][field] = false;
-            }
-        } else {
-            whitelist[urlStem][cleanedUrl] = {};
-            whitelist[urlStem][cleanedUrl][field] = false;
-        }
-    } else {
-        whitelist[urlStem] = {};
-        whitelist[urlStem][cleanedUrl] = {};
-        whitelist[urlStem][cleanedUrl][field] = false;
-    }
-
-    saveWhitelist(whitelist);
-    return whitelist;
-}
-
-function toggleWhitelistStem(whitelist, url, field){
-    whitelist = cleanWhitelist(whitelist);
-    var urlStem = getUrlStem(url);
-    if(objExists(whitelist[urlStem])){
-        if(objExists(whitelist[urlStem][field])){
-            whitelist[urlStem][field] = !whitelist[urlStem][field];
-        } else {
-            whitelist[urlStem][field] = false;
-        }
-    } else {
-        whitelist[urlStem] = {};
-        // Deactivate the stem
-        whitelist[urlStem][field] = false;
-    }
-
-    saveWhitelist(whitelist);
-    return whitelist;
-}
-
-function toggleDarkMode(whitelist, url){
-    console.log("toggleDarkMode");
-    return toggleWhitelist(whitelist, url, "dark-mode");
-}
-
-function toggleStemDarkMode(whitelist, url){
-    return toggleWhitelistStem(whitelist, url, "dark-mode");
-}
-
-// Helper Functions
-
-function saveWhitelist(whitelist){
-    chrome.storage.local.remove("whitelist");
-    chrome.storage.local.set({"whitelist": whitelist});
-}
-
-function cleanWhitelist(whitelist){
-    if(whitelist === undefined){
-        whitelist = {};
-    }
-
-    if(objExists(whitelist.whitelist)){
-        whitelist = whitelist.whitelist;
-    }
-
-    return whitelist;
-}
-
-function checkOptions(options, passedValue){
-    if(options.indexOf(passedValue) == -1){
-        throw new Error(passedValue + " is an invalid option!");
-    }
-}
-
-function objExists(object){
-    if(typeof object !== "undefined"){
-        return true;
-    }
-    return false;
-}
-
-// End Whitelist Functions ------------------------------------------------- }}}
 // PersistentStorage Class ------------------------------------------------ {{{
 
 class PersistentStorage {
@@ -368,9 +162,7 @@ class UrlSettings extends PersistentStorage {
         //  True             | False                 | False             |
         //  False            | False                 | False             |
 
-        // var urlResult = checkWhitelist(whitelist, url, "dark-mode");
         var urlResult = this.checkUrlForField(url, field);
-        // var urlStemResult = checkWhitelistStem(whitelist, url, "dark-mode");
         var urlStemResult = this.checkUrlStemForField(url, field);
 
         console.log("Url is: " + urlResult + ", Url Stem is: " + urlStemResult);
@@ -434,6 +226,15 @@ class UrlSettings extends PersistentStorage {
 
     checkDarkModeStem(url: string): boolean{
         return this.checkUrlStemForFieldBool(url, this.fields.darkMode.name, true);
+    }
+
+    // Special case for auto dark detection
+    checkDarkModeIsUndefined(url: string): boolean{
+        var result = this.checkUrlForField(url, this.fields.darkMode.name);
+        if(result === QueryResult.Undefined){
+            return true;
+        }
+        return false;
     }
 
     checkHueRotate(url: string): boolean{
@@ -619,7 +420,6 @@ class UrlSettings extends PersistentStorage {
 }
 
 // End UrlSettings Class -------------------------------------------------- }}}
-
 // Url Parsing ------------------------------------------------------------- {{{
 /**
  * getUrlStem returns the url stem of a url.
@@ -676,7 +476,6 @@ function getUrlStem(url){
  * @return {String} cleaned url
  */
 function cleanUrl(url){
-    // var cleanUrlWithQueryStringRegex = /^.*:\/\/.*\/(.*(?=\?|#))?/;
     var fullUrl = URI(url);
     var cleanedUrl = new URI({
         protocol: fullUrl.protocol(),
@@ -732,14 +531,7 @@ function urlInBlacklist(url){
 }
 
 // End Url Parsing --------------------------------------------------------- }}}
-// Url and Whitelist Action Callbacks -------------------------------------- {{{
-
-function getWhitelist(callback, url){
-    chrome.storage.local.get("whitelist", function(result){
-        var whitelist = result;
-        callback(whitelist, url);
-    });
-}
+// Url Callbacks -------------------------------------- {{{
 
 function getCurrentUrl(callback, callback2){
     chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
@@ -750,49 +542,14 @@ function getCurrentUrl(callback, callback2){
     });
 }
 
-function getUrlAndWhitelist(callback){
-    getCurrentUrl(getWhitelist, callback);
-}
-
-// End Url and Whitelist Action Callbacks ---------------------------------- }}}
-// Setup ------------------------------------------------------------------- {{{
-
-var debug = true;
-var setup = true;
-
-setGlobalWhitelist();
-setTimeout(function(){
-    updateContextMenuAndBrowserAction();
-    console.log("Hello from Typescript!");
-}, 5);
-
-var u = new UrlSettings();
-var g = "http://www.google.com";
-
-// Wait 10 seconds to declare setup is over
-setTimeout(function(){
-    setup = false;
-}, 10000);
-
-// End Setup --------------------------------------------------------------- }}}
-// Whitelist --------------------------------------------------------------- {{{
-
-var globalWhitelist = {};
-function setGlobalWhitelist(){
-    chrome.storage.local.get("whitelist", function(whitelist){
-        globalWhitelist = whitelist;
-        if(debug) console.log(globalWhitelist);
-    });
-}
-
-// End Whitelist ----------------------------------------------------------- }}}
+// End Url Callbacks ---------------------------------- }}}
 // Messages ---------------------------------------------------------------- {{{
 
 function sendDarkModeStatusMessage(){
     chrome.runtime.sendMessage({
         "name": "dark-mode-status",
-        "dark-mode": checkDarkMode(globalWhitelist, currentUrl),
-        "dark-mode-stem": checkStemDarkMode(globalWhitelist, currentUrl),
+        "dark-mode": urlSettings.checkDarkMode(currentUrl),
+        "dark-mode-stem": urlSettings.checkDarkModeStem(currentUrl),
         "url": currentUrl,
         "url-stem": getMinimalUrl(currentUrl)
     });
@@ -812,17 +569,19 @@ function darkModeStatusListener(listenerMessage, actionFunction){
 }
 
 darkModeStatusListener("request-dark-mode-status", null);
+
 darkModeStatusListener("toggle-dark-mode-from-popup", function() {
-    executeDarkModeScript(globalWhitelist, currentUrl, "toggle");
+    executeDarkModeScript(currentUrl, "toggle");
 });
+
 darkModeStatusListener("toggle-dark-mode-stem", function(){
-    executeDarkModeScript(globalWhitelist, currentUrl, "toggleStem");
+    executeDarkModeScript(currentUrl, "toggleStem");
 });
 
 function darkModeActivatorListener(){
     chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
         if(message === "activate-dark-mode"){
-            executeDarkModeScript(globalWhitelist, currentUrl, "init");
+            executeDarkModeScript(currentUrl, "init");
         }
     });
 }
@@ -882,18 +641,15 @@ function executeTurnOffDarkModeScript(){
     executeScriptInCurrentWindow("turnOffDarkMode.js");
 }
 
-function executeDarkModeScript(whitelist, url, choice){
+function executeDarkModeScript(url, choice){
     if(choice === "toggle"){
-        // This could make more sense!
-        globalWhitelist = toggleDarkMode(whitelist, url);
-        whitelist = globalWhitelist;
+        urlSettings.toggleDarkMode(url);
     }
     if(choice === "toggleStem"){
-        // This could make more sense!
-        globalWhitelist = toggleStemDarkMode(whitelist, url);
-        whitelist = globalWhitelist;
+        urlSettings.toggleDarkModeStem(url);
     }
-    if(checkDarkMode(whitelist, url)){
+    if(urlSettings.checkDarkMode(url)){
+        // If darkMode is true, turn on dark mode
         executeTurnOnDarkModeScript();
     } else {
         executeTurnOffDarkModeScript();
@@ -938,7 +694,7 @@ chrome.commands.onCommand.addListener(function(command){
     switch(command){
         case "toggle-dark-mode":
             if(debug) console.log("Keyboard Shortcut caught");
-            executeDarkModeScript(globalWhitelist, currentUrl, "toggle");
+            executeDarkModeScript(currentUrl, "toggle");
             break;
     }
 });
@@ -980,9 +736,9 @@ function isPageDark(lightCallback){
                     if(typeof(lightCallback) === "function"){
                         // Check if "dark-mode" for url is undefined
                         if(debug) console.log("Before check whitelist");
-                        var shouldRunCallback = checkWhitelist(globalWhitelist, currentUrl, "dark-mode");
+                        var shouldRunCallback = urlSettings.checkDarkModeIsUndefined(currentUrl);
                         if(debug) console.log("shouldRunCallback = " + shouldRunCallback);
-                        if(typeof(shouldRunCallback) === "undefined"){
+                        if(shouldRunCallback){
                             console.log("Running light callback");
                             lightCallback();
                         }
@@ -997,7 +753,7 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
     if(message === "check-is-page-dark"){
         if(debug) console.log("check-is-page-dark");
         isPageDark(function(){
-            // executeDarkModeScript(globalWhitelist, currentUrl, "toggle");
+            // In the future I plan to have a pop asking if this is correct
             executeTurnOffDarkModeScript();
         });
     }
@@ -1012,7 +768,7 @@ function createToggleDarkModeContextMenu(){
         "id": "toggleDarkMode",
         "title": "Toggle Dark Mode",
         "onclick": function(){
-            executeDarkModeScript(globalWhitelist, currentUrl, "toggle");
+            executeDarkModeScript(currentUrl, "toggle");
         },
         "contexts": ["all"]
     });
@@ -1040,7 +796,7 @@ function createToggleStemContextMenu(){
         "id": "toggleStemFromContextMenu",
         "title": "Toggle Dark Mode for all " + currentUrl  + " urls",
         "onclick": function(){
-            executeDarkModeScript(globalWhitelist, currentUrl, "toggleStem");
+            executeDarkModeScript(currentUrl, "toggleStem");
         },
         "contexts": ["all"]
     });
@@ -1122,3 +878,22 @@ chrome.windows.onFocusChanged.addListener(function(){
 });
 
 // End Context Menu Events ------------------------------------------------- }}}
+// Main ------------------------------------------------------------------- {{{
+
+var debug = true;
+var setup = true;
+
+setTimeout(function(){
+    updateContextMenuAndBrowserAction();
+    console.log("Hello from Typescript!");
+}, 5);
+
+var urlSettings = new UrlSettings();
+
+// Wait 10 seconds to declare setup is over
+setTimeout(function(){
+    setup = false;
+}, 10000);
+
+
+// End Main --------------------------------------------------------------- }}}
