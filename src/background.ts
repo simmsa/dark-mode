@@ -1,3 +1,8 @@
+//  Typings ---------------------------------------------------------------- {{{
+
+/// <reference path="../typings/tsd.d.ts" />
+
+//  End Typings ------------------------------------------------------------ }}}
 // PersistentStorage Class ------------------------------------------------ {{{
 
 class PersistentStorage {
@@ -531,6 +536,73 @@ function urlInBlacklist(url){
 }
 
 // End Url Parsing --------------------------------------------------------- }}}
+// Url Class -------------------------------------------------------------- {{{
+
+class Url {
+    // protocol + hostname
+    stem: string;
+    hostname: string;
+    // protocol + hostname + path, no query or fragment string
+    normal: string;
+    full: string;
+
+    defaultUrl = "about:blank";
+
+    constructor(){
+        this.parse(this.defaultUrl);
+    }
+
+    update() {
+        console.log("Updating URL class url!");
+        try {
+            chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
+                try{
+                    this.parse(tabs[0].url);
+                } catch (e){
+                    console.log("There is no valid url in tabs object: " + tabs);
+                }
+            });
+        } catch (e){
+            console.log("Cannot update url: " + e);
+        }
+    }
+
+    parse(input: string) {
+        try{
+            var url = new URI(input).normalize();
+            this.stem = new URI({
+                protocol: url.protocol(),
+                hostname: url.hostname()
+            }).toString();
+            this.hostname = new URI({
+                hostname: url.hostname()
+            }).toString();
+            this.normal = new URI({
+                protocol: url.protocol(),
+                hostname: url.hostname(),
+                path: url.path(),
+            }).toString();
+            this.full = url.toString();
+        } catch (e){
+            console.log("Error parsing potential url: " + input);
+            this.stem = this.hostname = this.normal = this.full = this.defaultUrl;
+        }
+    }
+
+    getStem(): string{
+        return this.stem;
+    }
+
+    getHostname(): string{
+        return this.hostname;
+    }
+
+    getNormal(): string{
+        return this.normal;
+    }
+}
+
+// End Url Class ---------------------------------------------------------- }}}
 // Url Callbacks -------------------------------------- {{{
 
 function getCurrentUrl(callback, callback2){
@@ -815,6 +887,7 @@ function updateContextMenuAndBrowserAction(){
     // `updateIntervalMs` milliseconds.
     if(Date.now() > updateContextMenuToggleUrlStemTimestamp + updateIntervalMs){
         if(debug) console.log("In event loop @ " + Date.now());
+        testUrl.update();
         chrome.tabs.query({"active": true, "currentWindow": true}, function(tabs){
             try {
                 currentUrl = tabs[0].url;
@@ -889,6 +962,8 @@ setTimeout(function(){
 }, 5);
 
 var urlSettings = new UrlSettings();
+
+var testUrl = new Url();
 
 // Wait 10 seconds to declare setup is over
 setTimeout(function(){
