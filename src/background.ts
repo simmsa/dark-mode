@@ -111,17 +111,17 @@ class UrlSettings extends PersistentStorage {
         }
     }
 
-    private checkUrlStem(url: string): QueryResult{
-        var urlStem = getUrlStem(url);
+    private checkUrlStem(url: Url): QueryResult{
+        var urlStem = url.getStem();
         if(this.exists(urlStem, this.dataObject)){
             return QueryResult.True;
         }
         return QueryResult.Undefined;
     }
 
-    private checkUrlForField(url: string, field: string): QueryResult {
-        var urlStem = getUrlStem(url);
-        var cleanedUrl = cleanUrl(url);
+    private checkUrlForField(url: Url, field: string): QueryResult {
+        var urlStem = url.getStem();
+        var cleanedUrl = url.getNormal();
         if(this.exists(urlStem, this.dataObject)){
             if(this.exists(cleanedUrl, this.dataObject[urlStem])){
                 if(this.exists(field, this.dataObject[urlStem][cleanedUrl])){
@@ -132,8 +132,8 @@ class UrlSettings extends PersistentStorage {
         return QueryResult.Undefined;
     }
 
-    private checkUrlStemForField(url: string, field: string): QueryResult{
-        var urlStem = getUrlStem(url);
+    private checkUrlStemForField(url: Url, field: string): QueryResult{
+        var urlStem = url.getStem();
         if(this.exists(urlStem, this.dataObject)){
             if(this.exists(field, this.dataObject[urlStem])){
                 return this.returnQueryResultIfBool(this.dataObject[urlStem][field]);
@@ -142,9 +142,9 @@ class UrlSettings extends PersistentStorage {
         return QueryResult.Undefined;
     }
 
-    private checkUrlStemForUrl(url: string): QueryResult{
-        var urlStem = getUrlStem(url);
-        var cleanedUrl = cleanUrl(url);
+    private checkUrlStemForUrl(url: Url): QueryResult{
+        var urlStem = url.getStem();
+        var cleanedUrl = url.getNormal();
         if(this.exists(urlStem, this.dataObject)){
             if(this.exists(cleanedUrl, this.dataObject[urlStem])){
                 return QueryResult.True;
@@ -153,7 +153,7 @@ class UrlSettings extends PersistentStorage {
         return QueryResult.Undefined;
     }
 
-    private checkUrlForFieldBool(url: string, field: string, resultIfUndefined: boolean): boolean {
+    private checkUrlForFieldBool(url: Url, field: string, resultIfUndefined: boolean): boolean {
         // Various scenarios for checking bool fields.
         //  Url Query Result | Url Stem Query Result | Result            |
         //  ---              | ---                   | ---               |
@@ -170,7 +170,7 @@ class UrlSettings extends PersistentStorage {
         var urlResult = this.checkUrlForField(url, field);
         var urlStemResult = this.checkUrlStemForField(url, field);
 
-        console.log("Url is: " + urlResult + ", Url Stem is: " + urlStemResult);
+        console.log("Url is: " + QueryResult[urlResult] + ", Url Stem is: " + QueryResult[urlStemResult]);
 
         // The default case: both fields are undefined, return the default value
         if(urlResult === QueryResult.Undefined && urlStemResult === QueryResult.Undefined){
@@ -208,7 +208,7 @@ class UrlSettings extends PersistentStorage {
         return;
     }
 
-    private checkUrlStemForFieldBool(url: string, field: string, defaultValue: boolean): boolean {
+    private checkUrlStemForFieldBool(url: Url, field: string, defaultValue: boolean): boolean {
         var result = this.checkUrlStemForField(url, field);
 
         switch(result){
@@ -224,17 +224,17 @@ class UrlSettings extends PersistentStorage {
         }
     }
 
-    checkDarkMode(url: string): boolean{
+    checkDarkMode(url: Url): boolean{
         // If the stem and the url are undefined turn dark mode ON!
         return this.checkUrlForFieldBool(url, this.fields.darkMode.name, true);
     }
 
-    checkDarkModeStem(url: string): boolean{
+    checkDarkModeStem(url: Url): boolean{
         return this.checkUrlStemForFieldBool(url, this.fields.darkMode.name, true);
     }
 
     // Special case for auto dark detection
-    checkDarkModeIsUndefined(url: string): boolean{
+    checkDarkModeIsUndefined(url: Url): boolean{
         var result = this.checkUrlForField(url, this.fields.darkMode.name);
         if(result === QueryResult.Undefined){
             return true;
@@ -242,12 +242,12 @@ class UrlSettings extends PersistentStorage {
         return false;
     }
 
-    checkHueRotate(url: string): boolean{
+    checkHueRotate(url: Url): boolean{
         // If the stem and the url are undefined turn hue rotate ON!
         return this.checkUrlForFieldBool(url, this.fields.hueRotate.name, true);
     }
 
-    checkHueRotateStem(url: string): boolean{
+    checkHueRotateStem(url: Url): boolean{
         return this.checkUrlStemForFieldBool(url, this.fields.hueRotate.name, true);
     }
 
@@ -275,7 +275,7 @@ class UrlSettings extends PersistentStorage {
         }
     }
 
-    private toggleUrl(url: string, field: string, defaultValue: boolean){
+    private toggleUrl(url: Url, field: string, defaultValue: boolean){
         this.checkFieldIsBoolean(field);
 
         // Testing which fields are undefined
@@ -286,8 +286,8 @@ class UrlSettings extends PersistentStorage {
         var stem_Url = this.isQueryUndefined(this.checkUrlStemForUrl(url));
         var stem_Url_Field = this.isQueryUndefined(this.checkUrlForField(url, field));
 
-        var urlStem = getUrlStem(url);
-        var cleanedUrl = cleanUrl(url);
+        var urlStem = url.getStem();
+        var cleanedUrl = url.getNormal();
 
         var isNotUndefined = this.allArgsFalse(true, true);
 
@@ -297,12 +297,7 @@ class UrlSettings extends PersistentStorage {
 
         // The value exists, successfully run toggle
         if(this.allArgsFalse(stem, stem_Url, stem_Url_Field)){
-            // this.dataObject[urlStem][cleanedUrl][field] = !this.dataObject[urlStem][cleanedUrl][field];
-            if(this.dataObject[urlStem][cleanedUrl][field] === true) {
-                this.dataObject[urlStem][cleanedUrl][field] = false;
-            } else {
-                this.dataObject[urlStem][cleanedUrl][field] = true;
-            }
+            this.dataObject[urlStem][cleanedUrl][field] = !this.dataObject[urlStem][cleanedUrl][field];
         }
 
         // There is a stem and a url but no matching field
@@ -320,7 +315,6 @@ class UrlSettings extends PersistentStorage {
 
         // The is no record of the url
         else {
-            // this.dataObject[urlStem] = {cleanedUrl: {field: defaultValue}};
             this.dataObject[urlStem] = {};
             this.dataObject[urlStem][cleanedUrl] = {};
             this.dataObject[urlStem][cleanedUrl][field] = defaultValue;
@@ -328,7 +322,7 @@ class UrlSettings extends PersistentStorage {
         this.save();
     }
 
-    private toggleUrlStem(url: string, field: string, defaultValue: boolean){
+    private toggleUrlStem(url: Url, field: string, defaultValue: boolean){
         this.checkFieldIsBoolean(field);
 
         // Check if stem exists
@@ -336,7 +330,7 @@ class UrlSettings extends PersistentStorage {
         var stem = this.isQueryUndefined(this.checkUrlStem(url));
         var stem_Field = this.isQueryUndefined(this.checkUrlStemForField(url, field));
 
-        var urlStem = getUrlStem(url);
+        var urlStem = url.getStem();
 
         // The stem -> field exists, run toggle
         if(this.allArgsFalse(stem, stem_Field)){
@@ -356,211 +350,120 @@ class UrlSettings extends PersistentStorage {
         this.save();
     }
 
-    toggleDarkMode(url: string){
+    toggleDarkMode(url: Url){
         // Dark mode is always on (true), so when it is toggled for the first
         // time set the value to off (false)
         this.toggleUrl(url, this.fields.darkMode.name, false);
     }
 
-    toggleDarkModeStem(url: string){
+    toggleDarkModeStem(url: Url){
         this.toggleUrlStem(url, this.fields.darkMode.name, false);
     }
 
-    toggleHueRotate(url: string){
+    toggleHueRotate(url: Url){
         this.toggleUrl(url, this.fields.hueRotate.name, false);
     }
 
-    toggleHueRotateStem(url: string){
+    toggleHueRotateStem(url: Url){
         this.toggleUrlStem(url, this.fields.hueRotate.name, false);
     }
 
     // stem
-    private removeStem(url: string){
-        delete this.dataObject[getUrlStem(url)];
+    private removeStem(url: Url){
+        delete this.dataObject[url.getStem()];
         this.save();
     }
 
     // stem -> field
-    private removeStemField(url: string, field: string){
-        delete this.dataObject[getUrlStem(url)][this.fields[field].name];
+    private removeStemField(url: Url, field: string){
+        delete this.dataObject[url.getStem()][this.fields[field].name];
         this.save();
     }
 
     // stem -> url
-    private removeUrl(url: string){
-        delete this.dataObject[getUrlStem(url)][cleanUrl(url)];
+    private removeUrl(url: Url){
+        delete this.dataObject[url.getStem()][url.getNormal()];
         this.save();
     }
 
     // stem -> url -> field
-    private removeField(url: string, field: string){
-        delete this.dataObject[getUrlStem(url)][cleanUrl(url)][this.fields[field].name];
+    private removeField(url: Url, field: string){
+        delete this.dataObject[url.getStem()][url.getNormal()][this.fields[field].name];
         this.save();
     }
 
-    clearUrl(url: string){
+    clearUrl(url: Url){
         this.removeUrl(url);
     }
 
-    clearUrlStem(url: string){
+    clearUrlStem(url: Url){
         this.removeStem(url);
     }
 
-    clearDarkMode(url: string){
+    clearDarkMode(url: Url){
         this.removeField(url, this.fields.darkMode.name);
     }
 
-    clearDarkModeStem(url: string){
+    clearDarkModeStem(url: Url){
         this.removeStemField(url, this.fields.darkMode.name);
     }
 
-    clearHueRotate(url: string){
+    clearHueRotate(url: Url){
         this.removeField(url, this.fields.hueRotate.name);
     }
 
-    clearHueRotateStem(url: string){
+    clearHueRotateStem(url: Url){
         this.removeStemField(url, this.fields.hueRotate.name);
     }
-
 }
 
 // End UrlSettings Class -------------------------------------------------- }}}
-// Url Parsing ------------------------------------------------------------- {{{
-/**
- * getUrlStem returns the url stem of a url.
- *
- * A url stem is the root of a url:
- *
- * http://www.reddit.com/r/cats/kitties -> http://www.reddit.com/
- *
- * The trailing slash is necessary because document.documentURI returns
- * urls formatted like this.
- *
- * @param {String} url A url from document.documentURI or chrome.tabs api
- * @return {String} urlStem
- */
-
-var abnormalStems = [
-    "file://",
-    "about:blank",
-];
-
-function getAbnormalStem(url){
-    // Uri.js is pretty useful, but fails on local file, "file://" urls.
-    // This is the unideal solution to fix these, and probably other, urls.
-    for(var i = 0; i <= abnormalStems.length; i++){
-        if(url.indexOf(abnormalStems[i]) == 0){
-            console.log("Found abnormalStem: " + abnormalStems[i]  + " in " + url);
-            return abnormalStems[i];
-        }
-    }
-    return "";
-}
-
-function getUrlStem(url){
-    if(debug) console.log("Getting url stem from " + url);
-    var abnormalStem = getAbnormalStem(url);
-    if(abnormalStem.length > 0){
-        return abnormalStem;
-    }
-    var fullUrl = URI(url);
-    var urlStem = new URI({
-        protocol: fullUrl.protocol(),
-        hostname: fullUrl.hostname(),
-    }).toString();
-    if(debug) console.log("The stem of " + url + " is '" + urlStem + "'?");
-    return urlStem;
-}
-
-/**
- * cleanUrl removes any query(?) or fragment(#) strings from a url and returns the cleaned url.
- *
- * Matches up to the query string if it exists, otherwise matches up to the last backslash.
- *
- * @param {String} url from document.document.URI or chrome.tabs api
- * @return {String} cleaned url
- */
-function cleanUrl(url){
-    var fullUrl = URI(url);
-    var cleanedUrl = new URI({
-        protocol: fullUrl.protocol(),
-        hostname: fullUrl.hostname(),
-        path: fullUrl.path()
-    }).toString();
-    console.log("The cleaned url of " + url + " is '" + cleanedUrl + "'?");
-    return cleanedUrl;
-}
-
-function addTrailingSlash(url){
-    var hasQueryString = url.indexOf("?") > -1;
-    var hasFragmentString = url.indexOf("#") > -1;
-    var hasTrailingSlash = url.charAt(url.length - 1) == "/";
-
-    if(!hasQueryString && !hasFragmentString && !hasTrailingSlash){
-        return url += "/";
-    } else {
-        return url;
-    }
-}
-
-function getMinimalUrl(url){
-    console.log("Minimizing url: " + url);
-    var abnormalStem = getAbnormalStem(url);
-    if(abnormalStem.length > 0){
-        console.log("The minimal url of " + url + " is '" + abnormalStem + "'?");
-        return abnormalStem;
-    }
-    try {
-        var fullUrl = URI(url);
-        var minimalUrl = fullUrl.hostname().toString();
-        console.log("The minimal url of " + url + " is '" + minimalUrl + "'?");
-        return minimalUrl;
-    } catch(e) {
-        console.log("Cannot minimize url: " + url);
-    }
-}
-
-var urlBlacklist = [
-    "chrome://",
-    "chrome-extension://",
-    "about:blank"
-];
-
-function urlInBlacklist(url){
-    for(var i = 0; i < urlBlacklist.length; i++){
-        if(url.indexOf(urlBlacklist[i]) > -1){
-            return true;
-        }
-    }
-    return false;
-}
-
-// End Url Parsing --------------------------------------------------------- }}}
 // Url Class -------------------------------------------------------------- {{{
 
 class Url {
-    // protocol + hostname
-    stem: string;
-    hostname: string;
-    // protocol + hostname + path, no query or fragment string
-    normal: string;
-    full: string;
+    // Example input url: https://www.google.com/search?q=test
+    stem: string; // https://www.google.com -> protocol + hostname
+    domain: string; // google.com -> domain
+    normal: string; // https://www.google.com/search -> protocol + hostname + path, no query or fragment strings
+    full: string; // everything
+
+    shouldUpdateMenu: boolean;
+    shouldAutoDark: boolean;
 
     defaultUrl = "about:blank";
+
+    updateBlacklist = [
+        "chrome://",
+        "chrome-extension://",
+        "about:blank"
+    ];
+
+    parseBlacklist = [
+        "chrome://",
+        "chrome-extension://",
+        "file://"
+    ];
+
+    autoDarkModeBlacklist = [
+        ".pdf"
+    ];
 
     constructor(){
         this.parse(this.defaultUrl);
     }
 
-    update() {
+    update(callback?: () => void) {
         console.log("Updating URL class url!");
         try {
-            chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
+            chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
                 try{
                     this.parse(tabs[0].url);
                 } catch (e){
-                    console.log("There is no valid url in tabs object: " + tabs);
+                    console.log("There is no valid url in tabs object: ");
+                    console.log(tabs[0]);
+                    console.log("The error is: " + e);
                 }
+                callback();
             });
         } catch (e){
             console.log("Cannot update url: " + e);
@@ -568,53 +471,93 @@ class Url {
     }
 
     parse(input: string) {
-        try{
-            var url = new URI(input).normalize();
-            this.stem = new URI({
-                protocol: url.protocol(),
-                hostname: url.hostname()
-            }).toString();
-            this.hostname = new URI({
-                hostname: url.hostname()
-            }).toString();
-            this.normal = new URI({
-                protocol: url.protocol(),
-                hostname: url.hostname(),
-                path: url.path(),
-            }).toString();
-            this.full = url.toString();
-        } catch (e){
-            console.log("Error parsing potential url: " + input);
-            this.stem = this.hostname = this.normal = this.full = this.defaultUrl;
+        // If the url has not changed, do nothing
+        if(input === this.full){
+            return;
         }
+
+        // Test url against parseBlacklist
+        var inParseBlacklist = this.inputInList(input, this.parseBlacklist);
+        if(inParseBlacklist.result){
+            this.stem = this.domain = this.normal = this.full = this.parseBlacklist[inParseBlacklist.position];
+        } else {
+            try{
+                var url = new URI(input).normalize();
+                this.stem = new URI({
+                    protocol: url.protocol(),
+                    hostname: url.hostname()
+                }).toString();
+
+                // If the subdomain is not www start the domain with that
+                var subdomain = url.subdomain();
+                if(subdomain !== "www" && subdomain.length > 0){
+                    this.domain = subdomain + "." + url.domain();
+                } else {
+                    this.domain = url.domain();
+                }
+
+                this.normal = new URI({
+                    protocol: url.protocol(),
+                    hostname: url.hostname(),
+                    path: url.path(),
+                }).toString();
+
+                this.full = url.toString();
+
+            } catch (e){
+                console.log("Error parsing potential url: " + input + " Error is: " + e);
+                this.stem = this.domain = this.normal = this.full = this.defaultUrl;
+            }
+        }
+        this.setShouldUpdateMenu(input);
+        this.setShouldAutoDark(input);
+        console.log("Parsed new url: " + input);
+        console.log("this.full: " + this.full);
+        console.log("this.stem: " + this.stem);
+        console.log("this.domain: " + this.domain);
+        console.log("this.normal: " + this.normal);
+    }
+
+    inputInList(input: string, list: string[]): any{
+        for(var i = 0; i <= list.length; i++){
+            if(input.indexOf(list[i]) > -1){
+                return {result: true, position: i};
+            }
+        }
+        return {result: false, position: -1};
+    }
+
+    setShouldAutoDark(input: string){
+        this.shouldAutoDark = !this.inputInList(input, this.autoDarkModeBlacklist).result;
+    }
+
+    setShouldUpdateMenu(input: string){
+        this.shouldUpdateMenu = !this.inputInList(input, this.updateBlacklist).result;
     }
 
     getStem(): string{
         return this.stem;
     }
 
-    getHostname(): string{
-        return this.hostname;
+    getDomain(): string{
+        console.log("Getting domain: " + this.domain);
+        return this.domain;
     }
 
     getNormal(): string{
         return this.normal;
     }
+
+    getShouldAutoDark(): boolean{
+        return this.shouldAutoDark;
+    }
+
+    getShouldUpdateMenu(){
+        return this.shouldUpdateMenu;
+    }
 }
 
 // End Url Class ---------------------------------------------------------- }}}
-// Url Callbacks -------------------------------------- {{{
-
-function getCurrentUrl(callback, callback2){
-    chrome.tabs.query({currentWindow: true, active: true}, function(tabs){
-        var url = tabs[0].url;
-        if(typeof callback === "function"){
-            callback(callback2, url);
-        }
-    });
-}
-
-// End Url Callbacks ---------------------------------- }}}
 // Messages ---------------------------------------------------------------- {{{
 
 function sendDarkModeStatusMessage(){
@@ -622,8 +565,8 @@ function sendDarkModeStatusMessage(){
         "name": "dark-mode-status",
         "dark-mode": urlSettings.checkDarkMode(currentUrl),
         "dark-mode-stem": urlSettings.checkDarkModeStem(currentUrl),
-        "url": currentUrl,
-        "url-stem": getMinimalUrl(currentUrl)
+        "url": currentUrl.getNormal(),
+        "url-stem": currentUrl.getStem()
     });
 }
 
@@ -713,7 +656,7 @@ function executeTurnOffDarkModeScript(){
     executeScriptInCurrentWindow("turnOffDarkMode.js");
 }
 
-function executeDarkModeScript(url, choice){
+function executeDarkModeScript(url: Url, choice: string){
     if(choice === "toggle"){
         urlSettings.toggleDarkMode(url);
     }
@@ -774,27 +717,11 @@ chrome.commands.onCommand.addListener(function(command){
 // End Listen for Keystrokes ----------------------------------------------- }}}
 // Detect If Page Is Dark -------------------------------------------------- {{{
 
-// Pages where auto dark mode fails
-var autoDarkBlacklist = [
-    // I think this is because of js loading timing problems
-    "pdf"
-];
-
 // Runs on the currently active tab in the current window
 function isPageDark(lightCallback){
     if(debug) console.log("Starting isPageDark");
     var brightnessThreshold = 50;
-    // Test if url is in auto dark blacklist
-    var runScreenshot = true;
-    for(var i = 0; i <= autoDarkBlacklist.length; i++){
-        console.log("Testing: " + autoDarkBlacklist[i] + " in " + currentUrl);
-        if(currentUrl.indexOf(autoDarkBlacklist[i]) > -1){
-            runScreenshot = false;
-            console.log(autoDarkBlacklist[i] + " in " + currentUrl);
-            console.log("Not taking screenshot!");
-            break;
-        }
-    }
+    var runScreenshot = currentUrl.getShouldAutoDark();
 
     // Don't try to take screen shots while chrome is loading.
     // It blocks the background from doing other processing.
@@ -859,21 +786,16 @@ createToggleDarkModeContextMenu();
 //
 // There is probably a better way to do this, but this works for now.
 
-// Get the url for this tab?
-var currentUrl = "about:blank";
-
 function createToggleStemContextMenu(){
-    currentUrl = getMinimalUrl(currentUrl);
     chrome.contextMenus.create({
         "id": "toggleStemFromContextMenu",
-        "title": "Toggle Dark Mode for all " + currentUrl  + " urls",
+        "title": "Toggle Dark Mode for all " + currentUrl.getDomain()  + " urls",
         "onclick": function(){
             executeDarkModeScript(currentUrl, "toggleStem");
         },
         "contexts": ["all"]
     });
 }
-createToggleStemContextMenu();
 
 var updateContextMenuToggleUrlStemTimestamp = Date.now();
 var updateIntervalMs = 10;
@@ -887,27 +809,15 @@ function updateContextMenuAndBrowserAction(){
     // `updateIntervalMs` milliseconds.
     if(Date.now() > updateContextMenuToggleUrlStemTimestamp + updateIntervalMs){
         if(debug) console.log("In event loop @ " + Date.now());
-        testUrl.update();
-        chrome.tabs.query({"active": true, "currentWindow": true}, function(tabs){
-            try {
-                currentUrl = tabs[0].url;
-            } catch (e) {
-                if(debug) console.log("Could not get url for updating context menu: " + e);
-            }
-            if(urlInBlacklist(currentUrl)){
-                // Remove both context menus and browser action
-                showContextMenus = false;
-                if(!contextMenusRemoved){
-                    deactivateBrowserAction();
-                    chrome.contextMenus.remove("toggleDarkMode");
-                    chrome.contextMenus.remove("toggleStemFromContextMenu");
-                    contextMenusRemoved = true;
-                }
-            } else {
+        currentUrl.update(function(){
+            console.log("After currentUrl update");
+            console.log("shouldUpdateMenu?: " + currentUrl.getShouldUpdateMenu() + " for url " + currentUrl.getNormal());
+            if(currentUrl.getShouldUpdateMenu()){
                 if(showContextMenus){
+                    console.log("Updating context menu");
                     // Update the relevant context menus
                     chrome.contextMenus.update("toggleStemFromContextMenu", {
-                        "title": "Toggle Dark Mode for all " + getMinimalUrl(currentUrl)  + " urls",
+                        "title": "Toggle Dark Mode for all " + currentUrl.getDomain()  + " urls",
                     });
                 } else {
                     // Create all context menus and browser action
@@ -916,6 +826,15 @@ function updateContextMenuAndBrowserAction(){
                     createToggleStemContextMenu();
                     activateBrowserAction();
                     contextMenusRemoved = false;
+                }
+            } else {
+                // Remove both context menus and browser action
+                showContextMenus = false;
+                if(!contextMenusRemoved){
+                    deactivateBrowserAction();
+                    chrome.contextMenus.remove("toggleDarkMode");
+                    chrome.contextMenus.remove("toggleStemFromContextMenu");
+                    contextMenusRemoved = true;
                 }
             }
         });
@@ -950,6 +869,10 @@ chrome.windows.onFocusChanged.addListener(function(){
     updateContextMenuAndBrowserAction();
 });
 
+chrome.contextMenus.onClicked.addListener(function(){
+    updateContextMenuAndBrowserAction();
+});
+
 // End Context Menu Events ------------------------------------------------- }}}
 // Main ------------------------------------------------------------------- {{{
 
@@ -963,12 +886,14 @@ setTimeout(function(){
 
 var urlSettings = new UrlSettings();
 
-var testUrl = new Url();
+var currentUrl = new Url();
+currentUrl.update(function(){
+    createToggleStemContextMenu();
+});
 
 // Wait 10 seconds to declare setup is over
 setTimeout(function(){
     setup = false;
 }, 10000);
-
 
 // End Main --------------------------------------------------------------- }}}

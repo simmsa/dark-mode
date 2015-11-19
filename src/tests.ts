@@ -18,13 +18,14 @@ var urls = [
 ];
 
 function testCleanedUrl(urlArray){
-    var cleanedUrl = cleanUrl(urlArray[0]);
-    var result = urlArray[1] === cleanedUrl;
-    if(!result){
-        console.log("Failure: " + urlArray[0] + " != " + cleanedUrl);
-    } else {
-        console.log("Pass!");
-    }
+    // // var cleanedUrl = cleanUrl(urlArray[0]);
+    // var cleanedUrl = new Url;
+    // var result = urlArray[1] === cleanedUrl;
+    // if(!result){
+    //     console.log("Failure: " + urlArray[0] + " != " + cleanedUrl);
+    // } else {
+    //     console.log("Pass!");
+    // }
 }
 
 function testUrls(urlArray){
