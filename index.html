@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dark Mode Settings</title>
   <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="bootstrap/css/bootstrap-switch.min.css">
   <link rel="stylesheet" href="dark-mode.css">
 </head>
 <body>
@@ -20,25 +21,73 @@
     </div>
 
     <!-- End Logo ---------------------------------------------------- }}}-->
-      </div>
-    </div>
     <div class="row">
       <div class="col-xs-12">
-        <h5>Settings</h5>
-        <form>
-          <div class="checkbox">
-            <label>
-              <input id="url-stem" type="checkbox">
-              <span id="url-stem-div"></span>
-              <a href="#" id="stem-tooltip">?</a>
-            </label>
-          </div>
-        </form>
+        <h5 id="current-url-settings"></h5>
       </div>
     </div>
+    <form class="form-horizontal" action="">
+      <div class="form-group">
+        <label class="control-label col-xs-7" for="">Dark Mode:</label>
+        <div class="col-xs-5">
+          <input type="checkbox" data-size="mini" name="current-dark-mode" checked>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-xs-7" for="">Fix Colors:</label>
+        <div class="col-xs-5">
+          <input type="checkbox" data-size="mini" name="current-hue-rotate" checked>
+        </div>
+      </div>
+    </form>
+    <div class="row">
+      <div class="col-xs-12">
+        <h5 id="stem-url-settings"></h5>
+      </div>
+    </div>
+    <form class="form-horizontal" action="">
+      <div class="form-group">
+        <label class="control-label col-xs-7" for="">Dark Mode:</label>
+        <div class="col-xs-5">
+          <input type="checkbox" data-size="mini" name="stem-dark-mode" checked>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-xs-7" for="">Fix Colors:</label>
+        <div class="col-xs-5">
+          <input type="checkbox" data-size="mini" name="stem-hue-rotate" checked>
+        </div>
+      </div>
+    </form>
+    <div class="row">
+      <div class="col-xs-12">
+        <h5 id="global-settings">Global settings:</h5>
+      </div>
+    </div>
+    <form class="form-horizontal" action="">
+      <div class="form-group">
+        <label class="control-label col-xs-7" for="">Dark Mode:</label>
+        <div class="col-xs-5">
+          <input type="checkbox" data-size="mini" name="global-dark-mode" checked>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-xs-7" for="">Auto Dark Detect:</label>
+        <div class="col-xs-5">
+          <input type="checkbox" data-size="mini" name="global-auto-dark-detection" checked>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-xs-7" for="">Fix Colors:</label>
+        <div class="col-xs-5">
+          <input type="checkbox" data-size="mini" name="global-hue-rotate" checked>
+        </div>
+      </div>
+    </form>
   </div>
   <script type="text/javascript" src="lib/jquery.min.js"></script>
   <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="bootstrap/js/bootstrap-switch.min.js"></script>
   <script type="text/javascript" src="build/popup.js"></script>
 </body>
 </html>
