@@ -36,3 +36,44 @@ body{
     float: right;
     margin-right: 10px;
 }
+
+.panel-heading{
+    background-color: #001019 !important;
+}
+
+.panel-heading h4{
+    color: #00e7ff;
+}
+
+.panel-heading h4 a:focus{
+    outline: none;
+    text-decoration: none;
+}
+
+.panel{
+    border: 1px solid #003344;
+    background-color: #001019;
+}
+
+.panel-body{
+    /* border-top: 1px solid #003344 !important; */
+    border-top: none !important;
+}
+
+.panel-heading .accordion-toggle:after {
+    /* Symbol for opened panels */
+    font-family: 'Glyphicons Halflings';
+    /* Downward Triangle */
+    content:"\e259";
+    float: right;
+    color: #00e7ff;
+}
+
+.panel-heading .accordion-toggle.collapsed:after {
+    /* Symbol for opened panels */
+    font-family: 'Glyphicons Halflings';
+    /* Right Triangle */
+    content:"\e258";
+    float: right;
+    color: #00e7ff;
+}

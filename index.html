@@ -30,92 +30,133 @@
     </div>
 
     <!-- End Logo ---------------------------------------------------- }}}-->
-    <!-- Current Url Settings -------------------------------------- {{{-->
+    <!-- Accordion ------------------------------------------------- {{{-->
 
-    <div class="row">
-      <div class="col-xs-12">
-        <h5 id="current-url-settings"></h5>
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <!-- Current Url Collapse -------------------------------------- {{{-->
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="current-url-accordion">
+          <h4 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#current-url-collapse" aria-expanded="true" aria-controls="current-url-collapse" class="accordion-toggle collapsed">
+              Current Url Settings:
+            </a>
+          </h4>
+        </div>
+        <div id="current-url-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="current-url-accordion">
+          <div class="panel-body">
+            <!-- Current Url Settings -------------------------------------- {{{-->
+
+            <form class="form-horizontal" action="">
+              <div class="form-group">
+                <label class="control-label col-xs-7" for="">Dark Mode:</label>
+                <div class="col-xs-5">
+                  <input type="checkbox" data-size="mini" name="current-dark-mode" checked>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label col-xs-7" for="">Fix Colors:</label>
+                <div class="col-xs-5">
+                  <input type="checkbox" data-size="mini" name="current-hue-rotate" checked>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label col-xs-6" style="padding-right: 0px;"for="">Contrast: <span id="current-contrast-value"></span></label>
+                <div class="col-xs-6">
+                    <input type="text" id="current-contrast" data-slider-min="50" data-slider-max="150" data-slider-value="85" data-slider-step="1">
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="col-xs-12">
+                  <button type="button" class="btn btn-danger btn-small reset-button">Reset</button>
+                </div>
+              </div>
+            </form>
+
+            <!-- End Current Url Settings ---------------------------------- }}}-->
+          </div>
+        </div>
+      </div>
+
+    <!-- End Current Url Collapse ---------------------------------- }}}-->
+    <!-- Stem Url Collapse ----------------------------------------- {{{-->
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingTwo">
+          <h4 class="panel-title">
+            <a class="accordion-toggle collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" id="stem-url-settings">
+            </a>
+          </h4>
+        </div>
+        <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+          <div class="panel-body">
+            <!-- Stem Settings -------------------------------------------------- {{{-->
+
+            <form class="form-horizontal" action="">
+              <div class="form-group">
+                <label class="control-label col-xs-7" for="">Dark Mode:</label>
+                <div class="col-xs-5">
+                  <input type="checkbox" data-size="mini" name="stem-dark-mode" checked>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label col-xs-7" for="">Fix Colors:</label>
+                <div class="col-xs-5">
+                  <input type="checkbox" data-size="mini" name="stem-hue-rotate" checked>
+                </div>
+              </div>
+            </form>
+
+            <!-- End Stem Settings ---------------------------------------------- }}}-->
+          </div>
+        </div>
+      </div>
+
+    <!-- End Stem Url Collapse ------------------------------------- }}}-->
+    <!-- Global Collapse ------------------------------------------- {{{-->
+
+      <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="headingThree">
+          <h4 class="panel-title">
+            <a class="collapsed accordion-toggle" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+              Global Settings:
+            </a>
+          </h4>
+        </div>
+        <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+          <div class="panel-body">
+            <!-- Global Settings ------------------------------------------- {{{-->
+
+            <form class="form-horizontal" action="">
+              <div class="form-group">
+                <label class="control-label col-xs-7" for="">Dark Mode:</label>
+                <div class="col-xs-5">
+                  <input type="checkbox" data-size="mini" name="global-dark-mode" checked>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label col-xs-7" for="">Auto Dark Detect:</label>
+                <div class="col-xs-5">
+                  <input type="checkbox" data-size="mini" name="global-auto-dark-detection" checked>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="control-label col-xs-7" for="">Fix Colors:</label>
+                <div class="col-xs-5">
+                  <input type="checkbox" data-size="mini" name="global-hue-rotate" checked>
+                </div>
+              </div>
+            </form>
+
+            <!-- End Global Settings --------------------------------------- }}}-->
+          </div>
+        </div>
       </div>
     </div>
-    <form class="form-horizontal" action="">
-      <div class="form-group">
-        <label class="control-label col-xs-7" for="">Dark Mode:</label>
-        <div class="col-xs-5">
-          <input type="checkbox" data-size="mini" name="current-dark-mode" checked>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="control-label col-xs-7" for="">Fix Colors:</label>
-        <div class="col-xs-5">
-          <input type="checkbox" data-size="mini" name="current-hue-rotate" checked>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="control-label col-xs-6" style="padding-right: 0px;"for="">Contrast: <span id="current-contrast-value"></span></label>
-        <div class="col-xs-6">
-            <input type="text" id="current-contrast" data-slider-min="50" data-slider-max="150" data-slider-value="85" data-slider-step="1">
-        </div>
-      </div>
-      <div class="form-group">
-        <div class="col-xs-12">
-          <button type="button" class="btn btn-danger btn-small reset-button">Reset</button>
-        </div>
-      </div>
-    </form>
 
-    <!-- End Current Url Settings ---------------------------------- }}}-->
-    <!-- Stem Settings -------------------------------------------------- {{{-->
+    <!-- End Global Collapse --------------------------------------- }}}-->
 
-    <div class="row">
-      <div class="col-xs-12">
-        <h5 id="stem-url-settings"></h5>
-      </div>
-    </div>
-    <form class="form-horizontal" action="">
-      <div class="form-group">
-        <label class="control-label col-xs-7" for="">Dark Mode:</label>
-        <div class="col-xs-5">
-          <input type="checkbox" data-size="mini" name="stem-dark-mode" checked>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="control-label col-xs-7" for="">Fix Colors:</label>
-        <div class="col-xs-5">
-          <input type="checkbox" data-size="mini" name="stem-hue-rotate" checked>
-        </div>
-      </div>
-    </form>
-
-    <!-- End Stem Settings ---------------------------------------------- }}}-->
-    <!-- Global Settings ------------------------------------------- {{{-->
-
-    <div class="row">
-      <div class="col-xs-12">
-        <h5 id="global-settings">Global settings:</h5>
-      </div>
-    </div>
-    <form class="form-horizontal" action="">
-      <div class="form-group">
-        <label class="control-label col-xs-7" for="">Dark Mode:</label>
-        <div class="col-xs-5">
-          <input type="checkbox" data-size="mini" name="global-dark-mode" checked>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="control-label col-xs-7" for="">Auto Dark Detect:</label>
-        <div class="col-xs-5">
-          <input type="checkbox" data-size="mini" name="global-auto-dark-detection" checked>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="control-label col-xs-7" for="">Fix Colors:</label>
-        <div class="col-xs-5">
-          <input type="checkbox" data-size="mini" name="global-hue-rotate" checked>
-        </div>
-      </div>
-    </form>
-
-    <!-- End Global Settings --------------------------------------- }}}-->
+    <!-- End Accordion --------------------------------------------- }}}-->
   </div>
 
 <!-- End Container ------------------------------------------------- }}}-->
