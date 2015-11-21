@@ -6,6 +6,7 @@
   <title>Dark Mode Settings</title>
   <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="bootstrap/css/bootstrap-switch.min.css">
+  <link rel="stylesheet" href="bootstrap/css/bootstrap-slider.css">
   <link rel="stylesheet" href="dark-mode.css">
 </head>
 <body>
@@ -37,6 +38,12 @@
         <label class="control-label col-xs-7" for="">Fix Colors:</label>
         <div class="col-xs-5">
           <input type="checkbox" data-size="mini" name="current-hue-rotate" checked>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-xs-6" style="padding-right: 0px;"for="">Contrast: <span id="current-contrast-value"></span></label>
+        <div class="col-xs-6">
+            <input type="text" id="current-contrast" data-slider-min="50" data-slider-max="150" data-slider-value="85" data-slider-step="1">
         </div>
       </div>
     </form>
@@ -88,6 +95,7 @@
   <script type="text/javascript" src="lib/jquery.min.js"></script>
   <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="bootstrap/js/bootstrap-switch.min.js"></script>
+  <script type="text/javascript" src="bootstrap/js/bootstrap-slider.js"></script>
   <script type="text/javascript" src="build/popup.js"></script>
 </body>
 </html>

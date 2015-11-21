@@ -22,6 +22,15 @@ function setDarkMode(){
     $("[name='global-dark-mode']").bootstrapSwitch();
     $("[name='global-auto-dark-detection']").bootstrapSwitch();
     $("[name='global-hue-rotate']").bootstrapSwitch();
+
+    // Setup sliders
+    $("#current-contrast").slider({
+        tooltip: 'hide'
+    });
+    $("#current-contrast").on("slide", function(data){
+        $("#current-contrast-value").text(data.value.toString() + "%");
+    })
+    $("#current-contrast-value").text($("#current-contrast").slider('getValue').toString() + "%");
     // Handle the recieved message
     chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
         if(typeof(message) === "object"){
