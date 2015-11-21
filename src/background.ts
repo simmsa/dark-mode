@@ -566,7 +566,7 @@ function sendDarkModeStatusMessage(){
         "dark-mode": urlSettings.checkDarkMode(currentUrl),
         "dark-mode-stem": urlSettings.checkDarkModeStem(currentUrl),
         "url": currentUrl.getNormal(),
-        "url-stem": currentUrl.getStem()
+        "url-stem": currentUrl.getDomain()
     });
 }
 
