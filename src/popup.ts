@@ -8,6 +8,10 @@ function capitalize(s: string): string{
     return s[0].toUpperCase() + s.slice(1);
 }
 
+function setKeyboardShortcut(){
+    chrome.commands.getAll(function(commands){
+        $("#keyboard-shortcut").append(commands[1]["shortcut"]);
+    });
 }
 
 function setDarkMode(){
@@ -31,6 +35,9 @@ function setDarkMode(){
         $("#current-contrast-value").text(data.value.toString() + "%");
     })
     $("#current-contrast-value").text($("#current-contrast").slider('getValue').toString() + "%");
+
+    setKeyboardShortcut();
+
     // Handle the recieved message
     chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
         if(typeof(message) === "object"){
