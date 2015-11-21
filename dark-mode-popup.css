@@ -1,0 +1,38 @@
+body{
+    background-color: #001019;
+    color: #eeeeee;
+}
+
+.logo{
+    max-width: 100%;
+}
+
+.bootstrap-switch-label{
+    background-color: #002233 !important;
+}
+
+.bootstrap-switch{
+    border: 1px solid #003344 !important;
+    box-shadow: none !important;
+    font-weight: bold;
+}
+
+.bootstrap-switch-handle-on{
+    color: #001019 !important;
+    background-color: #45baf5 !important;
+}
+
+.bootstrap-switch-handle-off{
+    color: #aaa !important;
+    background-color: #333 !important;
+}
+
+.slider{
+    max-width: 110% !important;
+    left: -20px;
+}
+
+.reset-button{
+    float: right;
+    margin-right: 10px;
+}
