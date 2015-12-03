@@ -1,8 +1,18 @@
 {
     "compilerOptions":{
         "rootDir": "src",
-        "outDir": "build"
+        "outDir": "build",
+        "jsx": "react"
     },
+    "files": [
+        "src/background.ts",
+        "src/content.ts",
+        "src/dark-mode.ts",
+        "src/popup.tsx",
+        "src/tests.ts",
+        "src/turnOffDarkMode.ts",
+        "src/turnOnDarkMode.ts"
+    ],
     "exclude": [
         "lib"
     ]

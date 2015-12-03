@@ -34,7 +34,6 @@ body{
 
 .reset-button{
     float: right;
-    margin-right: 10px;
 }
 
 .panel-heading{
@@ -76,4 +75,8 @@ body{
     content:"\e258";
     float: right;
     color: #00e7ff;
+}
+
+.sliderContainer{
+    left: 15px;
 }
