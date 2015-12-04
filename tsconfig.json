@@ -11,7 +11,8 @@
         "src/popup.tsx",
         "src/tests.ts",
         "src/turnOffDarkMode.ts",
-        "src/turnOnDarkMode.ts"
+        "src/turnOnDarkMode.ts",
+        "src/SettingId.ts"
     ],
     "exclude": [
         "lib"
