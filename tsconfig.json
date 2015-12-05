@@ -12,7 +12,8 @@
         "src/tests.ts",
         "src/turnOffDarkMode.ts",
         "src/turnOnDarkMode.ts",
-        "src/SettingId.ts"
+        "src/SettingId.ts",
+        "src/MessageSender.ts"
     ],
     "exclude": [
         "lib"

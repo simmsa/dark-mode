@@ -2,6 +2,7 @@
 
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="SettingId.ts" />
+/// <reference path="MessageSender.ts" />
 
 //  End Typings ------------------------------------------------------------ }}}
 
@@ -9,11 +10,15 @@ function capitalize(s: string): string{
     return s[0].toUpperCase() + s.slice(1);
 }
 
+var popupSender = new MessageSender("Popup");
+
 // function setKeyboardShortcut(){
 //     chrome.commands.getAll(function(commands){
 //         $("#keyboard-shortcut").append(commands[1]["shortcut"]);
 //     });
 // }
+
+//  UrlSettingsCollapse ------------------------------------------------ {{{
 
 interface UrlSettingsCollapseProps{
     urlDark: boolean;
@@ -59,16 +64,18 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
                  <form className="form-horizontal" action="">
                    <ToggleSwitch
                        title="Dark Mode"
-                       identifier={this.props.identifier + "DarkMode"}
+                       group={this.props.identifier}
+                       field={SettingId.Field.Dark}
                        isChecked={this.props.urlDark}
                    />
                    <ToggleSwitch
                        title="Fix Colors"
-                       identifier={this.props.identifier + "HueRotate"}
+                       group={this.props.identifier}
+                       field={SettingId.Field.Hue}
                        isChecked={this.props.urlHue}
                    />
                    <ToggleSlider
-                        identifier={this.props.identifier + "Contrast"}
+                        identifier={this.props.identifier + SettingId.Field.Contrast}
                         title="Contrast"
                         min={50}
                         max={150}
@@ -91,6 +98,9 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
          )
      }
  }
+
+//  End UrlSettingsCollapse -------------------------------------------- }}}
+//  GlobalSettingsCollapse --------------------------------------------- {{{
 
  interface GlobalSettingsCollapseProps{
      globalDark: boolean;
@@ -117,17 +127,20 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
                <form className="form-horizontal" action="">
                 <ToggleSwitch
                     title="Dark Mode"
-                    identifier="globalDark"
+                    group={SettingId.Group.Global}
+                    field={SettingId.Field.Dark}
                     isChecked={this.props.globalDark}
                 />
                 <ToggleSwitch
                     title="Auto Dark"
-                    identifier="globalAutoDark"
+                    group={SettingId.Group.Global}
+                    field={SettingId.Field.AutoDark}
                     isChecked={this.props.globalAutoDark}
                 />
                 <ToggleSwitch
                     title="Fix Colors"
-                    identifier="globalHue"
+                    group={SettingId.Group.Global}
+                    field={SettingId.Field.Hue}
                     isChecked={this.props.globalHue}
                 />
                 <div className="form-group">
@@ -142,6 +155,9 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
     }
 
 }
+
+//  End GlobalSettingsCollapse ----------------------------------------- }}}
+//  Settings ----------------------------------------------------------- {{{
 
 interface SettingsState {
     // Url Strings
@@ -216,7 +232,7 @@ class Settings extends React.Component<{}, SettingsState>{
 
             <UrlSettingsCollapse
                 title="Current Url Settings"
-                identifier="currentUrl"
+                identifier={SettingId.Group.CurrentUrl}
                 urlDark={this.state.currentUrlDark}
                 urlHue={this.state.currentUrlHue}
                 urlContrast={this.state.currentUrlContrast}
@@ -225,7 +241,7 @@ class Settings extends React.Component<{}, SettingsState>{
 
             <UrlSettingsCollapse
                 title={capitalize(this.state.urlStem) + " Settings"}
-                identifier="stemUrl"
+                identifier={SettingId.Group.StemUrl}
                 urlDark={this.state.stemUrlDark}
                 urlHue={this.state.stemUrlHue}
                 urlContrast={this.state.stemUrlContrast}
@@ -245,18 +261,35 @@ class Settings extends React.Component<{}, SettingsState>{
     }
 }
 
+//  End Settings ------------------------------------------------------- }}}
+//  ToggleSwitch ------------------------------------------------------- {{{
+
 interface ToggleSwitchProps {
     title: string;
-    identifier: string;
+    group: string;
+    field: string;
     isChecked: boolean;
 }
 
 class ToggleSwitch extends React.Component<ToggleSwitchProps, {}>{
 
+    identifier: string;
+    group: string;
+    field: string;
+
+    componentWillMount(){
+        this.identifier = this.props.group + this.props.field + "Switch";
+        this.group = this.props.group;
+        this.field = this.props.field;
+    }
+
     setupSwitch(){
-        var switchName = "#" + this.props.identifier + "Switch";
+        var switchName = "#" + this.identifier;
         console.log("Activate switch with name: " + switchName);
-        $(switchName).bootstrapSwitch();
+        $(switchName).bootstrapSwitch({
+            onSwitchChange: this.sendOnChangeMessage
+        });
+
     }
 
     componentDidMount(){
@@ -268,16 +301,23 @@ class ToggleSwitch extends React.Component<ToggleSwitchProps, {}>{
             <div className="form-group">
              <label className="control-label col-xs-7">{this.props.title}:</label>
              <div className="col-xs-5">
-               <input type="checkbox" data-size="mini" name={this.props.identifier + "Switch"} id={this.props.identifier + "Switch"} checked={this.props.isChecked} onChange={this.sendOnChangeMessage} />
+               <input type="checkbox" data-size="mini" name={this.identifier} id={this.identifier} checked={this.props.isChecked} onChange={this.sendOnChangeMessage} />
              </div>
             </div>
         )
     }
 
     sendOnChangeMessage(){
-        chrome.runtime.sendMessage(this.props.identifier + "Change");
+        console.log("Should send message");
+        popupSender.sendMessage(
+            this.group,
+            this.field
+        )
     }
 }
+
+//  End ToggleSwitch --------------------------------------------------- }}}
+//  ToggleSlider ------------------------------------------------------- {{{
 
 interface ToggleSliderProps {
     identifier: string;
@@ -324,7 +364,13 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
     }
 }
 
+//  End ToggleSlider --------------------------------------------------- }}}
+//  Render ------------------------------------------------------------ {{{
+
 ReactDOM.render(
         <Settings />,
         document.getElementById("reactContainer")
 );
+
+//  End Render -------------------------------------------------------- }}}
+

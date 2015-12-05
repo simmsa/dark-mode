@@ -10,8 +10,8 @@ class SettingId {
     // Access Id:
     // SettingId.Id.Dark -> "Dark"
     //
-    // Access Title
-    // SettingId.Title.CurrentUrl -> "CurrentUrl"
+    // Access Group
+    // SettingId.Group.CurrentUrl -> "CurrentUrl"
 
     private static Fields = {
         Id: {
@@ -45,41 +45,51 @@ class SettingId {
 
     };
 
-    // Group Titles
-    private static CurrentUrlTitle = "CurrentUrl";
-    private static StemUrlTitle = "StemUrl";
-    private static GlobalTitle = "Global";
+    // Group Groups
+    private static CurrentUrlGroup = "CurrentUrl";
+    private static StemUrlGroup = "StemUrl";
+    private static GlobalGroup = "Global";
 
     static CurrentUrl = {
-        Id: SettingId.CurrentUrlTitle,
-        Dark: SettingId.CurrentUrlTitle + SettingId.Fields.Dark.Name,
-        Hue: SettingId.CurrentUrlTitle + SettingId.Fields.Hue.Name,
-        Contrast: SettingId.CurrentUrlTitle + SettingId.Fields.Contrast.Name,
-        Clear: SettingId.CurrentUrlTitle + SettingId.Fields.Clear.Name,
+        Id: SettingId.CurrentUrlGroup,
+        Dark: SettingId.CurrentUrlGroup + SettingId.Fields.Dark.Name,
+        Hue: SettingId.CurrentUrlGroup + SettingId.Fields.Hue.Name,
+        Contrast: SettingId.CurrentUrlGroup + SettingId.Fields.Contrast.Name,
+        Clear: SettingId.CurrentUrlGroup + SettingId.Fields.Clear.Name,
     };
 
     static StemUrl = {
-        Id: SettingId.StemUrlTitle,
-        Dark: SettingId.StemUrlTitle + SettingId.Fields.Dark.Name,
-        Hue: SettingId.StemUrlTitle + SettingId.Fields.Hue.Name,
-        Contrast: SettingId.StemUrlTitle + SettingId.Fields.Contrast.Name,
-        Clear: SettingId.StemUrlTitle + SettingId.Fields.Clear.Name,
+        Id: SettingId.StemUrlGroup,
+        Dark: SettingId.StemUrlGroup + SettingId.Fields.Dark.Name,
+        Hue: SettingId.StemUrlGroup + SettingId.Fields.Hue.Name,
+        Contrast: SettingId.StemUrlGroup + SettingId.Fields.Contrast.Name,
+        Clear: SettingId.StemUrlGroup + SettingId.Fields.Clear.Name,
     };
 
     static Global = {
-        Id: SettingId.GlobalTitle,
-        Dark: SettingId.GlobalTitle + SettingId.Fields.Dark.Name,
-        Hue: SettingId.GlobalTitle + SettingId.Fields.Hue.Name,
-        Contrast: SettingId.GlobalTitle + SettingId.Fields.Contrast.Name,
-        Clear: SettingId.GlobalTitle + SettingId.Fields.Clear.Name,
-        AutoDark: SettingId.GlobalTitle + SettingId.Fields.AutoDark.Name,
-        Shortcut: SettingId.GlobalTitle + SettingId.Fields.Shortcut.Name,
+        Id: SettingId.GlobalGroup,
+        Dark: SettingId.GlobalGroup + SettingId.Fields.Dark.Name,
+        Hue: SettingId.GlobalGroup + SettingId.Fields.Hue.Name,
+        Contrast: SettingId.GlobalGroup + SettingId.Fields.Contrast.Name,
+        Clear: SettingId.GlobalGroup + SettingId.Fields.Clear.Name,
+        AutoDark: SettingId.GlobalGroup + SettingId.Fields.AutoDark.Name,
+        Shortcut: SettingId.GlobalGroup + SettingId.Fields.Shortcut.Name,
     };
 
-    static Id = {
-        CurrentUrl: SettingId.CurrentUrlTitle,
-        StemUrl: SettingId.StemUrlTitle,
-        Global: SettingId.GlobalTitle,
+    static Group = {
+        CurrentUrl: SettingId.CurrentUrlGroup,
+        StemUrl: SettingId.StemUrlGroup,
+        Global: SettingId.GlobalGroup,
+    };
+
+    static Field = {
+        Id: SettingId.Fields.Id.Name,
+        Dark: SettingId.Fields.Dark.Name,
+        Hue: SettingId.Fields.Hue.Name,
+        Contrast: SettingId.Fields.Contrast.Name,
+        Clear: SettingId.Fields.Clear.Name,
+        AutoDark: SettingId.Fields.AutoDark.Name,
+        Shortcut: SettingId.Fields.Shortcut.Name,
     };
 
     static Type = {
