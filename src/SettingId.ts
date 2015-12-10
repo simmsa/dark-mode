@@ -41,8 +41,15 @@ class SettingId {
         Shortcut: {
             Name: "Shortcut",
             Type: "string"
+        },
+        Url: {
+            Name: "Url",
+            Type: "string"
+        },
+        UrlStem: {
+            Name: "UrlStem",
+            Type: "string"
         }
-
     };
 
     // Group Groups
@@ -80,6 +87,8 @@ class SettingId {
         CurrentUrl: SettingId.CurrentUrlGroup,
         StemUrl: SettingId.StemUrlGroup,
         Global: SettingId.GlobalGroup,
+        GroupTitle: "Group",
+        Init: "Init",
     };
 
     static Field = {
@@ -90,6 +99,9 @@ class SettingId {
         Clear: SettingId.Fields.Clear.Name,
         AutoDark: SettingId.Fields.AutoDark.Name,
         Shortcut: SettingId.Fields.Shortcut.Name,
+        Init: "Init",
+        Url: SettingId.Fields.Url.Name,
+        UrlStem: SettingId.Fields.UrlStem.Name,
     };
 
     static Type = {

@@ -3,6 +3,8 @@
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="SettingId.ts" />
 /// <reference path="MessageSender.ts" />
+/// <reference path="Message.ts" />
+/// <reference path="DefaultState.ts" />
 
 //  End Typings ------------------------------------------------------------ }}}
 
@@ -11,12 +13,6 @@ function capitalize(s: string): string{
 }
 
 var popupSender = new MessageSender("Popup");
-
-// function setKeyboardShortcut(){
-//     chrome.commands.getAll(function(commands){
-//         $("#keyboard-shortcut").append(commands[1]["shortcut"]);
-//     });
-// }
 
 //  UrlSettingsCollapse ------------------------------------------------ {{{
 
@@ -62,6 +58,7 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
              <div id={this.props.identifier + "Collapse"} className="panel-collapse collapse" role="tabpanel" aria-labelledby={this.props.identifier  + "Accordion" }>
                <div className="panel-body">
                  <form className="form-horizontal" action="">
+                 {console.log("Passing bool: " + this.props.urlDark + "to switch: " + this.props.identifier)}
                    <ToggleSwitch
                        title="Dark Mode"
                        group={this.props.identifier}
@@ -160,71 +157,46 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
 //  Settings ----------------------------------------------------------- {{{
 
 interface SettingsState {
-    // Url Strings
-    urlFull: string;
-    urlStem: string;
-
-    keyboardShortcut: string;
-
-    // Current Url Settings
-    currentUrlDark: boolean;
-    currentUrlHue: boolean;
-    currentUrlContrast: number;
-
-    // Stem Url Settings
-    stemUrlDark: boolean;
-    stemUrlHue: boolean;
-    stemUrlContrast: number;
-
-    // Global Dark Mode Settings
-    globalDark: boolean;
-    globalAutoDark: boolean;
-    globalHue: boolean;
-    globalContrast: number;
-    globalKeyboardShortcut: string;
+    data: any;
 }
 
 class Settings extends React.Component<{}, SettingsState>{
     constructor(){
         super();
+        var defaultState = new DefaultState();
         this.state = {
-            urlFull: "test",
-            urlStem: "test",
-            keyboardShortcut: "test",
-            currentUrlDark: true,
-            currentUrlHue: true,
-            currentUrlContrast: 100,
-            stemUrlDark: true,
-            stemUrlHue: true,
-            stemUrlContrast: 100,
-            globalDark: true,
-            globalAutoDark: true,
-            globalHue: true,
-            globalContrast: 100,
-            globalKeyboardShortcut: "test"
-        }
+            data: defaultState.pack()
+        };
+        this.initListener();
     }
 
     // Add listener when component is initialized and send initial status message
-    componentDidMount(){
-        chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-            if(typeof(message) === "object"){
-                if(message.name === "dark-mode-status"){
-                    console.log("Setting state in listener");
-                    /* this.setState({
-                        // TODO: Standardize these value names
-                        currentUrlDark: message["dark-mode"],
-                        stemUrlDark: message["dark-mode-stem"]
-                    }); */
-                }
+    initListener(){
+        Message.receive(
+            Message.Sender.Background,
+            Message.Receiver.Popup,
+            Message.Intent.SendState,
+            (message) => {
+                console.log("Updating state from message");
+                console.log(message);
+                this.setState({
+                    data: message.Data
+                });
             }
-        });
+        );
         this.sendGetInitialState();
     }
 
     sendGetInitialState(){
-        chrome.runtime.sendMessage("request-dark-mode-status");
+        console.log("Sending Init from popup");
+        Message.send(
+                Message.Sender.Popup,
+                Message.Receiver.Background,
+                Message.Intent.RequestState,
+                null
+        );
     }
+
 
     render(){
         return (
@@ -233,27 +205,27 @@ class Settings extends React.Component<{}, SettingsState>{
             <UrlSettingsCollapse
                 title="Current Url Settings"
                 identifier={SettingId.Group.CurrentUrl}
-                urlDark={this.state.currentUrlDark}
-                urlHue={this.state.currentUrlHue}
-                urlContrast={this.state.currentUrlContrast}
-                tooltipValue={"Settings that apply only to: " + this.state.urlFull}
+                urlDark={this.state.data.CurrentUrl.Dark}
+                urlHue={this.state.data.CurrentUrl.Hue}
+                urlContrast={this.state.data.CurrentUrl.Contrast}
+                tooltipValue={"Settings that apply only to: " + this.state.data.CurrentUrl.Url}
             />
 
             <UrlSettingsCollapse
-                title={capitalize(this.state.urlStem) + " Settings"}
+                title={capitalize(this.state.data.StemUrl.UrlStem) + " Settings"}
                 identifier={SettingId.Group.StemUrl}
-                urlDark={this.state.stemUrlDark}
-                urlHue={this.state.stemUrlHue}
-                urlContrast={this.state.stemUrlContrast}
-                tooltipValue={"Toggle dark mode for all websites starting with " + this.state.urlStem + "."}
+                urlDark={this.state.data.StemUrl.Dark}
+                urlHue={this.state.data.StemUrl.Hue}
+                urlContrast={this.state.data.StemUrl.Contrast}
+                tooltipValue={"Toggle dark mode for all websites starting with " + this.state.data.StemUrl.UrlStem + "."}
             />
 
             <GlobalSettingsCollapse
-                globalDark={this.state.globalDark}
-                globalAutoDark={this.state.globalAutoDark}
-                globalHue={this.state.globalHue}
-                globalContrast={this.state.globalContrast}
-                keyboardShortcut={this.state.keyboardShortcut}
+                globalDark={this.state.data.Global.Dark}
+                globalAutoDark={this.state.data.Global.AutoDark}
+                globalHue={this.state.data.Global.Hue}
+                globalContrast={this.state.data.Global.Contrast}
+                keyboardShortcut={this.state.data.Global.Shortcut}
             />
 
             </div>
@@ -274,45 +246,61 @@ interface ToggleSwitchProps {
 class ToggleSwitch extends React.Component<ToggleSwitchProps, {}>{
 
     identifier: string;
-    group: string;
-    field: string;
+    bootstrapSliderId = "bootstrap-switch-id-";
+
+    // Add ref support
+    refs: {
+        [string: string]: any;
+        switchContainer: any;
+    };
 
     componentWillMount(){
         this.identifier = this.props.group + this.props.field + "Switch";
-        this.group = this.props.group;
-        this.field = this.props.field;
+        this.bootstrapSliderId = this.bootstrapSliderId + this.identifier;
     }
 
-    setupSwitch(){
+    setupSwitch(group: string, field: string, value?: any){
         var switchName = "#" + this.identifier;
-        console.log("Activate switch with name: " + switchName);
-        $(switchName).bootstrapSwitch({
-            onSwitchChange: this.sendOnChangeMessage
-        });
+        console.log("Activate switch with name: " + switchName + " with value: " + value);
+        var switchContainer = $(this.refs.switchContainer);
+        var switchInput = $("<input />").prop("type", "checkbox");
+        switchContainer.append(switchInput);
 
+        switchInput.bootstrapSwitch({
+            size: "mini",
+            onSwitchChange: function(){
+                ToggleSwitch.sendOnChangeMessage(group, field, value);
+            },
+            state: value
+        });
     }
 
-    componentDidMount(){
-        this.setupSwitch();
+    componentDidUpdate(){
+        this.setupSwitch(this.props.group, this.props.field, this.props.isChecked);
     }
 
     render(){
         return (
             <div className="form-group">
              <label className="control-label col-xs-7">{this.props.title}:</label>
-             <div className="col-xs-5">
-               <input type="checkbox" data-size="mini" name={this.identifier} id={this.identifier} checked={this.props.isChecked} onChange={this.sendOnChangeMessage} />
+             <div className="col-xs-5" id={this.bootstrapSliderId}>
+                <div ref="switchContainer"></div>
+               {/* <input type="checkbox" data-size="mini" name={this.identifier} id={this.identifier} checked={this.props.isChecked} onChange={this.dummyOnChange} onClick={this.sendOnChangeMessage}/> */}
              </div>
             </div>
         )
     }
 
-    sendOnChangeMessage(){
+    dummyOnChange(){
+        return;
+    }
+
+    static sendOnChangeMessage(group: string, field: string, value?: any){
         console.log("Should send message");
         popupSender.sendMessage(
-            this.group,
-            this.field
-        )
+            group,
+            field
+        );
     }
 }
 

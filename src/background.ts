@@ -1,6 +1,9 @@
 //  Typings ---------------------------------------------------------------- {{{
 
 /// <reference path="../typings/tsd.d.ts" />
+/// <reference path="SettingId.ts" />
+/// <reference path="Message.ts" />
+/// <reference path="DefaultState.ts" />
 
 //  End Typings ------------------------------------------------------------ }}}
 // PersistentStorage Class ------------------------------------------------ {{{
@@ -448,8 +451,12 @@ class Url {
         ".pdf"
     ];
 
-    constructor(){
-        this.parse(this.defaultUrl);
+    constructor(newUrl?: string){
+        if(newUrl){
+            this.parse(newUrl);
+        } else {
+            this.parse(this.defaultUrl);
+        }
     }
 
     update(callback?: () => void) {
@@ -511,11 +518,6 @@ class Url {
         }
         this.setShouldUpdateMenu(input);
         this.setShouldAutoDark(input);
-        console.log("Parsed new url: " + input);
-        console.log("this.full: " + this.full);
-        console.log("this.stem: " + this.stem);
-        console.log("this.domain: " + this.domain);
-        console.log("this.normal: " + this.normal);
     }
 
     inputInList(input: string, list: string[]): any{
@@ -560,67 +562,121 @@ class Url {
 // End Url Class ---------------------------------------------------------- }}}
 // Messages ---------------------------------------------------------------- {{{
 
-function sendDarkModeStatusMessage(){
-    chrome.runtime.sendMessage({
-        "name": "dark-mode-status",
-        "dark-mode": urlSettings.checkDarkMode(currentUrl),
-        "dark-mode-stem": urlSettings.checkDarkModeStem(currentUrl),
-        "url": currentUrl.getNormal(),
-        "url-stem": currentUrl.getDomain()
-    });
+class BackgroundReceiver extends Message {
+    static init(){
+        BackgroundReceiver.receiveContentUrl();
+        BackgroundReceiver.receiveAutoDark();
+        BackgroundReceiver.receiveRequestState();
+    }
+
+//  Receive Content Url ------------------------------------------------ {{{
+
+    static receiveContentUrl(){
+        Message.receive(
+            Message.Sender.ContentPage,
+            Message.Receiver.Background,
+            Message.Intent.InitContent,
+            BackgroundReceiver.handleReceiveContentUrl
+        );
+    }
+
+    static handleReceiveContentUrl(message: any, tabId: number){
+        executeDarkModeScript(new Url(message.Data), "init", tabId);
+    }
+
+//  End Receive Content Url -------------------------------------------- }}}
+//  Receive Auto Dark Init --------------------------------------------- {{{
+
+    static receiveAutoDark(){
+        Message.receive(
+            Message.Sender.ContentPage,
+            Message.Receiver.Background,
+            Message.Intent.InitAutoDark,
+            BackgroundReceiver.handleReceiveAutoDark
+        );
+    }
+
+    static handleReceiveAutoDark(message: any, tabId: number){
+        isPageDark(function(){
+            // In the future I plan to have a pop asking if this is correct
+            executeTurnOffDarkModeScript();
+        });
+    }
+
+//  End Receive Auto Dark Init ----------------------------------------- }}}
+//  Receive Request State ---------------------------------------------- {{{
+
+    static receiveRequestState(){
+        Message.receive(
+            Message.Sender.Popup,
+            Message.Receiver.Background,
+            Message.Intent.RequestState,
+            BackgroundReceiver.handleRequestState
+        );
+    }
+
+    static handleRequestState(message: any){
+        state.update(currentUrl, urlSettings);
+        BackgroundSender.sendState();
+    }
+
+//  End Receive Request State ------------------------------------------ }}}
 }
 
-// Listen for an event / one-time request from the popup
-function darkModeStatusListener(listenerMessage, actionFunction){
-    chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
-        if(message === listenerMessage){
-            if(debug) console.log("Received Message: " + message);
-            if(typeof(actionFunction) === "function"){
-                actionFunction();
-            }
-            sendDarkModeStatusMessage();
-        }
-    });
+class BackgroundSender extends Message{
+    static sendState(){
+        var dataPackage = state.pack();
+        console.log("Sending state to popup");
+        console.log(dataPackage);
+        Message.send(
+            Message.Sender.Background,
+            Message.Receiver.Popup,
+            Message.Intent.SendState,
+            dataPackage
+        );
+    }
 }
 
-darkModeStatusListener("request-dark-mode-status", null);
+class State extends DefaultState{
 
-darkModeStatusListener("toggle-dark-mode-from-popup", function() {
-    executeDarkModeScript(currentUrl, "toggle");
-});
+    update(url: Url, settings: UrlSettings): void{
+        this.urlFull = url.getNormal();
+        this.urlStem = url.getDomain();
 
-darkModeStatusListener("toggle-dark-mode-stem", function(){
-    executeDarkModeScript(currentUrl, "toggleStem");
-});
+        // this.currentUrlDark = settings.checkDarkMode(url);
+        this.currentUrlDark = true;
+        this.currentUrlHue = false;
+        this.currentUrlContrast = 97;
 
-function darkModeActivatorListener(){
-    chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
-        if(message === "activate-dark-mode"){
-            executeDarkModeScript(currentUrl, "init");
-        }
-    });
+        // Stem Url Settings
+        // this.stemUrlDark = settings.checkDarkModeStem(url);
+        this.stemUrlDark = false;
+        this.stemUrlHue = true;
+        this.stemUrlContrast = 98;
+
+        // Global Dark Mode Settings
+        this.globalDark = true;
+        this.globalAutoDark = false;
+        this.globalHue = true;
+        this.globalContrast = 99;
+        this.updateKeyboardShortcut();
+    }
+
+
+    updateKeyboardShortcut(){
+        chrome.commands.getAll((commands) => {
+            this.globalKeyboardShortcut = commands[1]["shortcut"];
+        });
+    }
 }
-darkModeActivatorListener();
 
-// Send a message to the content script
-var activateDarkMode = function(){
-    chrome.tabs.getSelected(null, function(tab){
-        chrome.tabs.sendMessage(tab.id, {type: "toggle-dark-mode"});
-    });
-};
-
-// Send a message to the content script
-var sendMessageToCurrentTabContext = function(message){
-    chrome.tabs.getSelected(null, function(tab){
-        chrome.tabs.sendMessage(tab.id, {type: message});
-    });
-};
 // End Messages ------------------------------------------------------------ }}}
 // ExecuteScripts ---------------------------------------------------------- {{{
 
-function executeScriptInCurrentWindow(filename){
+function executeScriptInCurrentWindow(filename: string, tabId?: number){
     chrome.tabs.getSelected(null, function(tab){
-        chrome.tabs.executeScript(tab.id, {
+        var executeId = tabId ? tabId : tab.id;
+        chrome.tabs.executeScript(executeId, {
             "file": "build/" + filename,
             "allFrames": true,
             "matchAboutBlank": true,
@@ -628,13 +684,14 @@ function executeScriptInCurrentWindow(filename){
         }, function(){
             if(debug) console.log("Executing " + filename + " in " + tab.title);
         });
+
         if(filename.indexOf("Off") > -1){
             chrome.browserAction.setIcon({
                 "path": {
                     "19": "img/dark-mode-off-19.png",
                     "38": "img/dark-mode-off-38.png"
                 },
-                "tabId": tab.id
+                "tabId": executeId
             });
         } else {
             chrome.browserAction.setIcon({
@@ -642,21 +699,21 @@ function executeScriptInCurrentWindow(filename){
                     "19": "img/dark-mode-on-19.png",
                     "38": "img/dark-mode-on-38.png"
                 },
-                "tabId": tab.id
+                "tabId": executeId
             });
         }
     });
 }
 
-function executeTurnOnDarkModeScript(){
-    executeScriptInCurrentWindow("turnOnDarkMode.js");
+function executeTurnOnDarkModeScript(tabId?: number){
+    executeScriptInCurrentWindow("turnOnDarkMode.js", tabId);
 }
 
-function executeTurnOffDarkModeScript(){
-    executeScriptInCurrentWindow("turnOffDarkMode.js");
+function executeTurnOffDarkModeScript(tabId?: number){
+    executeScriptInCurrentWindow("turnOffDarkMode.js", tabId);
 }
 
-function executeDarkModeScript(url: Url, choice: string){
+function executeDarkModeScript(url: Url, choice: string, tabId?: number){
     if(choice === "toggle"){
         urlSettings.toggleDarkMode(url);
     }
@@ -665,9 +722,9 @@ function executeDarkModeScript(url: Url, choice: string){
     }
     if(urlSettings.checkDarkMode(url)){
         // If darkMode is true, turn on dark mode
-        executeTurnOnDarkModeScript();
+        executeTurnOnDarkModeScript(tabId);
     } else {
-        executeTurnOffDarkModeScript();
+        executeTurnOffDarkModeScript(tabId);
     }
 }
 
@@ -707,7 +764,7 @@ function activateBrowserAction(){
 
 chrome.commands.onCommand.addListener(function(command){
     switch(command){
-        case "toggle-dark-mode":
+        case "toggleDark":
             if(debug) console.log("Keyboard Shortcut caught");
             executeDarkModeScript(currentUrl, "toggle");
             break;
@@ -718,20 +775,36 @@ chrome.commands.onCommand.addListener(function(command){
 // Detect If Page Is Dark -------------------------------------------------- {{{
 
 // Runs on the currently active tab in the current window
+
+var lastIsPageDarkExecution = Date.now();
+
 function isPageDark(lightCallback){
     if(debug) console.log("Starting isPageDark");
     var brightnessThreshold = 50;
     var runScreenshot = currentUrl.getShouldAutoDark();
+    // Number of ms to wait between running isPageDark
+    var isPageDarkMsInterval = 10;
+    if((Date.now() - lastIsPageDarkExecution) < isPageDarkMsInterval){
+        if(runScreenshot){
+            console.log("Not running screenshot, last isPageDark execution was less than " + isPageDarkMsInterval + "ms ago");
+            runScreenshot = false;
+        }
+    } else {
+        console.log("Updating lastIsPageDarkExecution, runScreenshot is: " + runScreenshot);
+        lastIsPageDarkExecution = Date.now();
+    }
 
     // Don't try to take screen shots while chrome is loading.
     // It blocks the background from doing other processing.
-    if(runScreenshot && setup === false){
+    // if(runScreenshot && setup === false){
+    if(runScreenshot){
+        console.log("Capturing tab screenshot!");
         chrome.tabs.captureVisibleTab(function(screenshot){
             resemble(screenshot).onComplete(function(data){
                 if(data.brightness < brightnessThreshold){
-                    if(debug) console.log("Page is dark! Brightness: " + data.brightness);
+                    if(debug) console.log("Page " + currentUrl.getNormal() + " is dark! Brightness: " + data.brightness);
                 } else {
-                    if(debug) console.log("Page is light! Brightness: " + data.brightness);
+                    if(debug) console.log("Page " + currentUrl.getNormal() + " is light! Brightness: " + data.brightness);
                     if(typeof(lightCallback) === "function"){
                         // Check if "dark-mode" for url is undefined
                         if(debug) console.log("Before check whitelist");
@@ -747,16 +820,6 @@ function isPageDark(lightCallback){
         });
     }
 }
-
-chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
-    if(message === "check-is-page-dark"){
-        if(debug) console.log("check-is-page-dark");
-        isPageDark(function(){
-            // In the future I plan to have a pop asking if this is correct
-            executeTurnOffDarkModeScript();
-        });
-    }
-});
 
 // End Detect If Page Is Dark ---------------------------------------------- }}}
 // Context (Right Click) Menus --------------------------------------------- {{{
@@ -808,13 +871,9 @@ function updateContextMenuAndBrowserAction(){
     // If one of the events triggers this function don't do it again for
     // `updateIntervalMs` milliseconds.
     if(Date.now() > updateContextMenuToggleUrlStemTimestamp + updateIntervalMs){
-        if(debug) console.log("In event loop @ " + Date.now());
         currentUrl.update(function(){
-            console.log("After currentUrl update");
-            console.log("shouldUpdateMenu?: " + currentUrl.getShouldUpdateMenu() + " for url " + currentUrl.getNormal());
             if(currentUrl.getShouldUpdateMenu()){
                 if(showContextMenus){
-                    console.log("Updating context menu");
                     // Update the relevant context menus
                     chrome.contextMenus.update("toggleStemFromContextMenu", {
                         "title": "Toggle Dark Mode for all " + currentUrl.getDomain()  + " urls",
@@ -846,26 +905,21 @@ function updateContextMenuAndBrowserAction(){
 // Context Menu Events ----------------------------------------------------- {{{
 
 chrome.tabs.onHighlighted.addListener(function(){
-    if(debug) console.log("onHighlighted @ " + Date.now());
     updateContextMenuAndBrowserAction();
 });
 
 chrome.tabs.onUpdated.addListener(function(){
-    if(debug) console.log("onUpdated @ " + Date.now());
     updateContextMenuAndBrowserAction();
 });
 chrome.tabs.onActivated.addListener(function(){
-    if(debug) console.log("onActivated @ " + Date.now());
     updateContextMenuAndBrowserAction();
 });
 
 chrome.windows.onCreated.addListener(function(){
-    if(debug) console.log("onCreated @ " + Date.now());
     updateContextMenuAndBrowserAction();
 });
 
 chrome.windows.onFocusChanged.addListener(function(){
-    if(debug) console.log("onFocusChanged @ " + Date.now());
     updateContextMenuAndBrowserAction();
 });
 
@@ -890,6 +944,11 @@ var currentUrl = new Url();
 currentUrl.update(function(){
     createToggleStemContextMenu();
 });
+
+BackgroundReceiver.init();
+
+var state = new State();
+state.update(currentUrl, urlSettings);
 
 // Wait 10 seconds to declare setup is over
 setTimeout(function(){
