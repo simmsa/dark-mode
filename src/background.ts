@@ -931,7 +931,6 @@ chrome.contextMenus.onClicked.addListener(function(){
 // Main ------------------------------------------------------------------- {{{
 
 var debug = true;
-var setup = true;
 
 setTimeout(function(){
     updateContextMenuAndBrowserAction();
@@ -946,9 +945,9 @@ BackgroundReceiver.init();
 
 var state = new State();
 
-// Wait 10 seconds to declare setup is over
-setTimeout(function(){
-    setup = false;
-}, 10000);
+currentUrl.update(function(){
+    createToggleStemContextMenu();
+    state.update(currentUrl, urlSettings, function(){});
+});
 
 // End Main --------------------------------------------------------------- }}}
