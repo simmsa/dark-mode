@@ -40,7 +40,7 @@
         "<all_urls>"
     ],
     "commands": {
-        "toggleDark": {
+        "toggle-dark-mode": {
             "suggested_key": {
                 "default": "Ctrl+Shift+I"
             },

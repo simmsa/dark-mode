@@ -764,7 +764,7 @@ function activateBrowserAction(){
 
 chrome.commands.onCommand.addListener(function(command){
     switch(command){
-        case "toggleDark":
+        case "toggle-dark-mode":
             if(debug) console.log("Keyboard Shortcut caught");
             executeDarkModeScript(currentUrl, "toggle");
             break;
