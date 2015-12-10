@@ -318,6 +318,11 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
     htmlId: string;
     htmlValueId: string;
 
+    refs: {
+        [string: string]: any;
+        sliderContainer: any;
+    }
+
     componentWillMount(){
         this.jQueryId = "#" + this.props.identifier + "Slider";
         this.jQueryValueId = "#" + this.props.identifier + "SliderValue";
@@ -325,8 +330,16 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
         this.htmlValueId = this.props.identifier + "SliderValue";
     }
 
-    componentDidMount(){
-        $(this.jQueryId).slider({
+    componentDidUpdate(){
+        var sliderContainer = $(this.refs.sliderContainer);
+        var sliderInput = $("<input />").prop("type", "text");
+        sliderContainer.replaceWith(sliderInput);
+        sliderInput.slider({
+            id: this.htmlId,
+            min: this.props.min,
+            max: this.props.max,
+            step: 1,
+            value: this.props.current,
             tooltip: "hide"
         });
     }
@@ -341,7 +354,7 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
            <div className="form-group">
              <label className="control-label col-xs-6" style={{paddingRight: "0px"}} >{this.props.title} <span id={this.htmlValueId}></span>{this.props.current}%:</label>
              <div className="col-xs-6 sliderContainer">
-                 <input type="text" id={this.htmlId} data-slider-min={this.props.min} data-slider-max={this.props.max} data-slider-value={this.props.current} data-slider-step="1" onChange={this.sendOnChangeMessage} />
+                 <div ref="sliderContainer"></div>
              </div>
            </div>
         )
