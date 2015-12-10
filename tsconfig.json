@@ -7,13 +7,15 @@
     "files": [
         "src/background.ts",
         "src/content.ts",
+        "src/ContentSender.ts",
         "src/dark-mode.ts",
+        "src/DefaultState.ts",
+        "src/Message.ts",
         "src/popup.tsx",
+        "src/SettingId.ts",
         "src/tests.ts",
         "src/turnOffDarkMode.ts",
-        "src/turnOnDarkMode.ts",
-        "src/SettingId.ts",
-        "src/MessageSender.ts"
+        "src/turnOnDarkMode.ts"
     ],
     "exclude": [
         "lib"
