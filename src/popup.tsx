@@ -2,7 +2,6 @@
 
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="SettingId.ts" />
-/// <reference path="MessageSender.ts" />
 /// <reference path="Message.ts" />
 /// <reference path="DefaultState.ts" />
 
@@ -11,8 +10,6 @@
 function capitalize(s: string): string{
     return s[0].toUpperCase() + s.slice(1);
 }
-
-var popupSender = new MessageSender("Popup");
 
 //  UrlSettingsCollapse ------------------------------------------------ {{{
 
@@ -76,7 +73,7 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
                         title="Contrast"
                         min={50}
                         max={150}
-                        current={85}
+                        current={this.props.urlContrast}
                    />
                    <div className="form-group">
                      <div className="col-xs-12">
@@ -264,12 +261,12 @@ class ToggleSwitch extends React.Component<ToggleSwitchProps, {}>{
         console.log("Activate switch with name: " + switchName + " with value: " + value);
         var switchContainer = $(this.refs.switchContainer);
         var switchInput = $("<input />").prop("type", "checkbox");
-        switchContainer.append(switchInput);
+        switchContainer.replaceWith(switchInput);
 
         switchInput.bootstrapSwitch({
             size: "mini",
-            onSwitchChange: function(){
-                ToggleSwitch.sendOnChangeMessage(group, field, value);
+            onSwitchChange: () => {
+                this.sendOnChangeMessage(group, field, value);
             },
             state: value
         });
@@ -279,28 +276,27 @@ class ToggleSwitch extends React.Component<ToggleSwitchProps, {}>{
         this.setupSwitch(this.props.group, this.props.field, this.props.isChecked);
     }
 
+    sendOnChangeMessage(group: string, field: string, value?: any){
+        Message.send(
+            Message.Sender.Popup,
+            Message.Receiver.Background,
+            Message.Intent.ToggleField,
+            {
+                Group: this.props.group,
+                Field: this.props.field,
+            }
+        );
+    }
+
     render(){
         return (
             <div className="form-group">
              <label className="control-label col-xs-7">{this.props.title}:</label>
              <div className="col-xs-5" id={this.bootstrapSliderId}>
                 <div ref="switchContainer"></div>
-               {/* <input type="checkbox" data-size="mini" name={this.identifier} id={this.identifier} checked={this.props.isChecked} onChange={this.dummyOnChange} onClick={this.sendOnChangeMessage}/> */}
              </div>
             </div>
         )
-    }
-
-    dummyOnChange(){
-        return;
-    }
-
-    static sendOnChangeMessage(group: string, field: string, value?: any){
-        console.log("Should send message");
-        popupSender.sendMessage(
-            group,
-            field
-        );
     }
 }
 

@@ -567,6 +567,7 @@ class BackgroundReceiver extends Message {
         BackgroundReceiver.receiveContentUrl();
         BackgroundReceiver.receiveAutoDark();
         BackgroundReceiver.receiveRequestState();
+        BackgroundReceiver.receivePopupToggle();
     }
 
 //  Receive Content Url ------------------------------------------------ {{{
@@ -622,6 +623,42 @@ class BackgroundReceiver extends Message {
     }
 
 //  End Receive Request State ------------------------------------------ }}}
+
+    static receivePopupToggle(){
+        Message.receive(
+            Message.Sender.Popup,
+            Message.Receiver.Background,
+            Message.Intent.ToggleField,
+            BackgroundReceiver.handlePopupToggle
+        );
+    }
+
+    static handlePopupToggle(message){
+        switch(message.Data.Group){
+            // Current Url Toggle
+            case SettingId.Group.CurrentUrl:
+                switch(message.Data.Field){
+                    case SettingId.Field.Dark:
+                        executeDarkModeScript(currentUrl, "toggle");
+                        break;
+                }
+                break;
+            // Stem Url Toggle
+            case SettingId.Group.StemUrl:
+                switch(message.Data.Field){
+                    case SettingId.Field.Dark:
+                        executeDarkModeScript(currentUrl, "toggleStem");
+                        break;
+                }
+                break;
+            // Global Toggle
+            case SettingId.Group.Global:
+                break;
+        }
+        state.update(currentUrl, urlSettings, function(){
+            BackgroundSender.sendState();
+        });
+    }
 }
 
 class BackgroundSender extends Message{
