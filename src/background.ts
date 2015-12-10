@@ -560,7 +560,7 @@ class Url {
 }
 
 // End Url Class ---------------------------------------------------------- }}}
-// Messages ---------------------------------------------------------------- {{{
+// BackgroundReceiver ------------------------------------------------- {{{
 
 class BackgroundReceiver extends Message {
     static init(){
@@ -661,6 +661,9 @@ class BackgroundReceiver extends Message {
     }
 }
 
+// End BackgroundReceiver --------------------------------------------- }}}
+// BackgroundSender --------------------------------------------------- {{{
+
 class BackgroundSender extends Message{
     static sendState(){
         var dataPackage = state.pack();
@@ -674,6 +677,9 @@ class BackgroundSender extends Message{
         );
     }
 }
+
+// End BackgroundSender ----------------------------------------------- }}}
+// State -------------------------------------------------------------- {{{
 
 class State extends DefaultState{
 
@@ -707,7 +713,7 @@ class State extends DefaultState{
     }
 }
 
-// End Messages ------------------------------------------------------------ }}}
+// End State ---------------------------------------------------------- }}}
 // ExecuteScripts ---------------------------------------------------------- {{{
 
 function executeScriptInCurrentWindow(filename: string, tabId?: number){
