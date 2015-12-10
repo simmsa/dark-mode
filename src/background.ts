@@ -616,8 +616,9 @@ class BackgroundReceiver extends Message {
     }
 
     static handleRequestState(message: any){
-        state.update(currentUrl, urlSettings);
-        BackgroundSender.sendState();
+        state.update(currentUrl, urlSettings, function(){
+            BackgroundSender.sendState();
+        });
     }
 
 //  End Receive Request State ------------------------------------------ }}}
@@ -639,18 +640,16 @@ class BackgroundSender extends Message{
 
 class State extends DefaultState{
 
-    update(url: Url, settings: UrlSettings): void{
+    update(url: Url, settings: UrlSettings, callback: () => void): void{
         this.urlFull = url.getNormal();
         this.urlStem = url.getDomain();
 
-        // this.currentUrlDark = settings.checkDarkMode(url);
-        this.currentUrlDark = true;
+        this.currentUrlDark = settings.checkDarkMode(url);
         this.currentUrlHue = false;
         this.currentUrlContrast = 97;
 
         // Stem Url Settings
-        // this.stemUrlDark = settings.checkDarkModeStem(url);
-        this.stemUrlDark = false;
+        this.stemUrlDark = settings.checkDarkModeStem(url);
         this.stemUrlHue = true;
         this.stemUrlContrast = 98;
 
@@ -659,13 +658,14 @@ class State extends DefaultState{
         this.globalAutoDark = false;
         this.globalHue = true;
         this.globalContrast = 99;
-        this.updateKeyboardShortcut();
+        this.updateKeyboardShortcut(callback);
     }
 
 
-    updateKeyboardShortcut(){
+    updateKeyboardShortcut(callback: () => void){
         chrome.commands.getAll((commands) => {
             this.globalKeyboardShortcut = commands[1]["shortcut"];
+            callback();
         });
     }
 }
@@ -941,14 +941,10 @@ setTimeout(function(){
 var urlSettings = new UrlSettings();
 
 var currentUrl = new Url();
-currentUrl.update(function(){
-    createToggleStemContextMenu();
-});
 
 BackgroundReceiver.init();
 
 var state = new State();
-state.update(currentUrl, urlSettings);
 
 // Wait 10 seconds to declare setup is over
 setTimeout(function(){
