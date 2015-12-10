@@ -138,8 +138,8 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
                     isChecked={this.props.globalHue}
                 />
                 <div className="form-group">
-                    <label className="control-label col-xs-7">Shortcut:</label>
-                    <div className="col-xs-5">{this.props.keyboardShortcut}</div>
+                    <label className="control-label col-xs-4">Shortcut:</label>
+                    <div className="col-xs-8" style={{textAlign: "right", paddingRight: "11px"}}>{this.props.keyboardShortcut}</div>
                 </div>
                  </form>
                </div>
