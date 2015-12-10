@@ -582,7 +582,7 @@ class BackgroundReceiver extends Message {
     }
 
     static handleReceiveContentUrl(message: any, tabId: number){
-        executeDarkModeScript(new Url(message.Data), "init", tabId);
+        ContentAction.checkDarkMode(new Url(message.Data), tabId);
     }
 
 //  End Receive Content Url -------------------------------------------- }}}
@@ -600,7 +600,7 @@ class BackgroundReceiver extends Message {
     static handleReceiveAutoDark(message: any, tabId: number){
         isPageDark(function(){
             // In the future I plan to have a pop asking if this is correct
-            executeTurnOffDarkModeScript();
+            ContentAction.checkDarkMode(currentUrl);
         });
     }
 
@@ -639,7 +639,7 @@ class BackgroundReceiver extends Message {
             case SettingId.Group.CurrentUrl:
                 switch(message.Data.Field){
                     case SettingId.Field.Dark:
-                        executeDarkModeScript(currentUrl, "toggle");
+                        ContentAction.toggleDarkMode(currentUrl);
                         break;
                 }
                 break;
@@ -647,7 +647,7 @@ class BackgroundReceiver extends Message {
             case SettingId.Group.StemUrl:
                 switch(message.Data.Field){
                     case SettingId.Field.Dark:
-                        executeDarkModeScript(currentUrl, "toggleStem");
+                        ContentAction.toggleDarkModeStem(currentUrl);
                         break;
                 }
                 break;
@@ -716,58 +716,75 @@ class State extends DefaultState{
 // End State ---------------------------------------------------------- }}}
 // ExecuteScripts ---------------------------------------------------------- {{{
 
-function executeScriptInCurrentWindow(filename: string, tabId?: number){
-    chrome.tabs.getSelected(null, function(tab){
-        var executeId = tabId ? tabId : tab.id;
-        chrome.tabs.executeScript(executeId, {
-            "file": "build/" + filename,
-            "allFrames": true,
-            "matchAboutBlank": true,
-            "runAt": "document_start",
-        }, function(){
-            if(debug) console.log("Executing " + filename + " in " + tab.title);
-        });
+class ContentAction {
 
-        if(filename.indexOf("Off") > -1){
-            chrome.browserAction.setIcon({
-                "path": {
-                    "19": "img/dark-mode-off-19.png",
-                    "38": "img/dark-mode-off-38.png"
-                },
-                "tabId": executeId
-            });
-        } else {
-            chrome.browserAction.setIcon({
-                "path": {
-                    "19": "img/dark-mode-on-19.png",
-                    "38": "img/dark-mode-on-38.png"
-                },
-                "tabId": executeId
-            });
+    private static setAttribute = `
+        function setAttribute(name, value){
+            document.documentElement.setAttribute("data-" + name, value);
         }
-    });
-}
+    `;
+    private static setDarkModeOn = `
+        setAttribute("dark-mode", "on");
+    `;
 
-function executeTurnOnDarkModeScript(tabId?: number){
-    executeScriptInCurrentWindow("turnOnDarkMode.js", tabId);
-}
+    private static setDarkModeOff = `
+        setAttribute("dark-mode", "off");
+    `;
 
-function executeTurnOffDarkModeScript(tabId?: number){
-    executeScriptInCurrentWindow("turnOffDarkMode.js", tabId);
-}
+    private static executeScriptInCurrentWindow(action: string, tabId?: number){
+        chrome.tabs.getSelected(null, function(tab){
+            var executeId = tabId ? tabId : tab.id;
+            // chrome.tabs.executeScript(executeId, {
+                // "file": "build/" + filename,
+            // chrome.tabs.executeScript(executeId, {
+            //     code: function(){
+            //          ContentAction.testLog();
+            //     },
+            chrome.tabs.executeScript(executeId, {
+                code: ContentAction.setAttribute + action,
+                "allFrames": true,
+                "matchAboutBlank": true,
+                "runAt": "document_start",
+            }, function(){
+                if(debug) console.log("Executing " + action + " in " + tab.title);
+            });
 
-function executeDarkModeScript(url: Url, choice: string, tabId?: number){
-    if(choice === "toggle"){
+            if(action.indexOf("dark-mode") > -1 && action.indexOf("off") > -1){
+                chrome.browserAction.setIcon({
+                    "path": {
+                        "19": "img/dark-mode-off-19.png",
+                        "38": "img/dark-mode-off-38.png"
+                    },
+                    "tabId": executeId
+                });
+            } else {
+                chrome.browserAction.setIcon({
+                    "path": {
+                        "19": "img/dark-mode-on-19.png",
+                        "38": "img/dark-mode-on-38.png"
+                    },
+                    "tabId": executeId
+                });
+            }
+        });
+    }
+
+    static toggleDarkMode(url: Url, tabId?: number){
         urlSettings.toggleDarkMode(url);
+        ContentAction.checkDarkMode(url, tabId);
     }
-    if(choice === "toggleStem"){
+
+    static toggleDarkModeStem(url: Url, tabId?: number){
         urlSettings.toggleDarkModeStem(url);
+        ContentAction.checkDarkMode(url, tabId);
     }
-    if(urlSettings.checkDarkMode(url)){
-        // If darkMode is true, turn on dark mode
-        executeTurnOnDarkModeScript(tabId);
-    } else {
-        executeTurnOffDarkModeScript(tabId);
+
+    static checkDarkMode(url: Url, tabId?: number){
+        if(urlSettings.checkDarkMode(url)){
+            ContentAction.executeScriptInCurrentWindow(ContentAction.setDarkModeOn, tabId);
+            return;
+        }
+        ContentAction.executeScriptInCurrentWindow(ContentAction.setDarkModeOff, tabId);
     }
 }
 
@@ -809,7 +826,7 @@ chrome.commands.onCommand.addListener(function(command){
     switch(command){
         case "toggle-dark-mode":
             if(debug) console.log("Keyboard Shortcut caught");
-            executeDarkModeScript(currentUrl, "toggle");
+            ContentAction.toggleDarkMode(currentUrl);
             break;
     }
 });
@@ -873,7 +890,7 @@ function createToggleDarkModeContextMenu(){
         "id": "toggleDarkMode",
         "title": "Toggle Dark Mode",
         "onclick": function(){
-            executeDarkModeScript(currentUrl, "toggle");
+            ContentAction.toggleDarkMode(currentUrl);
         },
         "contexts": ["all"]
     });
@@ -897,7 +914,7 @@ function createToggleStemContextMenu(){
         "id": "toggleStemFromContextMenu",
         "title": "Toggle Dark Mode for all " + currentUrl.getDomain()  + " urls",
         "onclick": function(){
-            executeDarkModeScript(currentUrl, "toggleStem");
+            ContentAction.toggleDarkModeStem(currentUrl);
         },
         "contexts": ["all"]
     });

@@ -13,9 +13,7 @@
         "src/Message.ts",
         "src/popup.tsx",
         "src/SettingId.ts",
-        "src/tests.ts",
-        "src/turnOffDarkMode.ts",
-        "src/turnOnDarkMode.ts"
+        "src/tests.ts"
     ],
     "exclude": [
         "lib"
