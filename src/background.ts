@@ -568,6 +568,7 @@ class BackgroundReceiver extends Message {
         BackgroundReceiver.receiveAutoDark();
         BackgroundReceiver.receiveRequestState();
         BackgroundReceiver.receivePopupToggle();
+        BackgroundReceiver.receivePopupClear();
     }
 
 //  Receive Content Url ------------------------------------------------ {{{
@@ -623,6 +624,8 @@ class BackgroundReceiver extends Message {
     }
 
 //  End Receive Request State ------------------------------------------ }}}
+//  Receive Popup Toggle ---------------------------------------------- {{{
+
 
     static receivePopupToggle(){
         Message.receive(
@@ -659,6 +662,42 @@ class BackgroundReceiver extends Message {
             BackgroundSender.sendState();
         });
     }
+
+//  End Receive Popup Toggle ------------------------------------------ }}}
+//  Receive Popup Clear ----------------------------------------------- {{{
+
+
+    static receivePopupClear(){
+        Message.receive(
+            Message.Sender.Popup,
+            Message.Receiver.Background,
+            Message.Intent.ResetGroup,
+            BackgroundReceiver.handleReceivePopupClear
+        );
+    }
+
+    static handleReceivePopupClear(message){
+        console.log("Received popupClear message in destination!");
+        console.log("message:");
+        console.log(message);
+        switch(message.Data){
+            case SettingId.Group.CurrentUrl:
+                urlSettings.clearUrl(currentUrl);
+                break;
+            case SettingId.Group.StemUrl:
+                urlSettings.clearUrlStem(currentUrl);
+                break;
+            case SettingId.Group.Global:
+                // TODO
+                break;
+        }
+        state.update(currentUrl, urlSettings, function(){
+            BackgroundSender.sendState();
+            ContentAction.checkDarkMode(currentUrl);
+        });
+    }
+
+//  End Receive Popup Clear ------------------------------------------- }}}
 }
 
 // End BackgroundReceiver --------------------------------------------- }}}
@@ -714,7 +753,7 @@ class State extends DefaultState{
 }
 
 // End State ---------------------------------------------------------- }}}
-// ExecuteScripts ---------------------------------------------------------- {{{
+// ContentAction ---------------------------------------------------------- {{{
 
 class ContentAction {
 
@@ -788,7 +827,7 @@ class ContentAction {
     }
 }
 
-// End ExecuteScripts ------------------------------------------------------ }}}
+// End ContentAction ------------------------------------------------------ }}}
 // Browser Action ---------------------------------------------------------- {{{
 
 function deactivateBrowserAction(){

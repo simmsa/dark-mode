@@ -75,11 +75,10 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
                         max={150}
                         current={this.props.urlContrast}
                    />
-                   <div className="form-group">
-                     <div className="col-xs-12">
-                       <button type="button" className="btn btn-danger btn-small reset-button">Reset</button>
-                     </div>
-                   </div>
+                   <ResetButton
+                       buttonText="Reset"
+                       group={this.props.identifier}
+                   />
                    <div className="form-group">
                      <div className="col-xs-12">
                         <a href="#" id={this.tooltipHtmlId} style={{float: "right"}}>?</a>
@@ -141,6 +140,10 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
                     <label className="control-label col-xs-4">Shortcut:</label>
                     <div className="col-xs-8" style={{textAlign: "right", paddingRight: "11px"}}>{this.props.keyboardShortcut}</div>
                 </div>
+                <ResetButton
+                    buttonText="Reset All Settings"
+                    group={SettingId.Group.Global}
+                />
                  </form>
                </div>
              </div>
@@ -362,6 +365,33 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
 }
 
 //  End ToggleSlider --------------------------------------------------- }}}
+interface ResetButtonProps {
+    buttonText: string;
+    group: string;
+}
+
+class ResetButton extends React.Component<ResetButtonProps, {}>{
+    render(){
+        console.log("Building button with group: " + this.props.group);
+        return (
+           <div className="form-group">
+             <div className="col-xs-12">
+               <button type="button" className="btn btn-danger btn-small reset-button" onClick={this.sendResetMessage.bind(this)}>{this.props.buttonText}</button>
+             </div>
+           </div>
+        )
+    }
+
+    sendResetMessage(){
+        console.log("Sending reset message");
+        Message.send(
+            Message.Sender.Popup,
+            Message.Receiver.Background,
+            Message.Intent.ResetGroup,
+            this.props.group
+        );
+    }
+}
 //  Render ------------------------------------------------------------ {{{
 
 ReactDOM.render(

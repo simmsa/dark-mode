@@ -15,6 +15,7 @@ class Message {
 
         ToggleField: "ToggleField",
         ChangeField: "ChangeField",
+        ResetGroup: "ResetGroup",
 
         RequestState: "RequestState",
         SendState: "SendState",
