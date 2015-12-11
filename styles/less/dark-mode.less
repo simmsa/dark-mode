@@ -1,7 +1,7 @@
 @media screen{
+
     /* Invert Everything! */
-    html[data-dark-mode="on"],
-    html[data-dark-mode="on"] .dark-mode {
+    html[data-dark-mode="on"]{
         /* -webkit-filter: invert(100%) hue-rotate(180deg) contrast(85%); */
         -webkit-filter: invert() hue-rotate(180deg) brightness(105%) contrast(85%);
     }
@@ -18,33 +18,16 @@
 
     /* Re-invert things we don't want inverted */
 
-    /* Anything with a background-image according to advancedDarkMode() */
-    html[data-dark-mode="on"] .no-dark-mode,
     /* All images */
     html[data-dark-mode="on"] img,
     /* Videos */
     html[data-dark-mode="on"] video,
-    /* Youtube player */
-    /* html[data-dark-mode="on"] .player-api, */
-    /* Vimeo video and player */
-    /* html[data-dark-mode="on"] .player_container, */
     /* Anything flash */
     html[data-dark-mode="on"] object[type="application/x-shockwave-flash"],
     html[data-dark-mode="on"] embed[type="application/x-shockwave-flash"],
-    /* Netflix */
-    /* html[data-dark-mode="on"] #SLPlayer, */
-    /* Google Images */
-    /* html[data-dark-mode="on"] #irc_cc, */
     /* Anything with a background image set in html after the body element*/
     html[data-dark-mode="on"] body * [style*=background-image]
     {
         -webkit-filter: hue-rotate(180deg) contrast(100%)  invert();
-    }
-
-    /* jQuery Background Image Inversion */
-    html[data-dark-mode="on"] .dark-mode > *,
-    html[data-dark-mode="on"] .dark-mode > * > * > *,
-    html[data-dark-mode="on"] .dark-mode > * > * > * > * > *{
-        -webkit-filter: invert() contrast(1);
     }
 }

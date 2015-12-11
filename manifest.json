@@ -8,7 +8,7 @@
             "matches": ["<all_urls>"],
             "js":  ["lib/jquery.min.js", "build/Message.js", "build/ContentSender.js", "build/content.js"],
             "run_at": "document_start",
-            "css": ["dark-mode.css"],
+            "css": ["styles/css/dark-mode.css"],
             "all_frames": true,
             "matches_about_blank": true
         }
@@ -17,7 +17,7 @@
         "scripts": ["lib/resemblejs/resemble.js", "./lib/urijs/src/URI.min.js", "build/SettingId.js", "build/DefaultState.js", "build/Message.js", "build/MessageSender.js", "build/background.js"]
     },
     "web_accessible_resources": [
-        "dark-mode.css"
+        "styles/css/dark-mode.css"
     ],
     "description": "Make websites easier on your eyes.",
     "icons": {
