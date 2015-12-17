@@ -17,3 +17,23 @@ Dark mode = Off = False
 | Off       | Undef | False    | Off       | False  |
 | Off       | False | False    | Off       | False  |
 
+## Building CSS
+
+Build the content CSS (`dark-mode.css`) with:
+
+```bash
+gulp postcss
+```
+
+Build the pop up CSS (`dark-mode-popup.css`) with:
+
+```bash
+gulp less
+```
+
+And build all CSS with:
+
+```bash
+gulp
+```
+

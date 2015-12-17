@@ -758,16 +758,24 @@ class State extends DefaultState{
 class ContentAction {
 
     private static setAttribute = `
-        function setAttribute(name, value){
+        function setAttributeForDarkMode(name, value){
             document.documentElement.setAttribute("data-" + name, value);
         }
     `;
     private static setDarkModeOn = `
-        setAttribute("dark-mode", "on");
+        setAttributeForDarkMode("dark-mode", "on");
     `;
 
     private static setDarkModeOff = `
-        setAttribute("dark-mode", "off");
+        setAttributeForDarkMode("dark-mode", "off");
+    `;
+
+    private static setHueRotateOn = `
+        setAttributeForDarkMode("dark-mode-hue", "on");
+    `;
+
+    private static setContrastTo85 = `
+        setAttributeForDarkMode("dark-mode-contrast", "85");
     `;
 
     private static executeScriptInCurrentWindow(action: string, tabId?: number){
@@ -780,12 +788,14 @@ class ContentAction {
             //          ContentAction.testLog();
             //     },
             chrome.tabs.executeScript(executeId, {
-                code: ContentAction.setAttribute + action,
+                code: ContentAction.setAttribute + action + ContentAction.setHueRotateOn + ContentAction.setContrastTo85,
                 "allFrames": true,
                 "matchAboutBlank": true,
                 "runAt": "document_start",
-            }, function(){
+            }, function(result){
                 if(debug) console.log("Executing " + action + " in " + tab.title);
+                console.log("Execute result is:");
+                console.log(result);
             });
 
             if(action.indexOf("dark-mode") > -1 && action.indexOf("off") > -1){
