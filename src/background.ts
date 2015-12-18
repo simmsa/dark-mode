@@ -1,4 +1,4 @@
-//  Typings ---------------------------------------------------------------- {{{
+// Typings ---------------------------------------------------------------- {{{
 
 /// <reference path="../typings/tsd.d.ts" />
 /// <reference path="SettingId.ts" />
@@ -418,6 +418,15 @@ class UrlSettings extends PersistentStorage {
     clearHueRotateStem(url: Url){
         this.removeStemField(url, this.fields.hueRotate.name);
     }
+
+    getUrlState(url: Url): any{
+        var result = {};
+
+        result[SettingId.Field.Dark] = this.checkDarkMode(url);
+        result[SettingId.Field.Hue] = this.checkHueRotate(url);
+
+        return result;
+    }
 }
 
 // End UrlSettings Class -------------------------------------------------- }}}
@@ -644,6 +653,9 @@ class BackgroundReceiver extends Message {
                     case SettingId.Field.Dark:
                         ContentAction.toggleDarkMode(currentUrl);
                         break;
+                    case SettingId.Field.Hue:
+                        ContentAction.toggleHue(currentUrl);
+                        break;
                 }
                 break;
             // Stem Url Toggle
@@ -651,6 +663,9 @@ class BackgroundReceiver extends Message {
                 switch(message.Data.Field){
                     case SettingId.Field.Dark:
                         ContentAction.toggleDarkModeStem(currentUrl);
+                        break;
+                    case SettingId.Field.Hue:
+                        ContentAction.toggleHueStem(currentUrl);
                         break;
                 }
                 break;
@@ -727,12 +742,12 @@ class State extends DefaultState{
         this.urlStem = url.getDomain();
 
         this.currentUrlDark = settings.checkDarkMode(url);
-        this.currentUrlHue = false;
+        this.currentUrlHue = settings.checkHueRotate(url);
         this.currentUrlContrast = 97;
 
         // Stem Url Settings
         this.stemUrlDark = settings.checkDarkModeStem(url);
-        this.stemUrlHue = true;
+        this.stemUrlHue = settings.checkHueRotateStem(url);
         this.stemUrlContrast = 98;
 
         // Global Dark Mode Settings
@@ -774,6 +789,10 @@ class ContentAction {
         setAttributeForDarkMode("dark-mode-hue", "on");
     `;
 
+    private static setHueRotateOff = `
+        setAttributeForDarkMode("dark-mode-hue", "off");
+    `;
+
     private static setContrastTo85 = `
         setAttributeForDarkMode("dark-mode-contrast", "85");
     `;
@@ -781,59 +800,72 @@ class ContentAction {
     private static executeScriptInCurrentWindow(action: string, tabId?: number){
         chrome.tabs.getSelected(null, function(tab){
             var executeId = tabId ? tabId : tab.id;
-            // chrome.tabs.executeScript(executeId, {
-                // "file": "build/" + filename,
-            // chrome.tabs.executeScript(executeId, {
-            //     code: function(){
-            //          ContentAction.testLog();
-            //     },
             chrome.tabs.executeScript(executeId, {
-                code: ContentAction.setAttribute + action + ContentAction.setHueRotateOn + ContentAction.setContrastTo85,
+                code: ContentAction.setAttribute + action + ContentAction.setContrastTo85,
                 "allFrames": true,
                 "matchAboutBlank": true,
                 "runAt": "document_start",
             }, function(result){
                 if(debug) console.log("Executing " + action + " in " + tab.title);
-                console.log("Execute result is:");
-                console.log(result);
             });
-
-            if(action.indexOf("dark-mode") > -1 && action.indexOf("off") > -1){
-                chrome.browserAction.setIcon({
-                    "path": {
-                        "19": "img/dark-mode-off-19.png",
-                        "38": "img/dark-mode-off-38.png"
-                    },
-                    "tabId": executeId
-                });
-            } else {
-                chrome.browserAction.setIcon({
-                    "path": {
-                        "19": "img/dark-mode-on-19.png",
-                        "38": "img/dark-mode-on-38.png"
-                    },
-                    "tabId": executeId
-                });
-            }
         });
+    }
+
+    static checkDarkMode(url: Url, tabId?: number){
+        ContentAction.passStateToExecute(url, tabId);
     }
 
     static toggleDarkMode(url: Url, tabId?: number){
         urlSettings.toggleDarkMode(url);
-        ContentAction.checkDarkMode(url, tabId);
+        ContentAction.passStateToExecute(url, tabId);
     }
 
     static toggleDarkModeStem(url: Url, tabId?: number){
         urlSettings.toggleDarkModeStem(url);
-        ContentAction.checkDarkMode(url, tabId);
+        ContentAction.passStateToExecute(url, tabId);
     }
 
-    static checkDarkMode(url: Url, tabId?: number){
-        if(urlSettings.checkDarkMode(url)){
-            ContentAction.executeScriptInCurrentWindow(ContentAction.setDarkModeOn, tabId);
-            return;
+    static toggleHue(url: Url, tabId?: number){
+        urlSettings.toggleHueRotate(url);
+        ContentAction.passStateToExecute(url, tabId);
+    }
+
+    static toggleHueStem(url: Url, tabId?: number){
+        urlSettings.toggleHueRotateStem(url);
+        ContentAction.passStateToExecute(url, tabId);
+    }
+
+    static passStateToExecute(url: Url, tabId?: number){
+        var action = "";
+        var state = urlSettings.getUrlState(url);
+
+        if(state.Dark){
+            action += ContentAction.setDarkModeOn;
+            chrome.browserAction.setIcon({
+                "path": {
+                    "19": "img/dark-mode-on-19.png",
+                    "38": "img/dark-mode-on-38.png"
+                }
+            });
+        } else {
+            action += ContentAction.setDarkModeOff;
+            chrome.browserAction.setIcon({
+                "path": {
+                    "19": "img/dark-mode-off-19.png",
+                    "38": "img/dark-mode-off-38.png"
+                }
+            });
         }
-        ContentAction.executeScriptInCurrentWindow(ContentAction.setDarkModeOff, tabId);
+
+        if(state.Hue){
+            action += ContentAction.setHueRotateOn;
+        } else {
+            action += ContentAction.setHueRotateOff;
+        }
+
+        console.log("Executing action: " + action + " in url: " + url.getNormal());
+
+        ContentAction.executeScriptInCurrentWindow(action, tabId);
     }
 }
 

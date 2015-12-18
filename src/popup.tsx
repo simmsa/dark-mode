@@ -365,6 +365,8 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
 }
 
 //  End ToggleSlider --------------------------------------------------- }}}
+//  ResetButton -------------------------------------------------------- {{{
+
 interface ResetButtonProps {
     buttonText: string;
     group: string;
@@ -392,6 +394,8 @@ class ResetButton extends React.Component<ResetButtonProps, {}>{
         );
     }
 }
+
+//  End ResetButton ---------------------------------------------------- }}}
 //  Render ------------------------------------------------------------ {{{
 
 ReactDOM.render(
