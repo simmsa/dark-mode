@@ -125,6 +125,8 @@ class SettingId {
         Hue: SettingId.Fields.Hue.Default,
         Contrast: SettingId.Fields.Contrast.Default,
         AutoDark: SettingId.Fields.AutoDark.Default,
+        ContrastMin: SettingId.Fields.Contrast.Min,
+        ContrastMax: SettingId.Fields.Contrast.Max,
     }
 
 }

@@ -70,9 +70,11 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
                    />
                    <ToggleSlider
                         identifier={this.props.identifier + SettingId.Field.Contrast}
+                        group={this.props.identifier}
+                        field={SettingId.Field.Contrast}
                         title="Contrast"
-                        min={50}
-                        max={150}
+                        min={SettingId.Default.ContrastMin}
+                        max={SettingId.Default.ContrastMax}
                         current={this.props.urlContrast}
                    />
                    <ResetButton
@@ -308,6 +310,8 @@ class ToggleSwitch extends React.Component<ToggleSwitchProps, {}>{
 
 interface ToggleSliderProps {
     identifier: string;
+    group: string;
+    field: string;
     title: string;
     min: number;
     max: number;
@@ -341,15 +345,27 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
             id: this.htmlId,
             min: this.props.min,
             max: this.props.max,
-            step: 1,
+            step: 5,
             value: this.props.current,
             tooltip: "hide"
         });
+
+        sliderInput.on("slide", (slideEvent) => {
+            this.sendOnChangeMessage(slideEvent.value);
+        });
     }
 
-    sendOnChangeMessage(event){
-        var slideValue = event.target.value;
-        chrome.runtime.sendMessage("");
+    sendOnChangeMessage(newValue: any){
+        Message.send(
+            Message.Sender.Popup,
+            Message.Receiver.Background,
+            Message.Intent.ChangeField,
+            {
+                Group: this.props.group,
+                Field: this.props.field,
+                Value: parseInt(newValue)
+            }
+        );
     }
 
     render(){

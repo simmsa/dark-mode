@@ -259,6 +259,33 @@ class UrlSettings extends PersistentStorage {
         return this.checkUrlStemForFieldBool(url, this.fields.hueRotate.name, true);
     }
 
+    getContrast(url: Url): number {
+        var result = this.checkUrlForField(url, SettingId.Field.Contrast);
+        var stemResult = this.checkUrlStemForField(url, SettingId.Field.Contrast);
+        if(result !== QueryResult.Undefined){
+            return result;
+        } else if (stemResult !== QueryResult.Undefined){
+            return stemResult;
+        }
+        return SettingId.Default.Contrast;
+    }
+
+    getContrastStem(url: Url): number {
+        var result = this.checkUrlStemForField(url, SettingId.Field.Contrast);
+        if(result !== QueryResult.Undefined){
+            return result;
+        }
+        return SettingId.Default.Contrast;
+    }
+
+    setContrast(url: Url, value: number){
+        this.setUrlFieldToValue(url, SettingId.Field.Contrast, value, SettingId.Type.Contrast, SettingId.Default.Contrast);
+    }
+
+    setContrastStem(url: Url, value: number){
+        this.setUrlStemFieldToValue(url, SettingId.Field.Contrast, value, SettingId.Type.Contrast, SettingId.Default.Contrast);
+    }
+
     // Helper function for toggle
     private isQueryUndefined(input: QueryResult){
         if(input === QueryResult.Undefined){
@@ -283,9 +310,12 @@ class UrlSettings extends PersistentStorage {
         }
     }
 
-    private toggleUrl(url: Url, field: string, defaultValue: boolean){
-        this.checkFieldIsBoolean(field);
+    private setUrlFieldToValue(url: Url, field: string, value: any, valueType: string, defaultValue: any, choice?: string){
 
+        // Verify the value we are setting matches the type that should be set
+        if(typeof(value) != valueType){
+            if(debug) { console.log("Aborting setFieldToValue. value's type does not match " + valueType); }
+        }
         // Testing which fields are undefined
         // Check if stem exists
         // Check if stem -> url exists
@@ -305,7 +335,11 @@ class UrlSettings extends PersistentStorage {
 
         // The value exists, successfully run toggle
         if(this.allArgsFalse(stem, stem_Url, stem_Url_Field)){
-            this.dataObject[urlStem][cleanedUrl][field] = !this.dataObject[urlStem][cleanedUrl][field];
+            if(choice === "toggle"){
+                this.dataObject[urlStem][cleanedUrl][field] = !this.dataObject[urlStem][cleanedUrl][field];
+            } else {
+                this.dataObject[urlStem][cleanedUrl][field] = value;
+            }
         }
 
         // There is a stem and a url but no matching field
@@ -330,8 +364,16 @@ class UrlSettings extends PersistentStorage {
         this.save();
     }
 
-    private toggleUrlStem(url: Url, field: string, defaultValue: boolean){
-        this.checkFieldIsBoolean(field);
+    private toggleUrl(url: Url, field: string, defaultValue: boolean){
+        this.setUrlFieldToValue(url, field, defaultValue, "boolean", defaultValue, "toggle");
+    }
+
+    private setUrlStemFieldToValue(url: Url, field: string, value: any, valueType: string, defaultValue: any, choice?: string){
+
+        // Verify the value we are setting matches the type that should be set
+        if(typeof(value) != valueType){
+            if(debug) { console.log("Aborting setFieldToValue. value's type does not match " + valueType); }
+        }
 
         // Check if stem exists
         // Check if stem -> field exists
@@ -342,7 +384,11 @@ class UrlSettings extends PersistentStorage {
 
         // The stem -> field exists, run toggle
         if(this.allArgsFalse(stem, stem_Field)){
-            this.dataObject[urlStem][field] = !this.dataObject[urlStem][field];
+            if(choice === "toggle"){
+                this.dataObject[urlStem][field] = !this.dataObject[urlStem][field];
+            } else {
+                this.dataObject[urlStem][field] = value;
+            }
         }
 
         // The stem exists but the field doesn't
@@ -356,6 +402,10 @@ class UrlSettings extends PersistentStorage {
             this.dataObject[urlStem][field] = defaultValue;
         }
         this.save();
+    }
+
+    private toggleUrlStem(url: Url, field: string, defaultValue: boolean){
+        this.setUrlStemFieldToValue(url, field, defaultValue, "boolean", defaultValue, "toggle");
     }
 
     toggleDarkMode(url: Url){
@@ -429,6 +479,7 @@ class UrlSettings extends PersistentStorage {
 
         result[SettingId.Field.Dark] = this.checkDarkMode(url);
         result[SettingId.Field.Hue] = this.checkHueRotate(url);
+        result[SettingId.Field.Contrast] = this.getContrast(url);
 
         return result;
     }
@@ -583,6 +634,7 @@ class BackgroundReceiver extends Message {
         BackgroundReceiver.receiveRequestState();
         BackgroundReceiver.receivePopupToggle();
         BackgroundReceiver.receivePopupClear();
+        BackgroundReceiver.receiveChangeField();
     }
 
 //  Receive Content Url ------------------------------------------------ {{{
@@ -718,6 +770,45 @@ class BackgroundReceiver extends Message {
     }
 
 //  End Receive Popup Clear ------------------------------------------- }}}
+//  Receive Change Field ---------------------------------------------- {{{
+
+
+    static receiveChangeField(){
+        if(debug) { console.log("receiveChangeField"); }
+        Message.receive(
+            Message.Sender.Popup,
+            Message.Receiver.Background,
+            Message.Intent.ChangeField,
+            BackgroundReceiver.handleReceiveChangeField
+        );
+    }
+
+    static handleReceiveChangeField(message){
+        switch(message.Data.Group){
+            case SettingId.Group.CurrentUrl:
+                switch(message.Data.Field){
+                    case SettingId.Field.Contrast:
+                        // Set Contrast value
+                        urlSettings.setContrast(currentUrl, message.Data.Value);
+                        break;
+                }
+                break;
+            case SettingId.Group.StemUrl:
+                switch(message.Data.Field){
+                    case SettingId.Field.Contrast:
+                        // Set Contrast value for stem
+                        urlSettings.setContrastStem(currentUrl, message.Data.Value);
+                        break;
+                }
+                break;
+        }
+        state.update(currentUrl, urlSettings, function(){
+            BackgroundSender.sendState();
+            ContentAction.checkDarkMode(currentUrl);
+        });
+    }
+
+//  End Receive Change Field ------------------------------------------ }}}
 }
 
 // End BackgroundReceiver --------------------------------------------- }}}
@@ -748,12 +839,12 @@ class State extends DefaultState{
 
         this.currentUrlDark = settings.checkDarkMode(url);
         this.currentUrlHue = settings.checkHueRotate(url);
-        this.currentUrlContrast = 97;
+        this.currentUrlContrast = settings.getContrast(url);
 
         // Stem Url Settings
         this.stemUrlDark = settings.checkDarkModeStem(url);
         this.stemUrlHue = settings.checkHueRotateStem(url);
-        this.stemUrlContrast = 98;
+        this.stemUrlContrast = settings.getContrastStem(url);
 
         // Global Dark Mode Settings
         this.globalDark = true;
@@ -806,7 +897,7 @@ class ContentAction {
         chrome.tabs.getSelected(null, function(tab){
             var executeId = tabId ? tabId : tab.id;
             chrome.tabs.executeScript(executeId, {
-                code: ContentAction.setAttribute + action + ContentAction.setContrastTo85,
+                code: ContentAction.setAttribute + action,
                 "allFrames": true,
                 "matchAboutBlank": true,
                 "runAt": "document_start",
@@ -814,6 +905,13 @@ class ContentAction {
                 if(debug) console.log("Executing " + action + " in " + tab.title);
             });
         });
+    }
+
+    private static setContrastToValue(value: number): string{
+        var result = `
+            setAttributeForDarkMode("dark-mode-contrast", "${value}");
+        `;
+        return result;
     }
 
     static checkDarkMode(url: Url, tabId?: number){
@@ -868,7 +966,9 @@ class ContentAction {
             action += ContentAction.setHueRotateOff;
         }
 
-        console.log("Executing action: " + action + " in url: " + url.getNormal());
+        action += ContentAction.setContrastToValue(state.Contrast);
+
+        if(debug) { console.log("Executing action: " + action + " in url: " + url.getNormal()); }
 
         ContentAction.executeScriptInCurrentWindow(action, tabId);
     }
