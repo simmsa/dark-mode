@@ -1,23 +1,25 @@
+/// <reference path="SettingId.ts" />
+
 class DefaultState {
     // Url Strings
     urlFull = "about:blank";
     urlStem = "about:blank";
 
     // Current Url Settings
-    currentUrlDark = true;
-    currentUrlHue = false;
-    currentUrlContrast = 50;
+    currentUrlDark = SettingId.Default.Dark;
+    currentUrlHue = SettingId.Default.Hue;
+    currentUrlContrast = SettingId.Default.Contrast;
 
     // Stem Url Settings
-    stemUrlDark = true;
-    stemUrlHue = false;
-    stemUrlContrast = 51;
+    stemUrlDark = SettingId.Default.Dark;
+    stemUrlHue = SettingId.Default.Hue;
+    stemUrlContrast = SettingId.Default.Contrast;
 
     // Global Dark Mode Settings
-    globalDark = true;
-    globalAutoDark = false;
-    globalHue = true;
-    globalContrast = 52;
+    globalDark = SettingId.Default.Dark;
+    globalAutoDark = SettingId.Default.AutoDark;
+    globalHue = SettingId.Default.Hue;
+    globalContrast = SettingId.Default.Contrast;
     globalKeyboardShortcut = "init";
 
     pack(): any{

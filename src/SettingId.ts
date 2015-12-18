@@ -20,15 +20,20 @@ class SettingId {
         },
         Dark: {
             Name: "Dark",
-            Type: "boolean"
+            Type: "boolean",
+            Default: true
         },
         Hue: {
             Name: "Hue",
-            Type: "boolean"
+            Type: "boolean",
+            Default: true
         },
         Contrast: {
             Name: "Contrast",
-            Type: "number"
+            Type: "number",
+            Default: 85,
+            Min: 70,
+            Max: 115
         },
         Clear: {
             Name: "Clear",
@@ -36,7 +41,8 @@ class SettingId {
         },
         AutoDark: {
             Name: "AutoDark",
-            Type: "string"
+            Type: "string",
+            Default: true
         },
         Shortcut: {
             Name: "Shortcut",
@@ -113,5 +119,12 @@ class SettingId {
         AutoDark: SettingId.Fields.AutoDark.Type,
         Shortcut: SettingId.Fields.Shortcut.Type,
     };
+
+    static Default = {
+        Dark: SettingId.Fields.Dark.Default,
+        Hue: SettingId.Fields.Hue.Default,
+        Contrast: SettingId.Fields.Contrast.Default,
+        AutoDark: SettingId.Fields.AutoDark.Default,
+    }
 
 }
