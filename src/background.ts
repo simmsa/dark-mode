@@ -12,8 +12,11 @@ class PersistentStorage {
     protected dataObject: any;
     private name: string;
 
+    private lastSave: number;
+
     constructor(name: string) {
         this.setData(name);
+        this.lastSave = Date.now();
     }
 
     private setData(savedObjectName: string) {
@@ -59,14 +62,16 @@ class PersistentStorage {
     }
 
     protected save(){
-        chrome.storage.local.remove(this.name);
-        // Typescript, or maybe js, doesn't like `this.name` as an object key
-        var thisName: string = this.name;
-        console.log("Saving: " + this.name);
-        var saveObject = {}
-        saveObject[this.name] = this.dataObject;
-        console.log(saveObject);
-        chrome.storage.local.set(saveObject);
+        var saveIntervalMs = 100;
+        if(Date.now() > this.lastSave + saveIntervalMs){
+            chrome.storage.local.remove(this.name);
+            if(debug) { console.log("Saving: " + this.name); }
+            var saveObject = {}
+            saveObject[this.name] = this.dataObject;
+            if(debug) { console.log(saveObject); }
+            chrome.storage.local.set(saveObject);
+            this.lastSave = Date.now();
+        }
     }
 
     protected clear(){
