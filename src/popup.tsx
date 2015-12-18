@@ -55,7 +55,6 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
              <div id={this.props.identifier + "Collapse"} className="panel-collapse collapse" role="tabpanel" aria-labelledby={this.props.identifier  + "Accordion" }>
                <div className="panel-body">
                  <form className="form-horizontal" action="">
-                 {console.log("Passing bool: " + this.props.urlDark + "to switch: " + this.props.identifier)}
                    <ToggleSwitch
                        title="Dark Mode"
                        group={this.props.identifier}
@@ -179,8 +178,6 @@ class Settings extends React.Component<{}, SettingsState>{
             Message.Receiver.Popup,
             Message.Intent.SendState,
             (message) => {
-                console.log("Updating state from message");
-                console.log(message);
                 this.setState({
                     data: message.Data
                 });
@@ -190,7 +187,6 @@ class Settings extends React.Component<{}, SettingsState>{
     }
 
     sendGetInitialState(){
-        console.log("Sending Init from popup");
         Message.send(
                 Message.Sender.Popup,
                 Message.Receiver.Background,
@@ -263,7 +259,6 @@ class ToggleSwitch extends React.Component<ToggleSwitchProps, {}>{
 
     setupSwitch(group: string, field: string, value?: any){
         var switchName = "#" + this.identifier;
-        console.log("Activate switch with name: " + switchName + " with value: " + value);
         var switchContainer = $(this.refs.switchContainer);
         var switchInput = $("<input />").prop("type", "checkbox");
         switchContainer.replaceWith(switchInput);
@@ -390,7 +385,6 @@ interface ResetButtonProps {
 
 class ResetButton extends React.Component<ResetButtonProps, {}>{
     render(){
-        console.log("Building button with group: " + this.props.group);
         return (
            <div className="form-group">
              <div className="col-xs-12">
@@ -401,7 +395,6 @@ class ResetButton extends React.Component<ResetButtonProps, {}>{
     }
 
     sendResetMessage(){
-        console.log("Sending reset message");
         Message.send(
             Message.Sender.Popup,
             Message.Receiver.Background,

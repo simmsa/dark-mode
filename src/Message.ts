@@ -56,9 +56,7 @@ class Message {
             if(message.Sender === sender &&
                message.Receiver === receiver &&
                message.Intent === intent){
-                console.log("Verified message with intent: " + message.Intent);
                 if(typeof(msgSender.tab) !== "undefined"){
-                    console.log("Running intent " + message.Intent + " with tab.id of: " + msgSender.tab.id);
                     callback(message, msgSender.tab.id);
                 }
                 callback(message);

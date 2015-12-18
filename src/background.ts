@@ -40,7 +40,7 @@ class PersistentStorage {
         try{
             return this.dataObject[key];
         } catch (e){
-            console.log(key + " does not exist in PersistentStorage object named: " + this.name);
+            if(debug) { console.log(key + " does not exist in PersistentStorage object named: " + this.name); }
         }
     }
 
@@ -178,7 +178,7 @@ class UrlSettings extends PersistentStorage {
         var urlResult = this.checkUrlForField(url, field);
         var urlStemResult = this.checkUrlStemForField(url, field);
 
-        console.log("Url is: " + QueryResult[urlResult] + ", Url Stem is: " + QueryResult[urlStemResult]);
+        if(debug) { console.log("Url is: " + QueryResult[urlResult] + ", Url Stem is: " + QueryResult[urlStemResult]); }
 
         // The default case: both fields are undefined, return the default value
         if(urlResult === QueryResult.Undefined && urlStemResult === QueryResult.Undefined){
@@ -212,7 +212,7 @@ class UrlSettings extends PersistentStorage {
         if(urlResult === QueryResult.False && urlStemResult === QueryResult.False){
             return false;
         }
-        console.log("Error: checkWhitelist returned without a result");
+        if(debug) { console.log("Error: checkWhitelist returned without a result"); }
         return;
     }
 
@@ -329,9 +329,9 @@ class UrlSettings extends PersistentStorage {
 
         var isNotUndefined = this.allArgsFalse(true, true);
 
-        console.log("stem: " + stem);
-        console.log("stem_Url: " + stem_Url);
-        console.log("stem_Url_Field: " + stem_Url_Field);
+        if(debug) { console.log("stem: " + stem); }
+        if(debug) { console.log("stem_Url: " + stem_Url); }
+        if(debug) { console.log("stem_Url_Field: " + stem_Url_Field); }
 
         // The value exists, successfully run toggle
         if(this.allArgsFalse(stem, stem_Url, stem_Url_Field)){
@@ -525,20 +525,20 @@ class Url {
     }
 
     update(callback?: () => void) {
-        console.log("Updating URL class url!");
+        if(debug) { console.log("Updating URL class url!"); }
         try {
             chrome.tabs.query({currentWindow: true, active: true}, (tabs) => {
                 try{
                     this.parse(tabs[0].url);
                 } catch (e){
-                    console.log("There is no valid url in tabs object: ");
-                    console.log(tabs[0]);
-                    console.log("The error is: " + e);
+                    if(debug) { console.log("There is no valid url in tabs object: "); }
+                    if(debug) { console.log(tabs[0]); }
+                    if(debug) { console.log("The error is: " + e); }
                 }
                 callback();
             });
         } catch (e){
-            console.log("Cannot update url: " + e);
+            if(debug) { console.log("Cannot update url: " + e); }
         }
     }
 
@@ -577,7 +577,7 @@ class Url {
                 this.full = url.toString();
 
             } catch (e){
-                console.log("Error parsing potential url: " + input + " Error is: " + e);
+                if(debug) { console.log("Error parsing potential url: " + input + " Error is: " + e); }
                 this.stem = this.domain = this.normal = this.full = this.defaultUrl;
             }
         }
@@ -607,7 +607,7 @@ class Url {
     }
 
     getDomain(): string{
-        console.log("Getting domain: " + this.domain);
+        if(debug) { console.log("Getting domain: " + this.domain); }
         return this.domain;
     }
 
@@ -749,9 +749,9 @@ class BackgroundReceiver extends Message {
     }
 
     static handleReceivePopupClear(message){
-        console.log("Received popupClear message in destination!");
-        console.log("message:");
-        console.log(message);
+        if(debug) { console.log("Received popupClear message in destination!"); }
+        if(debug) { console.log("message:"); }
+        if(debug) { console.log(message); }
         switch(message.Data){
             case SettingId.Group.CurrentUrl:
                 urlSettings.clearUrl(currentUrl);
@@ -817,8 +817,8 @@ class BackgroundReceiver extends Message {
 class BackgroundSender extends Message{
     static sendState(){
         var dataPackage = state.pack();
-        console.log("Sending state to popup");
-        console.log(dataPackage);
+        if(debug) { console.log("Sending state to popup"); }
+        if(debug) { console.log(dataPackage); }
         Message.send(
             Message.Sender.Background,
             Message.Receiver.Popup,
@@ -902,7 +902,7 @@ class ContentAction {
                 "matchAboutBlank": true,
                 "runAt": "document_start",
             }, function(result){
-                if(debug) console.log("Executing " + action + " in " + tab.title);
+                if(debug) { console.log("Executing " + action + " in " + tab.title); }
             });
         });
     }
@@ -959,6 +959,9 @@ class ContentAction {
                 }
             });
         }
+
+        if(debug) { console.log("Translating state to executeStrings:"); }
+        if(debug) { console.log(state); }
 
         if(state.Hue){
             action += ContentAction.setHueRotateOn;
@@ -1032,11 +1035,11 @@ function isPageDark(lightCallback){
     var isPageDarkMsInterval = 10;
     if((Date.now() - lastIsPageDarkExecution) < isPageDarkMsInterval){
         if(runScreenshot){
-            console.log("Not running screenshot, last isPageDark execution was less than " + isPageDarkMsInterval + "ms ago");
+            if(debug) { console.log("Not running screenshot, last isPageDark execution was less than " + isPageDarkMsInterval + "ms ago"); }
             runScreenshot = false;
         }
     } else {
-        console.log("Updating lastIsPageDarkExecution, runScreenshot is: " + runScreenshot);
+        if(debug) { console.log("Updating lastIsPageDarkExecution, runScreenshot is: " + runScreenshot); }
         lastIsPageDarkExecution = Date.now();
     }
 
@@ -1044,7 +1047,7 @@ function isPageDark(lightCallback){
     // It blocks the background from doing other processing.
     // if(runScreenshot && setup === false){
     if(runScreenshot){
-        console.log("Capturing tab screenshot!");
+        if(debug) { console.log("Capturing tab screenshot!"); }
         chrome.tabs.captureVisibleTab(function(screenshot){
             resemble(screenshot).onComplete(function(data){
                 if(data.brightness < brightnessThreshold){
@@ -1057,7 +1060,7 @@ function isPageDark(lightCallback){
                         var shouldRunCallback = urlSettings.checkDarkModeIsUndefined(currentUrl);
                         if(debug) console.log("shouldRunCallback = " + shouldRunCallback);
                         if(shouldRunCallback){
-                            console.log("Running light callback");
+                            if(debug) { console.log("Running light callback"); }
                             lightCallback();
                         }
                     }
@@ -1176,11 +1179,11 @@ chrome.contextMenus.onClicked.addListener(function(){
 // End Context Menu Events ------------------------------------------------- }}}
 // Main ------------------------------------------------------------------- {{{
 
-var debug = true;
+var debug = false;
 
 setTimeout(function(){
     updateContextMenuAndBrowserAction();
-    console.log("Hello from Typescript!");
+    if(debug) { console.log("Hello from Typescript!"); }
 }, 5);
 
 var urlSettings = new UrlSettings();
