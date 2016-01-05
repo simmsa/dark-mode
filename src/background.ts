@@ -4,6 +4,7 @@
 /// <reference path="SettingId.ts" />
 /// <reference path="Message.ts" />
 /// <reference path="DefaultState.ts" />
+/// <reference path="CssBuilder.ts" />
 
 //  End Typings ------------------------------------------------------------ }}}
 // PersistentStorage Class ------------------------------------------------ {{{
@@ -649,7 +650,11 @@ class BackgroundReceiver extends Message {
     }
 
     static handleReceiveContentUrl(message: any, tabId: number){
-        ContentAction.checkDarkMode(new Url(message.Data), tabId);
+        if(message.Data.Url){
+            var frameUrl = message.Data.FrameUrl;
+            var newUrl = new Url(message.Data.Url);
+            ContentAction.checkDarkMode(newUrl, tabId);
+        }
     }
 
 //  End Receive Content Url -------------------------------------------- }}}
@@ -868,82 +873,68 @@ class State extends DefaultState{
 
 class ContentAction {
 
-    private static setAttribute = `
-        function setAttributeForDarkMode(name, value){
-            document.documentElement.setAttribute("data-" + name, value);
-        }
-    `;
-    private static setDarkModeOn = `
-        setAttributeForDarkMode("dark-mode", "on");
-    `;
-
-    private static setDarkModeOff = `
-        setAttributeForDarkMode("dark-mode", "off");
-    `;
-
-    private static setHueRotateOn = `
-        setAttributeForDarkMode("dark-mode-hue", "on");
-    `;
-
-    private static setHueRotateOff = `
-        setAttributeForDarkMode("dark-mode-hue", "off");
-    `;
-
-    private static setContrastTo85 = `
-        setAttributeForDarkMode("dark-mode-contrast", "85");
-    `;
-
-    private static executeScriptInCurrentWindow(action: string, tabId?: number){
+    private static updateContentPage(jsString: string, cssString: string, tabId?: number){
         chrome.tabs.getSelected(null, function(tab){
             var executeId = tabId ? tabId : tab.id;
-            chrome.tabs.executeScript(executeId, {
-                code: ContentAction.setAttribute + action,
-                "allFrames": true,
-                "matchAboutBlank": true,
-                "runAt": "document_start",
-            }, function(result){
-                if(debug) { console.log("Executing " + action + " in " + tab.title); }
-            });
+
+            if(jsString.length > 0){
+                console.log("Running executeScript for code: " + jsString);
+                chrome.tabs.executeScript(executeId, {
+                    code: jsString,
+                    "allFrames": true,
+                    "matchAboutBlank": false,
+                    "runAt": "document_start",
+                });
+            }
+
+            if(cssString.length > 0){
+                chrome.tabs.insertCSS(executeId, {
+                    code: cssString,
+                    allFrames: true,
+                    runAt: "document_start"
+                });
+            }
         });
     }
 
-    private static setContrastToValue(value: number): string{
-        var result = `
-            setAttributeForDarkMode("dark-mode-contrast", "${value}");
-        `;
-        return result;
-    }
-
     static checkDarkMode(url: Url, tabId?: number){
-        ContentAction.passStateToExecute(url, tabId);
+        if(tabId){
+            ContentAction.passStateToExecute(url, tabId);
+        } else {
+            ContentAction.passStateToExecute(url);
+        }
     }
 
     static toggleDarkMode(url: Url, tabId?: number){
         urlSettings.toggleDarkMode(url);
-        ContentAction.passStateToExecute(url, tabId);
+        ContentAction.passStateToExecute(url);
     }
 
     static toggleDarkModeStem(url: Url, tabId?: number){
         urlSettings.toggleDarkModeStem(url);
-        ContentAction.passStateToExecute(url, tabId);
+        ContentAction.passStateToExecute(url);
     }
 
     static toggleHue(url: Url, tabId?: number){
         urlSettings.toggleHueRotate(url);
-        ContentAction.passStateToExecute(url, tabId);
+        ContentAction.passStateToExecute(url);
     }
 
     static toggleHueStem(url: Url, tabId?: number){
         urlSettings.toggleHueRotateStem(url);
-        ContentAction.passStateToExecute(url, tabId);
+        ContentAction.passStateToExecute(url);
+    }
+
+    private static buildJsString(Dark: boolean){
+        return `
+            darkModeContentManager.updateAttributes(${Dark});
+        `;
     }
 
     static passStateToExecute(url: Url, tabId?: number){
-        var action = "";
         var state = urlSettings.getUrlState(url);
 
         if(state.Dark){
-            action += ContentAction.setDarkModeOn;
             chrome.browserAction.setIcon({
                 "path": {
                     "19": "img/dark-mode-on-19.png",
@@ -951,7 +942,6 @@ class ContentAction {
                 }
             });
         } else {
-            action += ContentAction.setDarkModeOff;
             chrome.browserAction.setIcon({
                 "path": {
                     "19": "img/dark-mode-off-19.png",
@@ -960,20 +950,11 @@ class ContentAction {
             });
         }
 
-        if(debug) { console.log("Translating state to executeStrings:"); }
-        if(debug) { console.log(state); }
+        var cssString = CssBuilder.build(state.Dark, state.Hue, state.Contrast);
 
-        if(state.Hue){
-            action += ContentAction.setHueRotateOn;
-        } else {
-            action += ContentAction.setHueRotateOff;
-        }
+        var jsString = ContentAction.buildJsString(state.Dark)
 
-        action += ContentAction.setContrastToValue(state.Contrast);
-
-        if(debug) { console.log("Executing action: " + action + " in url: " + url.getNormal()); }
-
-        ContentAction.executeScriptInCurrentWindow(action, tabId);
+        ContentAction.updateContentPage(jsString, cssString, tabId);
     }
 }
 

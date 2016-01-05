@@ -5,19 +5,72 @@
 
 //  End Typings ------------------------------------------------------------ }}}
 
-// If executed in iframe, set attribute
-if(window.location != window.parent.location){
-    // Differentiate an iframe from the parent
-    document.documentElement.setAttribute("data-dark-mode-iframe", "true");
-} else {
-    // This works immediately, no need to wait for the page to load
-    document.documentElement.setAttribute("data-dark-mode", "on");
-    document.documentElement.setAttribute("data-dark-mode-parent", "true");
-    ContentSender.sendUrl(document.URL);
+class DarkModeContentManager {
+    parentUrl: string;
 
-    // If the page is dark before the images load, then it is a dark page
-    // and dark-mode should be set to off
-    document.addEventListener("DOMContentLoaded", function(event){
-        ContentSender.sendCheckAutoDark(document.URL);
-    });
+    constructor(){
+        this.updateAttributes();
+        if(window.location != window.parent.location){
+            this.setDarkAttribute("iframe", "true");
+        } else {
+            this.setDarkAttribute("iframe", "false");
+        }
+        this.updateUrl();
+        this.requestState();
+    }
+
+    updateUrl(){
+        this.parentUrl = (window.location != window.parent.location) ? document.referrer : document.URL;
+    }
+
+    requestState(): void{
+        if(this.parentUrl != "about:blank"){
+            ContentSender.sendUrl(this.parentUrl, document.URL);
+        }
+    }
+
+    setDarkAttribute(newAttribute: string, value: any): void{
+        if(newAttribute === ""){
+            var prefix = "data-dark-mode";
+        } else {
+            var prefix = "data-dark-mode-";
+        }
+
+        document.documentElement.setAttribute(prefix + newAttribute, value);
+
+        $("iframe").ready(function(){
+            $("iframe").each(function(index, elem){
+                try{
+                    $(this).contents().find("html").attr(prefix + newAttribute, value);
+                    $(this).contents().find("html").attr(prefix + "iframe", "true");
+                    console.log("Iframe attr set!");
+                } catch(e) {
+                    if(e instanceof DOMException){
+                        // Ignore the cross domain error!
+                    }
+                }
+            });
+        });
+    }
+
+    initAutoDarkEvent(): void{
+        // Should probably check this from a parent window
+        document.addEventListener("DOMContentLoaded", function(event){
+            ContentSender.sendCheckAutoDark(this.parentUrl);
+        });
+    }
+
+    updateAttributes(darkModeActive?: boolean){
+        if(typeof(darkModeActive) !== "undefined"){
+            if(darkModeActive){
+                this.setDarkAttribute("active", "true");
+            } else {
+                this.setDarkAttribute("active", "false");
+            }
+            return;
+        }
+        this.setDarkAttribute("active", "true");
+    }
 }
+
+var darkModeContentManager = new DarkModeContentManager();

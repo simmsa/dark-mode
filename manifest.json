@@ -10,11 +10,11 @@
             "run_at": "document_start",
             "css": ["styles/css/dark-mode.css"],
             "all_frames": true,
-            "matches_about_blank": true
+            "matches_about_blank": false
         }
     ],
     "background": {
-        "scripts": ["lib/resemblejs/resemble.js", "./lib/urijs/src/URI.min.js", "build/SettingId.js", "build/DefaultState.js", "build/Message.js", "build/MessageSender.js", "build/background.js"]
+        "scripts": ["lib/resemblejs/resemble.js", "./lib/urijs/src/URI.min.js", "build/SettingId.js", "build/DefaultState.js", "build/Message.js", "build/MessageSender.js", "build/CssBuilder.js", "build/background.js"]
     },
     "web_accessible_resources": [
         "styles/css/dark-mode.css"

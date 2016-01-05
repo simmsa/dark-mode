@@ -2,12 +2,14 @@
     "compilerOptions":{
         "rootDir": "src",
         "outDir": "build",
-        "jsx": "react"
+        "jsx": "react",
+        "module": "umd"
     },
     "files": [
         "src/background.ts",
         "src/content.ts",
         "src/ContentSender.ts",
+        "src/CssBuilder.ts",
         "src/dark-mode.ts",
         "src/DefaultState.ts",
         "src/Message.ts",

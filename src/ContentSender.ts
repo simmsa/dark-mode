@@ -6,13 +6,15 @@
 //  End Typings ------------------------------------------------------------ }}}
 
 class ContentSender extends Message {
-    static sendUrl(url: string){
-        console.log("Sending url: " + url + " to background");
+    static sendUrl(url: string, frameUrl: string){
         Message.send(
             Message.Sender.ContentPage,
             Message.Receiver.Background,
             Message.Intent.InitContent,
-            url
+            {
+                Url: url,
+                FrameUrl: frameUrl
+            }
         );
     }
 
