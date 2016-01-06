@@ -31,7 +31,7 @@
  * MIT license
  */
 
-(function(root, factory) {
+(function(factory) {
 	if(typeof define === "function" && define.amd) {
 		define(["jquery"], factory);
 	}
@@ -45,10 +45,10 @@
 		}
 		module.exports = factory(jQuery);
 	}
-	else {
-		root.Slider = factory(root.jQuery);
+	else if(window) {
+		window.Slider = factory(window.jQuery);
 	}
-}(this, function($) {
+}(function($) {
 	// Reference to Slider constructor
 	var Slider;
 
@@ -207,25 +207,26 @@
 			linear: {
 				toValue: function(percentage) {
 					var rawValue = percentage/100 * (this.options.max - this.options.min);
+					var shouldAdjustWithBase = true;
 					if (this.options.ticks_positions.length > 0) {
 						var minv, maxv, minp, maxp = 0;
-						for (var i = 0; i < this.options.ticks_positions.length; i++) {
+						for (var i = 1; i < this.options.ticks_positions.length; i++) {
 							if (percentage <= this.options.ticks_positions[i]) {
-								minv = (i > 0) ? this.options.ticks[i-1] : 0;
-								minp = (i > 0) ? this.options.ticks_positions[i-1] : 0;
+								minv = this.options.ticks[i-1];
+								minp = this.options.ticks_positions[i-1];
 								maxv = this.options.ticks[i];
 								maxp = this.options.ticks_positions[i];
 
 								break;
 							}
 						}
-						if (i > 0) {
-							var partialPercentage = (percentage - minp) / (maxp - minp);
-							rawValue = minv + partialPercentage * (maxv - minv);
-						}
+						var partialPercentage = (percentage - minp) / (maxp - minp);
+						rawValue = minv + partialPercentage * (maxv - minv);
+						shouldAdjustWithBase = false;
 					}
 
-					var value = this.options.min + Math.round(rawValue / this.options.step) * this.options.step;
+					var adjustment = shouldAdjustWithBase ? this.options.min : 0;
+					var value = adjustment + Math.round(rawValue / this.options.step) * this.options.step;
 					if (value < this.options.min) {
 						return this.options.min;
 					} else if (value > this.options.max) {
@@ -416,13 +417,32 @@
 
 				sliderMinHandle = document.createElement("div");
 				sliderMinHandle.className = "slider-handle min-slider-handle";
+				sliderMinHandle.setAttribute('role', 'slider');
+				sliderMinHandle.setAttribute('aria-valuemin', this.options.min);
+				sliderMinHandle.setAttribute('aria-valuemax', this.options.max);
 
 				sliderMaxHandle = document.createElement("div");
 				sliderMaxHandle.className = "slider-handle max-slider-handle";
+				sliderMaxHandle.setAttribute('role', 'slider');
+				sliderMaxHandle.setAttribute('aria-valuemin', this.options.min);
+				sliderMaxHandle.setAttribute('aria-valuemax', this.options.max);
 
 				sliderTrack.appendChild(sliderTrackLow);
 				sliderTrack.appendChild(sliderTrackSelection);
 				sliderTrack.appendChild(sliderTrackHigh);
+
+				/* Add aria-labelledby to handle's */
+				var isLabelledbyArray = Array.isArray(this.options.labelledby);
+				if (isLabelledbyArray && this.options.labelledby[0]) {
+					sliderMinHandle.setAttribute('aria-labelledby', this.options.labelledby[0]);
+				}
+				if (isLabelledbyArray && this.options.labelledby[1]) {
+					sliderMaxHandle.setAttribute('aria-labelledby', this.options.labelledby[1]);
+				}
+				if (!isLabelledbyArray && this.options.labelledby) {
+					sliderMinHandle.setAttribute('aria-labelledby', this.options.labelledby);
+					sliderMaxHandle.setAttribute('aria-labelledby', this.options.labelledby);
+				}
 
 				/* Create ticks */
 				this.ticks = [];
@@ -474,14 +494,17 @@
 				/* Create tooltip elements */
 				var sliderTooltip = document.createElement("div");
 				sliderTooltip.className = "tooltip tooltip-main";
+				sliderTooltip.setAttribute('role', 'presentation');
 				createAndAppendTooltipSubElements(sliderTooltip);
 
 				var sliderTooltipMin = document.createElement("div");
 				sliderTooltipMin.className = "tooltip tooltip-min";
+				sliderTooltipMin.setAttribute('role', 'presentation');
 				createAndAppendTooltipSubElements(sliderTooltipMin);
 
 				var sliderTooltipMax = document.createElement("div");
 				sliderTooltipMax.className = "tooltip tooltip-max";
+				sliderTooltipMax.setAttribute('role', 'presentation');
 				createAndAppendTooltipSubElements(sliderTooltipMax);
 
 
@@ -654,6 +677,10 @@
 			}
 			this.sliderElem.addEventListener("mousedown", this.mousedown, false);
 
+			// Bind window handlers
+			this.resize = this._resize.bind(this);
+			window.addEventListener("resize", this.resize, false);
+
 
 			// Bind tooltip-related handlers
 			if(this.options.tooltip === 'hide') {
@@ -684,6 +711,7 @@
 			} else {
 				this.disable();
 			}
+
 		}
 
 
@@ -730,7 +758,8 @@
 				ticks_snap_bounds: 0,
 				scale: 'linear',
 				focus: false,
-				tooltip_position: null
+				tooltip_position: null,
+				labelledby: null
 			},
 
 			getElement: function() {
@@ -929,6 +958,9 @@
 				}
 				this.sliderElem.removeEventListener("touchstart", this.mousedown, false);
 				this.sliderElem.removeEventListener("mousedown", this.mousedown, false);
+
+				// Remove window event listener
+				window.removeEventListener("resize", this.resize, false);
 			},
 			_bindNonQueryEventHandler: function(evt, callback) {
 				if(this.eventToCallbackMap[evt] === undefined) {
@@ -985,7 +1017,10 @@
 				}
 
 				this.handle1.style[this.stylePos] = positionPercentages[0]+'%';
+				this.handle1.setAttribute('aria-valuenow', this._state.value[0]);
+
 				this.handle2.style[this.stylePos] = positionPercentages[1]+'%';
+				this.handle2.setAttribute('aria-valuenow', this._state.value[1]);
 
 				/* Position ticks and labels */
 				if (Array.isArray(this.options.ticks) && this.options.ticks.length > 0) {
@@ -1000,7 +1035,7 @@
 							if (this.options.orientation !== 'vertical') {
 								this.tickLabelContainer.style[styleMargin] = -labelSize/2 + 'px';
 							}
-							
+
 							extraMargin = this.tickLabelContainer.offsetHeight;
 						} else {
 							/* Chidren are position absolute, calculate height by finding the max offsetHeight of a child */
@@ -1136,6 +1171,12 @@
 			            this.tooltip_max.style.top = this.tooltip_min.style.top;
 			        }
 				}
+			},
+			_resize: function (ev) {
+				/*jshint unused:false*/
+				this._state.offset = this._offset(this.sliderElem);
+				this._state.size = this.sliderElem[this.sizePos];
+				this._layout();
 			},
 			_removeProperty: function(element, prop) {
 				if (element.style.removeProperty) {

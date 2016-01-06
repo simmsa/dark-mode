@@ -321,6 +321,7 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
     jQueryValueId: string;
     htmlId: string;
     htmlValueId: string;
+    slider: any;
 
     refs: {
         [string: string]: any;
@@ -334,18 +335,24 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
         this.htmlValueId = this.props.identifier + "SliderValue";
     }
 
-    componentDidUpdate(){
+    // Add anything that manipulates the dom, but do this once
+    componentDidMount(){
         var sliderContainer = $(this.refs.sliderContainer);
         var sliderInput = $("<input />").prop("type", "text");
         sliderContainer.replaceWith(sliderInput);
+
         sliderInput.slider({
             id: this.htmlId,
             min: this.props.min,
             max: this.props.max,
             step: this.props.step,
             value: this.props.current,
+            range: false,
+            selection: "none",
+            precision: 0,
             tooltip: "hide"
         });
+        this.slider = sliderInput;
 
         // Set the initial value
         $(this.jQueryValueId).html(this.props.current + "%:");
@@ -361,6 +368,12 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
             $(this.jQueryValueId).html(slideEvent.value + "%:");
             this.sendOnChangeMessage(slideEvent.value);
         });
+    }
+
+    // When props changes, update the slider and the value
+    componentDidUpdate(){
+        this.slider.slider("setValue", this.props.current);
+        $(this.jQueryValueId).html(this.props.current + "%:");
     }
 
     setLabelText(value: number){

@@ -765,7 +765,10 @@ class BackgroundReceiver extends Message {
                 // TODO
                 break;
         }
-        ContentAction.checkDarkMode(currentUrl);
+        state.update(currentUrl, urlSettings, function(){
+            BackgroundSender.sendState();
+            ContentAction.checkDarkMode(currentUrl);
+        });
     }
 
 //  End Receive Popup Clear ------------------------------------------- }}}
