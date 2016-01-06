@@ -74,6 +74,7 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
                         title="Contrast"
                         min={SettingId.Default.ContrastMin}
                         max={SettingId.Default.ContrastMax}
+                        step={SettingId.Default.ContrastStep}
                         current={this.props.urlContrast}
                    />
                    <ResetButton
@@ -310,6 +311,7 @@ interface ToggleSliderProps {
     title: string;
     min: number;
     max: number;
+    step: number;
     current: number;
 }
 
@@ -340,14 +342,29 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
             id: this.htmlId,
             min: this.props.min,
             max: this.props.max,
-            step: 5,
+            step: this.props.step,
             value: this.props.current,
             tooltip: "hide"
         });
 
+        // Set the initial value
+        $(this.jQueryValueId).html(this.props.current + "%:");
+
+        $(this.jQueryId).dblclick(() => {
+            $(this.jQueryValueId).html(SettingId.Default.Contrast + "%:");
+            sliderInput.slider("setValue", 85);
+            this.sendOnChangeMessage(SettingId.Default.Contrast);
+        });
+
         sliderInput.on("slide", (slideEvent) => {
+            // Change the value with jquery, feels more responsive
+            $(this.jQueryValueId).html(slideEvent.value + "%:");
             this.sendOnChangeMessage(slideEvent.value);
         });
+    }
+
+    setLabelText(value: number){
+        $(this.jQueryValueId).html(value + "%:");
     }
 
     sendOnChangeMessage(newValue: any){
@@ -366,7 +383,7 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}>{
     render(){
         return(
            <div className="form-group">
-             <label className="control-label col-xs-6" style={{paddingRight: "0px"}} >{this.props.title} <span id={this.htmlValueId}></span>{this.props.current}%:</label>
+             <label className="control-label col-xs-6" style={{paddingRight: "0px"}} >{this.props.title} <span id={this.htmlValueId}></span></label>
              <div className="col-xs-6 sliderContainer">
                  <div ref="sliderContainer"></div>
              </div>

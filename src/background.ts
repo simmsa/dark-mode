@@ -735,9 +735,6 @@ class BackgroundReceiver extends Message {
             case SettingId.Group.Global:
                 break;
         }
-        state.update(currentUrl, urlSettings, function(){
-            BackgroundSender.sendState();
-        });
     }
 
 //  End Receive Popup Toggle ------------------------------------------ }}}
@@ -768,10 +765,7 @@ class BackgroundReceiver extends Message {
                 // TODO
                 break;
         }
-        state.update(currentUrl, urlSettings, function(){
-            BackgroundSender.sendState();
-            ContentAction.checkDarkMode(currentUrl);
-        });
+        ContentAction.checkDarkMode(currentUrl);
     }
 
 //  End Receive Popup Clear ------------------------------------------- }}}
@@ -807,10 +801,8 @@ class BackgroundReceiver extends Message {
                 }
                 break;
         }
-        state.update(currentUrl, urlSettings, function(){
-            BackgroundSender.sendState();
-            ContentAction.checkDarkMode(currentUrl);
-        });
+
+        ContentAction.checkDarkMode(currentUrl);
     }
 
 //  End Receive Change Field ------------------------------------------ }}}

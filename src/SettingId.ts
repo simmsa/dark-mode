@@ -32,8 +32,9 @@ class SettingId {
             Name: "Contrast",
             Type: "number",
             Default: 85,
-            Min: 70,
-            Max: 115
+            Min: 50,
+            Max: 150,
+            Step: 1
         },
         Clear: {
             Name: "Clear",
@@ -127,6 +128,7 @@ class SettingId {
         AutoDark: SettingId.Fields.AutoDark.Default,
         ContrastMin: SettingId.Fields.Contrast.Min,
         ContrastMax: SettingId.Fields.Contrast.Max,
+        ContrastStep: SettingId.Fields.Contrast.Step
     }
 
 }

@@ -43,7 +43,6 @@ class DarkModeContentManager {
                 try{
                     $(this).contents().find("html").attr(prefix + newAttribute, value);
                     $(this).contents().find("html").attr(prefix + "iframe", "true");
-                    console.log("Iframe attr set!");
                 } catch(e) {
                     if(e instanceof DOMException){
                         // Ignore the cross domain error!
