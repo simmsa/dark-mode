@@ -82,6 +82,68 @@ class PersistentStorage {
 }
 
 // End PersistentStorage Class -------------------------------------------- }}}
+// GlobalSettings Class ----------------------------------------------- {{{
+
+class GlobalSettings extends PersistentStorage {
+    constructor(){
+        super("globalSettings");
+    }
+
+    getField(field: string): any{
+        return this.dataObject[field];
+    }
+
+    toggleField(field: string, defaultValue: boolean): void {
+        if(typeof(this.getField(field)) !== "undefined"){
+            this.dataObject[field] = !this.getField(field);
+        } else {
+            this.dataObject[field] = !defaultValue;
+        }
+        this.save();
+    }
+
+    setField(field: string, value: any): void{
+        this.dataObject[field] = value;
+        this.save();
+    }
+
+    checkField(field: string, defaultValue: any): any{
+        if(typeof(this.getField(field)) !== "undefined"){
+            return this.getField(field);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    // Auto Dark
+    checkAutoDark(): boolean{
+        return this.checkField(SettingId.Field.AutoDark, SettingId.Default.AutoDark);
+    }
+
+    toggleAutoDark(): void{
+        return this.toggleField(SettingId.Field.AutoDark, SettingId.Default.AutoDark);
+    }
+
+    // Dark
+    checkDark(): boolean{
+        return this.checkField(SettingId.Field.Dark, SettingId.Default.Dark);
+    }
+
+    toggleDark(): void{
+        return this.toggleField(SettingId.Field.Dark, SettingId.Default.Dark);
+    }
+
+    // Hue
+    checkHue(): boolean{
+        return this.checkField(SettingId.Field.Hue, SettingId.Default.Hue);
+    }
+
+    toggleHue(): void{
+        return this.toggleField(SettingId.Field.Hue, SettingId.Default.Hue);
+    }
+}
+
+// End GlobalSettings Class ------------------------------------------- }}}
 // UrlSettings Class ------------------------------------------------------ {{{
 
 // I would like to put this inside the `UrlSettings` class but typescript does
@@ -90,9 +152,11 @@ enum QueryResult {True, False, Undefined };
 
 class UrlSettings extends PersistentStorage {
     fields: any;
+    globalSettings: GlobalSettings;
 
-    constructor(){
+    constructor(globalSettingObject){
         super("urlInfo");
+        this.globalSettings = globalSettingObject;
         // List the fields that exist and can be accessed
         this.fields = {
             "darkMode": {
@@ -235,11 +299,11 @@ class UrlSettings extends PersistentStorage {
 
     checkDarkMode(url: Url): boolean{
         // If the stem and the url are undefined turn dark mode ON!
-        return this.checkUrlForFieldBool(url, this.fields.darkMode.name, true);
+        return this.checkUrlForFieldBool(url, this.fields.darkMode.name, globalSettings.checkDark());
     }
 
     checkDarkModeStem(url: Url): boolean{
-        return this.checkUrlStemForFieldBool(url, this.fields.darkMode.name, true);
+        return this.checkUrlStemForFieldBool(url, this.fields.darkMode.name, globalSettings.checkDark());
     }
 
     // Special case for auto dark detection
@@ -253,11 +317,11 @@ class UrlSettings extends PersistentStorage {
 
     checkHueRotate(url: Url): boolean{
         // If the stem and the url are undefined turn hue rotate ON!
-        return this.checkUrlForFieldBool(url, this.fields.hueRotate.name, true);
+        return this.checkUrlForFieldBool(url, this.fields.hueRotate.name, globalSettings.checkHue());
     }
 
     checkHueRotateStem(url: Url): boolean{
-        return this.checkUrlStemForFieldBool(url, this.fields.hueRotate.name, true);
+        return this.checkUrlStemForFieldBool(url, this.fields.hueRotate.name, globalSettings.checkHue());
     }
 
     getContrast(url: Url): number {
@@ -672,7 +736,7 @@ class BackgroundReceiver extends Message {
     static handleReceiveAutoDark(message: any, tabId: number){
         isPageDark(function(){
             // In the future I plan to have a pop asking if this is correct
-            ContentAction.checkDarkMode(currentUrl);
+            ContentAction.toggleDarkMode(currentUrl);
         });
     }
 
@@ -689,7 +753,7 @@ class BackgroundReceiver extends Message {
     }
 
     static handleRequestState(message: any){
-        state.update(currentUrl, urlSettings, function(){
+        state.update(currentUrl, urlSettings, globalSettings, function(){
             BackgroundSender.sendState();
         });
     }
@@ -733,8 +797,28 @@ class BackgroundReceiver extends Message {
                 break;
             // Global Toggle
             case SettingId.Group.Global:
+                switch(message.Data.Field) {
+                    case SettingId.Field.AutoDark:
+                        globalSettings.toggleAutoDark();
+                        break;
+                    case SettingId.Field.Dark:
+                        globalSettings.toggleDark();
+                        BackgroundReceiver.updatePopupAndContent();
+                        break;
+                    case SettingId.Field.Hue:
+                        globalSettings.toggleHue();
+                        BackgroundReceiver.updatePopupAndContent();
+                        break;
+                }
                 break;
         }
+    }
+
+    static updatePopupAndContent(){
+        state.update(currentUrl, urlSettings, globalSettings, function(){
+            BackgroundSender.sendState();
+            ContentAction.checkDarkMode(currentUrl);
+        });
     }
 
 //  End Receive Popup Toggle ------------------------------------------ }}}
@@ -765,7 +849,7 @@ class BackgroundReceiver extends Message {
                 // TODO
                 break;
         }
-        state.update(currentUrl, urlSettings, function(){
+        state.update(currentUrl, urlSettings, globalSettings, function(){
             BackgroundSender.sendState();
             ContentAction.checkDarkMode(currentUrl);
         });
@@ -833,7 +917,7 @@ class BackgroundSender extends Message{
 
 class State extends DefaultState{
 
-    update(url: Url, settings: UrlSettings, callback: () => void): void{
+    update(url: Url, settings: UrlSettings, globalSettings: GlobalSettings, callback: () => void): void{
         this.urlFull = url.getNormal();
         this.urlStem = url.getDomain();
 
@@ -847,9 +931,12 @@ class State extends DefaultState{
         this.stemUrlContrast = settings.getContrastStem(url);
 
         // Global Dark Mode Settings
-        this.globalDark = true;
-        this.globalAutoDark = false;
-        this.globalHue = true;
+        // this.globalDark = true;
+        this.globalDark = globalSettings.checkDark();
+        // this.globalAutoDark = false;
+        this.globalAutoDark = globalSettings.checkAutoDark();
+        // this.globalHue = true;
+        this.globalHue = globalSettings.checkHue();
         this.globalContrast = 99;
         this.updateKeyboardShortcut(callback);
     }
@@ -1006,7 +1093,7 @@ var lastIsPageDarkExecution = Date.now();
 function isPageDark(lightCallback){
     if(debug) console.log("Starting isPageDark");
     var brightnessThreshold = 50;
-    var runScreenshot = currentUrl.getShouldAutoDark();
+    var runScreenshot = currentUrl.getShouldAutoDark() && globalSettings.checkAutoDark();
     // Number of ms to wait between running isPageDark
     var isPageDarkMsInterval = 10;
     if((Date.now() - lastIsPageDarkExecution) < isPageDarkMsInterval){
@@ -1162,7 +1249,8 @@ setTimeout(function(){
     if(debug) { console.log("Hello from Typescript!"); }
 }, 5);
 
-var urlSettings = new UrlSettings();
+var globalSettings = new GlobalSettings();
+var urlSettings = new UrlSettings(globalSettings);
 
 var currentUrl = new Url();
 
@@ -1172,7 +1260,7 @@ var state = new State();
 
 currentUrl.update(function(){
     createToggleStemContextMenu();
-    state.update(currentUrl, urlSettings, function(){});
+    state.update(currentUrl, urlSettings, globalSettings, function(){});
 });
 
 // End Main --------------------------------------------------------------- }}}
