@@ -315,6 +315,15 @@ class UrlSettings extends PersistentStorage {
         return false;
     }
 
+    // Special case for auto dark detection
+    checkDarkModeStemIsUndefined(url: Url): boolean{
+        var result = this.checkUrlStemForField(url, this.fields.darkMode.name);
+        if(result === QueryResult.Undefined){
+            return true;
+        }
+        return false;
+    }
+
     checkHueRotate(url: Url): boolean{
         // If the stem and the url are undefined turn hue rotate ON!
         return this.checkUrlForFieldBool(url, this.fields.hueRotate.name, globalSettings.checkHue());
@@ -667,6 +676,10 @@ class Url {
         this.shouldUpdateMenu = !this.inputInList(input, this.updateBlacklist).result;
     }
 
+    getFull(): string {
+        return this.full;
+    }
+
     getStem(): string{
         return this.stem;
     }
@@ -714,7 +727,12 @@ class BackgroundReceiver extends Message {
     }
 
     static handleReceiveContentUrl(message: any, tabId: number){
-        if(message.Data.Url){
+        // Verify that the url is not undefined and the url is the same as the
+        // frame url.  Only check dark mode for the parent url, not in iframes
+        // This does handle different inversion settings for iframes.  Iframes
+        // get the same inversion settings as the parent page.
+        if(message.Data.Url &&
+           message.Data.Url === message.Data.FrameUrl){
             var frameUrl = message.Data.FrameUrl;
             var newUrl = new Url(message.Data.Url);
             ContentAction.checkDarkMode(newUrl, tabId);
@@ -734,10 +752,27 @@ class BackgroundReceiver extends Message {
     }
 
     static handleReceiveAutoDark(message: any, tabId: number){
-        isPageDark(function(){
-            // In the future I plan to have a pop asking if this is correct
-            ContentAction.toggleDarkMode(currentUrl);
-        });
+        // Check if:
+        // The url exists
+        // Running from parent frame
+        // The url is also the current url, making sure not to take a
+        // screenshot of a background page
+        if(debug){
+            console.log("typeof(message.Data.Url) != \"undefined\":\t\t\t\t", typeof(message.Data.Url) != "undefined")
+            console.log("message.Data.Url === message.Data.FrameUrl:\t\t\t\t", message.Data.Url === message.Data.FrameUrl)
+            console.log("message.Data.Url === currentUrl.getFull():\t\t\t\t", message.Data.Url === currentUrl.getFull())
+            console.log("");
+        }
+
+        if(
+            typeof(message.Data.Url) != "undefined" &&
+            message.Data.Url === message.Data.FrameUrl &&
+            message.Data.Url === currentUrl.getFull()
+        ) {
+            autoDark.check(currentUrl, urlSettings, function(){
+                ContentAction.toggleDarkMode(currentUrl);
+            });
+        }
     }
 
 //  End Receive Auto Dark Init ----------------------------------------- }}}
@@ -960,7 +995,6 @@ class ContentAction {
             var executeId = tabId ? tabId : tab.id;
 
             if(jsString.length > 0){
-                console.log("Running executeScript for code: " + jsString);
                 chrome.tabs.executeScript(executeId, {
                     code: jsString,
                     "allFrames": true,
@@ -1044,7 +1078,7 @@ class ContentAction {
 // Browser Action ---------------------------------------------------------- {{{
 
 function deactivateBrowserAction(){
-    if(debug) console.log("Deactivating browser action!");
+    if(true) console.log("Deactivating browser action!");
     chrome.tabs.getSelected(null, function(tab){
         chrome.browserAction.disable(tab.id);
         chrome.browserAction.setIcon({
@@ -1058,7 +1092,7 @@ function deactivateBrowserAction(){
 }
 
 function activateBrowserAction(){
-    if(debug) console.log("Activating browser action!");
+    if(true) console.log("Activating browser action!");
     chrome.tabs.getSelected(null, function(tab){
         chrome.browserAction.enable(tab.id);
         chrome.browserAction.setIcon({
@@ -1084,56 +1118,126 @@ chrome.commands.onCommand.addListener(function(command){
 });
 
 // End Listen for Keystrokes ----------------------------------------------- }}}
-// Detect If Page Is Dark -------------------------------------------------- {{{
+// AutoDark Class ---------------------------------------------------- {{{
 
-// Runs on the currently active tab in the current window
+class AutoDark {
+    static brightnessThreshold = 50;
+    static runInterval = 1000; // ms
+    static stemRunInterval = 10000; //ms
 
-var lastIsPageDarkExecution = Date.now();
+    // I can't find the cause, but something causes many of these functions
+    // to run multiple times. To fix this, function execution times are
+    // tracked below and functions are ran through the `throttle` function
+    // to determine if they should execute again based on their previous
+    // execution time.
+    static lastStemNotification = Date.now();
+    static lastRun = Date.now();
+    static ResembleLastRun = Date.now();
+    static lastCheck = Date.now();
 
-function isPageDark(lightCallback){
-    if(debug) console.log("Starting isPageDark");
-    var brightnessThreshold = 50;
-    var runScreenshot = currentUrl.getShouldAutoDark() && globalSettings.checkAutoDark();
-    // Number of ms to wait between running isPageDark
-    var isPageDarkMsInterval = 10;
-    if((Date.now() - lastIsPageDarkExecution) < isPageDarkMsInterval){
-        if(runScreenshot){
-            if(debug) { console.log("Not running screenshot, last isPageDark execution was less than " + isPageDarkMsInterval + "ms ago"); }
-            runScreenshot = false;
+    check(url: Url, urlSettings: UrlSettings, lightCallback: () => void): void{
+        if(
+            url.getShouldAutoDark() &&
+            urlSettings.checkDarkModeIsUndefined(url) &&
+            urlSettings.checkDarkModeStemIsUndefined(url) &&
+            globalSettings.checkAutoDark() &&
+            !AutoDark.throttle(AutoDark.lastCheck, AutoDark.runInterval)
+        ){
+            AutoDark.measureBrightnessOfCurrentTab(url, AutoDark.parseBrightness);
+            AutoDark.lastCheck = Date.now();
         }
-    } else {
-        if(debug) { console.log("Updating lastIsPageDarkExecution, runScreenshot is: " + runScreenshot); }
-        lastIsPageDarkExecution = Date.now();
     }
 
-    // Don't try to take screen shots while chrome is loading.
-    // It blocks the background from doing other processing.
-    // if(runScreenshot && setup === false){
-    if(runScreenshot){
-        if(debug) { console.log("Capturing tab screenshot!"); }
-        chrome.tabs.captureVisibleTab(function(screenshot){
-            resemble(screenshot).onComplete(function(data){
-                if(data.brightness < brightnessThreshold){
-                    if(debug) console.log("Page " + currentUrl.getNormal() + " is dark! Brightness: " + data.brightness);
-                } else {
-                    if(debug) console.log("Page " + currentUrl.getNormal() + " is light! Brightness: " + data.brightness);
-                    if(typeof(lightCallback) === "function"){
-                        // Check if "dark-mode" for url is undefined
-                        if(debug) console.log("Before check whitelist");
-                        var shouldRunCallback = urlSettings.checkDarkModeIsUndefined(currentUrl);
-                        if(debug) console.log("shouldRunCallback = " + shouldRunCallback);
-                        if(shouldRunCallback){
-                            if(debug) { console.log("Running light callback"); }
-                            lightCallback();
-                        }
-                    }
+    static measureBrightnessOfCurrentTab(url: Url, brightnessCallback: (Url, number) => void){
+        // captureVisibleTab cannot capture screenshots of background tabs
+        // so the url we are checking must match the current url
+        if(currentUrl.getFull() === url.getFull() &&
+           !AutoDark.throttle(AutoDark.ResembleLastRun, AutoDark.runInterval)){
+            chrome.tabs.captureVisibleTab((screenshot) => {
+                resemble(screenshot).onComplete((data) => {
+                    AutoDark.ResembleLastRun = Date.now();
+                    brightnessCallback(url, data.brightness);
+                });
+            });
+        }
+    }
+
+    static throttle(lastRun: number, interval: number){
+        if(Date.now() < interval + lastRun){
+            return true;
+        }
+        return false;
+    }
+
+    static parseBrightness(url: Url, brightness: number){
+        // If the page is light, toggle the page to darkness
+        if(brightness > AutoDark.brightnessThreshold &&
+           !AutoDark.throttle(AutoDark.lastRun, AutoDark.runInterval)){
+            ContentAction.toggleDarkMode(url);
+            AutoDark.startNotifications(url);
+        }
+        AutoDark.lastRun = Date.now();
+    }
+
+    static startNotifications(url: Url){
+        AutoDark.pageLooksCorrectNotification(url);
+    }
+
+    static pageLooksCorrectNotification(url: Url){
+        chrome.notifications.create("", {
+            type: "basic",
+            iconUrl: "img/dark-mode-on-128.png",
+            title: "Dark Mode",
+            message: "Does this page look right?",
+            buttons: [
+                {title: "Yes"},
+                {title: "No"},
+            ]
+        }, function(notificationId){
+            chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex){
+                // Yes Click
+                if(buttonIndex === 0){
+                    chrome.notifications.clear(notificationId);
+                    AutoDark.toggleStemNotification();
+                }
+
+                // No Click
+                if(buttonIndex === 1){
+                    ContentAction.toggleDarkMode(url);
+                    chrome.notifications.clear(notificationId);
                 }
             });
         });
     }
+
+    static toggleStemNotification(){
+        if(!AutoDark.throttle(AutoDark.lastStemNotification, AutoDark.stemRunInterval)){
+            AutoDark.lastStemNotification = Date.now();
+            chrome.notifications.create("", {
+                type: "basic",
+                iconUrl: "img/dark-mode-on-128.png",
+                title: "Dark Mode",
+                message: "Turn off dark mode for all " + currentUrl.getDomain() + " urls?",
+                buttons: [
+                    {title: "Yes"},
+                    {title: "No"},
+                ]
+            }, function(notificationId){
+                chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex) {
+                    // Yes Click
+                    if(buttonIndex === 0){
+                        ContentAction.toggleDarkModeStem(currentUrl);
+                        chrome.notifications.clear(notificationId);
+                    } else {
+                        chrome.notifications.clear(notificationId);
+                    }
+                });
+            });
+        }
+    }
 }
 
-// End Detect If Page Is Dark ---------------------------------------------- }}}
+// End AutoDark Class ------------------------------------------------ }}}
 // Context (Right Click) Menus --------------------------------------------- {{{
 
 // Setup Basic Toggle context menu
@@ -1184,6 +1288,7 @@ function updateContextMenuAndBrowserAction(){
     // `updateIntervalMs` milliseconds.
     if(Date.now() > updateContextMenuToggleUrlStemTimestamp + updateIntervalMs){
         currentUrl.update(function(){
+            console.log("current url updated to: " + currentUrl.getFull());
             if(currentUrl.getShouldUpdateMenu()){
                 if(showContextMenus){
                     // Update the relevant context menus
@@ -1251,6 +1356,7 @@ setTimeout(function(){
 
 var globalSettings = new GlobalSettings();
 var urlSettings = new UrlSettings(globalSettings);
+var autoDark = new AutoDark();
 
 var currentUrl = new Url();
 

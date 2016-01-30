@@ -37,7 +37,8 @@
         "activeTab",
         "http://*/*",
         "https://*/*",
-        "<all_urls>"
+        "<all_urls>",
+        "notifications"
     ],
     "commands": {
         "toggle-dark-mode": {

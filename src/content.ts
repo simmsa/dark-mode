@@ -10,6 +10,7 @@ class DarkModeContentManager {
 
     constructor(){
         this.updateAttributes();
+        this.updateUrl();
         if(window.location != window.parent.location){
             this.setDarkAttribute("iframe", "true");
         } else {
@@ -17,7 +18,6 @@ class DarkModeContentManager {
             // Only send auto dark message from the parent page
             this.initAutoDarkEvent();
         }
-        this.updateUrl();
         this.requestState();
     }
 
@@ -55,8 +55,8 @@ class DarkModeContentManager {
     }
 
     initAutoDarkEvent(): void{
-        document.addEventListener("DOMContentLoaded", function(event){
-            ContentSender.sendCheckAutoDark(this.parentUrl);
+        document.addEventListener("DOMContentLoaded", (event) => {
+            ContentSender.sendCheckAutoDark(this.parentUrl, document.URL);
         });
     }
 

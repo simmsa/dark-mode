@@ -18,12 +18,15 @@ class ContentSender extends Message {
         );
     }
 
-    static sendCheckAutoDark(url: string){
+    static sendCheckAutoDark(url: string, frameUrl: string){
         Message.send(
             Message.Sender.ContentPage,
             Message.Receiver.Background,
             Message.Intent.InitAutoDark,
-            url
+            {
+                Url: url,
+                FrameUrl: frameUrl
+            }
         );
     }
 }
