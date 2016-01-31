@@ -876,18 +876,16 @@ class BackgroundReceiver extends Message {
         switch(message.Data){
             case SettingId.Group.CurrentUrl:
                 urlSettings.clearUrl(currentUrl);
+                BackgroundReceiver.updatePopupAndContent();
                 break;
             case SettingId.Group.StemUrl:
                 urlSettings.clearUrlStem(currentUrl);
+                BackgroundReceiver.updatePopupAndContent();
                 break;
             case SettingId.Group.Global:
                 // TODO
                 break;
         }
-        state.update(currentUrl, urlSettings, globalSettings, function(){
-            BackgroundSender.sendState();
-            ContentAction.checkDarkMode(currentUrl);
-        });
     }
 
 //  End Receive Popup Clear ------------------------------------------- }}}

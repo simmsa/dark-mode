@@ -246,6 +246,7 @@ class ToggleSwitch extends React.Component<ToggleSwitchProps, {}>{
 
     identifier: string;
     bootstrapSliderId = "bootstrap-switch-id-";
+    thisSwitch: any;
 
     // Add ref support
     refs: {
@@ -271,10 +272,18 @@ class ToggleSwitch extends React.Component<ToggleSwitchProps, {}>{
             },
             state: value
         });
+
+        this.thisSwitch = switchInput;
     }
 
-    componentDidUpdate(){
+    // Add anything that manipulates the dom, but do this once
+    componentDidMount(){
         this.setupSwitch(this.props.group, this.props.field, this.props.isChecked);
+    }
+
+    // When props changes, update the slider and the value
+    componentDidUpdate(){
+        this.thisSwitch.bootstrapSwitch("state", this.props.isChecked, true);
     }
 
     sendOnChangeMessage(group: string, field: string, value?: any){
