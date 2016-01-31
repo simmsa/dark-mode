@@ -141,6 +141,15 @@ class GlobalSettings extends PersistentStorage {
     toggleHue(): void{
         return this.toggleField(SettingId.Field.Hue, SettingId.Default.Hue);
     }
+
+    // Notifications
+    checkShowNotifications(): boolean{
+        return this.checkField(SettingId.Field.ShowNotifications, SettingId.Default.ShowNotifications);
+    }
+
+    toggleShowNotifications(): void{
+        return this.toggleField(SettingId.Field.ShowNotifications, SettingId.Default.ShowNotifications);
+    }
 }
 
 // End GlobalSettings Class ------------------------------------------- }}}
@@ -840,6 +849,10 @@ class BackgroundReceiver extends Message {
                         globalSettings.toggleDark();
                         BackgroundReceiver.updatePopupAndContent();
                         break;
+                    case SettingId.Field.ShowNotifications:
+                        globalSettings.toggleShowNotifications();
+                        BackgroundReceiver.updatePopupAndContent();
+                        break;
                     case SettingId.Field.Hue:
                         globalSettings.toggleHue();
                         BackgroundReceiver.updatePopupAndContent();
@@ -968,6 +981,7 @@ class State extends DefaultState{
         this.globalDark = globalSettings.checkDark();
         // this.globalAutoDark = false;
         this.globalAutoDark = globalSettings.checkAutoDark();
+        this.globalShowNotifications = globalSettings.checkShowNotifications();
         // this.globalHue = true;
         this.globalHue = globalSettings.checkHue();
         this.globalContrast = 99;
@@ -1178,7 +1192,9 @@ class AutoDark {
     }
 
     static startNotifications(url: Url){
-        AutoDark.pageLooksCorrectNotification(url);
+        if(globalSettings.checkShowNotifications()){
+            AutoDark.pageLooksCorrectNotification(url);
+        }
     }
 
     static pageLooksCorrectNotification(url: Url){

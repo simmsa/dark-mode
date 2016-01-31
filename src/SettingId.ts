@@ -45,6 +45,11 @@ class SettingId {
             Type: "string",
             Default: true
         },
+        ShowNotifications: {
+            Name: "ShowNotifications",
+            Type: "Boolean",
+            Default: true
+        },
         Shortcut: {
             Name: "Shortcut",
             Type: "string"
@@ -88,6 +93,7 @@ class SettingId {
         Clear: SettingId.GlobalGroup + SettingId.Fields.Clear.Name,
         AutoDark: SettingId.GlobalGroup + SettingId.Fields.AutoDark.Name,
         Shortcut: SettingId.GlobalGroup + SettingId.Fields.Shortcut.Name,
+        ShowNotifications: SettingId.GlobalGroup + SettingId.Fields.ShowNotifications.Name,
     };
 
     static Group = {
@@ -106,6 +112,7 @@ class SettingId {
         Clear: SettingId.Fields.Clear.Name,
         AutoDark: SettingId.Fields.AutoDark.Name,
         Shortcut: SettingId.Fields.Shortcut.Name,
+        ShowNotifications: SettingId.Fields.ShowNotifications.Name,
         Init: "Init",
         Url: SettingId.Fields.Url.Name,
         UrlStem: SettingId.Fields.UrlStem.Name,
@@ -119,6 +126,7 @@ class SettingId {
         Clear: SettingId.Fields.Clear.Type,
         AutoDark: SettingId.Fields.AutoDark.Type,
         Shortcut: SettingId.Fields.Shortcut.Type,
+        ShowNotifications: SettingId.Fields.ShowNotifications.Type,
     };
 
     static Default = {
@@ -128,7 +136,8 @@ class SettingId {
         AutoDark: SettingId.Fields.AutoDark.Default,
         ContrastMin: SettingId.Fields.Contrast.Min,
         ContrastMax: SettingId.Fields.Contrast.Max,
-        ContrastStep: SettingId.Fields.Contrast.Step
+        ContrastStep: SettingId.Fields.Contrast.Step,
+        ShowNotifications: SettingId.Fields.ShowNotifications.Default,
     }
 
 }

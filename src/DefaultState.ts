@@ -18,6 +18,7 @@ class DefaultState {
     // Global Dark Mode Settings
     globalDark = SettingId.Default.Dark;
     globalAutoDark = SettingId.Default.AutoDark;
+    globalShowNotifications = SettingId.Default.ShowNotifications;
     globalHue = SettingId.Default.Hue;
     globalContrast = SettingId.Default.Contrast;
     globalKeyboardShortcut = "init";
@@ -43,6 +44,7 @@ class DefaultState {
         result[SettingId.Group.Global] = {}
         result[SettingId.Group.Global][SettingId.Field.Dark] = this.globalDark;
         result[SettingId.Group.Global][SettingId.Field.AutoDark] = this.globalAutoDark;
+        result[SettingId.Group.Global][SettingId.Field.ShowNotifications] = this.globalShowNotifications;
         result[SettingId.Group.Global][SettingId.Field.Hue] = this.globalHue;
         result[SettingId.Group.Global][SettingId.Field.Contrast] = this.globalContrast;
         result[SettingId.Group.Global][SettingId.Field.Shortcut] = this.globalKeyboardShortcut;

@@ -100,6 +100,7 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
  interface GlobalSettingsCollapseProps{
      globalDark: boolean;
      globalAutoDark: boolean;
+     globalShowNotifications: boolean;
      globalHue: boolean;
      globalContrast: number;
      keyboardShortcut: string;
@@ -131,6 +132,12 @@ class UrlSettingsCollapse extends React.Component<UrlSettingsCollapseProps, {}>{
                     group={SettingId.Group.Global}
                     field={SettingId.Field.AutoDark}
                     isChecked={this.props.globalAutoDark}
+                />
+                <ToggleSwitch
+                    title="Notifications"
+                    group={SettingId.Group.Global}
+                    field={SettingId.Field.ShowNotifications}
+                    isChecked={this.props.globalShowNotifications}
                 />
                 <ToggleSwitch
                     title="Fix Colors"
@@ -222,6 +229,7 @@ class Settings extends React.Component<{}, SettingsState>{
             <GlobalSettingsCollapse
                 globalDark={this.state.data.Global.Dark}
                 globalAutoDark={this.state.data.Global.AutoDark}
+                globalShowNotifications={this.state.data.Global.ShowNotifications}
                 globalHue={this.state.data.Global.Hue}
                 globalContrast={this.state.data.Global.Contrast}
                 keyboardShortcut={this.state.data.Global.Shortcut}
