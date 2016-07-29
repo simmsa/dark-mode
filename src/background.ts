@@ -150,6 +150,15 @@ class GlobalSettings extends PersistentStorage {
     toggleShowNotifications(): void{
         return this.toggleField(SettingId.Field.ShowNotifications, SettingId.Default.ShowNotifications);
     }
+
+    // Log AutoDark
+    checkLogAutoDark(): boolean{
+        return this.checkField(SettingId.Field.LogAutoDark, SettingId.Default.LogAutoDark);
+    }
+
+    toggleLogAutoDark(): void{
+        return this.toggleField(SettingId.Field.LogAutoDark, SettingId.Default.LogAutoDark);
+    }
 }
 
 // End GlobalSettings Class ------------------------------------------- }}}
@@ -428,21 +437,21 @@ class UrlSettings extends PersistentStorage {
         // There is a stem and a url but no matching field
         else if(this.allArgsFalse(stem, stem_Url)){
             // Create the field and insert the default value
-            this.dataObject[urlStem][cleanedUrl][field] = defaultValue;
+            this.dataObject[urlStem][cleanedUrl][field] = value;
         }
 
         // There is only a stem
         else if(this.allArgsFalse(stem)){
             // Create the url within the stem and add the field
             this.dataObject[urlStem][cleanedUrl] = {};
-            this.dataObject[urlStem][cleanedUrl][field] = defaultValue;
+            this.dataObject[urlStem][cleanedUrl][field] = value;
         }
 
         // The is no record of the url
         else {
             this.dataObject[urlStem] = {};
             this.dataObject[urlStem][cleanedUrl] = {};
-            this.dataObject[urlStem][cleanedUrl][field] = defaultValue;
+            this.dataObject[urlStem][cleanedUrl][field] = value;
         }
         this.save();
     }
@@ -845,6 +854,9 @@ class BackgroundReceiver extends Message {
                     case SettingId.Field.AutoDark:
                         globalSettings.toggleAutoDark();
                         break;
+                    case SettingId.Field.LogAutoDark:
+                        globalSettings.toggleLogAutoDark();
+                        break;
                     case SettingId.Field.Dark:
                         globalSettings.toggleDark();
                         BackgroundReceiver.updatePopupAndContent();
@@ -977,12 +989,10 @@ class State extends DefaultState{
         this.stemUrlContrast = settings.getContrastStem(url);
 
         // Global Dark Mode Settings
-        // this.globalDark = true;
         this.globalDark = globalSettings.checkDark();
-        // this.globalAutoDark = false;
         this.globalAutoDark = globalSettings.checkAutoDark();
+        this.globalLogAutoDark = globalSettings.checkLogAutoDark();
         this.globalShowNotifications = globalSettings.checkShowNotifications();
-        // this.globalHue = true;
         this.globalHue = globalSettings.checkHue();
         this.globalContrast = 99;
         this.updateKeyboardShortcut(callback);
@@ -1142,10 +1152,14 @@ class AutoDark {
     // tracked below and functions are ran through the `throttle` function
     // to determine if they should execute again based on their previous
     // execution time.
+    static lastIsCorrectNotification = Date.now();
     static lastStemNotification = Date.now();
     static lastRun = Date.now();
     static ResembleLastRun = Date.now();
     static lastCheck = Date.now();
+
+    // Number of sites UrlSettings checks before it marks a stem as dark
+    static MinDarkSites = 5;
 
     check(url: Url, urlSettings: UrlSettings, lightCallback: () => void): void{
         if(
@@ -1153,20 +1167,22 @@ class AutoDark {
             urlSettings.checkDarkModeIsUndefined(url) &&
             urlSettings.checkDarkModeStemIsUndefined(url) &&
             globalSettings.checkAutoDark() &&
-            !AutoDark.throttle(AutoDark.lastCheck, AutoDark.runInterval)
+            !AutoDark.throttle(AutoDark.lastCheck, AutoDark.runInterval) &&
+            !urlSettings.getCheckedAutoDark(url)
         ){
-            AutoDark.measureBrightnessOfCurrentTab(url, AutoDark.parseBrightness);
+            AutoDark.measureBrightnessOfCurrentTab(url, urlSettings, AutoDark.parseBrightness);
             AutoDark.lastCheck = Date.now();
         }
     }
 
-    static measureBrightnessOfCurrentTab(url: Url, brightnessCallback: (Url, number) => void){
+    static measureBrightnessOfCurrentTab(url: Url, urlSettings: UrlSettings, brightnessCallback: (Url, number) => void){
         // captureVisibleTab cannot capture screenshots of background tabs
         // so the url we are checking must match the current url
         if(currentUrl.getFull() === url.getFull() &&
            !AutoDark.throttle(AutoDark.ResembleLastRun, AutoDark.runInterval)){
             chrome.tabs.captureVisibleTab((screenshot) => {
                 resemble(screenshot).onComplete((data) => {
+                    urlSettings.setCheckedAutoDark(url);
                     AutoDark.ResembleLastRun = Date.now();
                     brightnessCallback(url, data.brightness);
                 });

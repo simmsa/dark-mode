@@ -47,8 +47,28 @@ class SettingId {
         },
         ShowNotifications: {
             Name: "ShowNotifications",
-            Type: "Boolean",
+            Type: "boolean",
             Default: true
+        },
+        // Global Setting, should all sites be logged to reduce the number
+        // of times auto dark is run
+        LogAutoDark: {
+            Name: "LogAutoDark",
+            Type: "boolean",
+            Default: false
+        },
+        // Url Setting, has auto dark been run on this site
+        CheckedAutoDark: {
+            Name: "CheckedAutoDark",
+            Type: "boolean",
+            Default: false
+        },
+        // Stem Setting, if a number of sites have been checked, then the
+        // whole site "should" be dark and no more checking will be done
+        ShouldAutoDark: {
+            Name: "ShouldAutoDark",
+            Type: "boolean",
+            Default: false
         },
         Shortcut: {
             Name: "Shortcut",
@@ -75,6 +95,7 @@ class SettingId {
         Hue: SettingId.CurrentUrlGroup + SettingId.Fields.Hue.Name,
         Contrast: SettingId.CurrentUrlGroup + SettingId.Fields.Contrast.Name,
         Clear: SettingId.CurrentUrlGroup + SettingId.Fields.Clear.Name,
+        CheckedAutoDark: SettingId.CurrentUrlGroup + SettingId.Fields.CheckedAutoDark.Name,
     };
 
     static StemUrl = {
@@ -83,6 +104,7 @@ class SettingId {
         Hue: SettingId.StemUrlGroup + SettingId.Fields.Hue.Name,
         Contrast: SettingId.StemUrlGroup + SettingId.Fields.Contrast.Name,
         Clear: SettingId.StemUrlGroup + SettingId.Fields.Clear.Name,
+        ShouldAutoDark: SettingId.StemUrlGroup + SettingId.Fields.ShouldAutoDark.Name,
     };
 
     static Global = {
@@ -94,6 +116,7 @@ class SettingId {
         AutoDark: SettingId.GlobalGroup + SettingId.Fields.AutoDark.Name,
         Shortcut: SettingId.GlobalGroup + SettingId.Fields.Shortcut.Name,
         ShowNotifications: SettingId.GlobalGroup + SettingId.Fields.ShowNotifications.Name,
+        LogAutoDark: SettingId.GlobalGroup + SettingId.Fields.LogAutoDark.Name,
     };
 
     static Group = {
@@ -112,6 +135,9 @@ class SettingId {
         Clear: SettingId.Fields.Clear.Name,
         AutoDark: SettingId.Fields.AutoDark.Name,
         Shortcut: SettingId.Fields.Shortcut.Name,
+        LogAutoDark: SettingId.Fields.LogAutoDark.Name,
+        CheckedAutoDark: SettingId.Fields.CheckedAutoDark.Name,
+        ShouldAutoDark: SettingId.Fields.ShouldAutoDark.Name,
         ShowNotifications: SettingId.Fields.ShowNotifications.Name,
         Init: "Init",
         Url: SettingId.Fields.Url.Name,
@@ -126,7 +152,10 @@ class SettingId {
         Clear: SettingId.Fields.Clear.Type,
         AutoDark: SettingId.Fields.AutoDark.Type,
         Shortcut: SettingId.Fields.Shortcut.Type,
+        LogAutoDark: SettingId.Fields.LogAutoDark.Type,
         ShowNotifications: SettingId.Fields.ShowNotifications.Type,
+        CheckedAutoDark: SettingId.Fields.CheckedAutoDark.Type,
+        ShouldAutoDark: SettingId.Fields.ShouldAutoDark.Type,
     };
 
     static Default = {
@@ -138,6 +167,8 @@ class SettingId {
         ContrastMax: SettingId.Fields.Contrast.Max,
         ContrastStep: SettingId.Fields.Contrast.Step,
         ShowNotifications: SettingId.Fields.ShowNotifications.Default,
+        LogAutoDark: SettingId.Fields.LogAutoDark.Default,
+        CheckedAutoDark: SettingId.Fields.CheckedAutoDark.Default,
+        ShouldAutoDark: SettingId.Fields.ShouldAutoDark.Default,
     }
-
 }
