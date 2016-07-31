@@ -6,14 +6,14 @@
 //  End Typings ------------------------------------------------------------ }}}
 
 class ContentSender extends Message {
-    static sendUrl(url: string, frameUrl: string){
+    static sendUrl(url: string, parentUrl: string){
         Message.send(
             Message.Sender.ContentPage,
             Message.Receiver.Background,
             Message.Intent.InitContent,
             {
                 Url: url,
-                FrameUrl: frameUrl
+                ParentUrl: parentUrl
             }
         );
     }

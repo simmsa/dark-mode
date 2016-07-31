@@ -162,7 +162,7 @@ class GlobalSettings extends PersistentStorage {
 }
 
 // End GlobalSettings Class ------------------------------------------- }}}
-// UrlSettings Class ------------------------------------------------------ {{{
+// Url Settings Class ------------------------------------------------------ {{{
 
 // I would like to put this inside the `UrlSettings` class but typescript does
 // not allow this.
@@ -575,6 +575,74 @@ class UrlSettings extends PersistentStorage {
 
         return result;
     }
+
+    getFrameState(rawUrls: string[]): any{
+        // Iterate through urls to determine the dark and hue settings of
+        // iframes embedded multiple levels into a page
+        console.log(rawUrls);
+        var url = new Url(rawUrls.shift());
+        var currentState = this.getUrlState(url);
+
+        // If the parent url is not dark no inversions are taking place, no
+        // iteration necessary
+        if(!currentState.Dark){
+            currentState.BaseFrameIsDark = false;
+            return currentState;
+        }
+        currentState.BaseFrameIsDark = true;
+        console.log(currentState);
+
+        for(var rawUrl in rawUrls){
+            var nextUrl = new Url(rawUrls[rawUrl]);
+            var nextState = this.getUrlState(nextUrl);
+
+            // If an iframe is embedded one level deep it should needs to have
+            // the inversion turned off (actually re inverted) so
+            // true ^ true = false
+            // And if an iframe is 2 levels deep it needs to have inversion
+            // turned back on basically
+            // (true ^ true) ^ true = true
+            currentState.Dark = currentState.Dark ^ nextState.Dark;
+            currentState.Hue = currentState.Hue ^ nextState.Hue;
+            currentState.Contrast = nextState.Contrast;
+
+            if(nextUrl.getFull() === "about:blank"){
+                currentState.Hue = !currentState.Hue;
+                currentState.Dark = !currentState.Dark;
+            }
+        }
+        return currentState;
+    }
+
+    // Auto Dark Logging Specific
+    setCheckedAutoDark(url: Url): void{
+        this.setUrlFieldToValue(url, SettingId.Field.CheckedAutoDark, true, SettingId.Type.CheckedAutoDark, SettingId.Default.CheckedAutoDark);
+        if(this.checkUrlStemForFieldBool(url, SettingId.Field.ShouldAutoDark, SettingId.Default.ShouldAutoDark)){
+            this.setStemShouldAutoDark(url);
+        }
+    }
+
+    private setStemShouldAutoDark(url: Url): void{
+        var siteObject = this.dataObject[url.getStem()];
+        if(typeof(siteObject) !== "undefined"){
+            if(Object.keys(siteObject).length >= AutoDark.MinDarkSites){
+                var darkSites = 0;
+                for(var site in siteObject){
+                    if(siteObject[site][SettingId.Field.CheckedAutoDark] == true){
+                        darkSites++;
+                        if(darkSites >=  AutoDark.MinDarkSites){
+                            this.setUrlStemFieldToValue(url, SettingId.Field.ShouldAutoDark, false, SettingId.Type.ShouldAutoDark, SettingId.Default.ShouldAutoDark);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    getCheckedAutoDark(url: Url): boolean {
+        return this.checkUrlForFieldBool(url, SettingId.Field.CheckedAutoDark, SettingId.Default.CheckedAutoDark) || this.checkUrlStemForFieldBool(url, SettingId.Field.ShouldAutoDark, SettingId.Default.ShouldAutoDark);
+    }
 }
 
 // End UrlSettings Class -------------------------------------------------- }}}
@@ -678,7 +746,7 @@ class Url {
     }
 
     inputInList(input: string, list: string[]): any{
-        for(var i = 0; i <= list.length; i++){
+        for(var i = 0; i < list.length; i++){
             if(input.indexOf(list[i]) > -1){
                 return {result: true, position: i};
             }
@@ -724,7 +792,10 @@ class Url {
 // BackgroundReceiver ------------------------------------------------- {{{
 
 class BackgroundReceiver extends Message {
-    static init(){
+    static urlTree: UrlTree;
+
+    static init(inputUrlTree: UrlTree){
+        BackgroundReceiver.urlTree = inputUrlTree;
         BackgroundReceiver.receiveContentUrl();
         BackgroundReceiver.receiveAutoDark();
         BackgroundReceiver.receiveRequestState();
@@ -744,16 +815,11 @@ class BackgroundReceiver extends Message {
         );
     }
 
-    static handleReceiveContentUrl(message: any, tabId: number){
-        // Verify that the url is not undefined and the url is the same as the
-        // frame url.  Only check dark mode for the parent url, not in iframes
-        // This does handle different inversion settings for iframes.  Iframes
-        // get the same inversion settings as the parent page.
-        if(message.Data.Url &&
-           message.Data.Url === message.Data.FrameUrl){
-            var frameUrl = message.Data.FrameUrl;
-            var newUrl = new Url(message.Data.Url);
-            ContentAction.checkDarkMode(newUrl, tabId);
+    static handleReceiveContentUrl(message: any, tabId: number, frameId: number){
+        if(tabId !== undefined && frameId !== undefined){
+            urlTree.updateTab(tabId, function(){
+                ContentAction.checkDarkMode(new Url(message.Data.Url), tabId, frameId);
+            });
         }
     }
 
@@ -813,7 +879,6 @@ class BackgroundReceiver extends Message {
 
 //  End Receive Request State ------------------------------------------ }}}
 //  Receive Popup Toggle ---------------------------------------------- {{{
-
 
     static receivePopupToggle(){
         Message.receive(
@@ -877,13 +942,12 @@ class BackgroundReceiver extends Message {
     static updatePopupAndContent(){
         state.update(currentUrl, urlSettings, globalSettings, function(){
             BackgroundSender.sendState();
-            ContentAction.checkDarkMode(currentUrl);
+            ContentAction.checkDarkModeForActiveTab(currentUrl);
         });
     }
 
 //  End Receive Popup Toggle ------------------------------------------ }}}
 //  Receive Popup Clear ----------------------------------------------- {{{
-
 
     static receivePopupClear(){
         Message.receive(
@@ -908,7 +972,8 @@ class BackgroundReceiver extends Message {
                 BackgroundReceiver.updatePopupAndContent();
                 break;
             case SettingId.Group.Global:
-                // TODO
+                // TODO:
+                // This should clear urlSettings.
                 break;
         }
     }
@@ -947,7 +1012,7 @@ class BackgroundReceiver extends Message {
                 break;
         }
 
-        ContentAction.checkDarkMode(currentUrl);
+        ContentAction.checkDarkModeForActiveTab(currentUrl);
     }
 
 //  End Receive Change Field ------------------------------------------ }}}
@@ -1012,55 +1077,105 @@ class State extends DefaultState{
 
 class ContentAction {
 
-    private static updateContentPage(jsString: string, cssString: string, tabId?: number){
-        chrome.tabs.getSelected(null, function(tab){
-            var executeId = tabId ? tabId : tab.id;
+    static urlTree: UrlTree;
 
-            if(jsString.length > 0){
-                chrome.tabs.executeScript(executeId, {
-                    code: jsString,
-                    "allFrames": true,
-                    "matchAboutBlank": false,
-                    "runAt": "document_start",
-                });
-            }
+    static init(inputUrlTree: UrlTree){
+        ContentAction.urlTree = inputUrlTree;
+    }
 
-            if(cssString.length > 0){
-                chrome.tabs.insertCSS(executeId, {
-                    code: cssString,
-                    allFrames: true,
-                    runAt: "document_start"
-                });
-            }
+    static checkDarkMode(url: Url, tabId: number, frameId: number): void {
+        var parentUrls = ContentAction.urlTree.getParentUrls(tabId, frameId);
+        ContentAction.getStateForUrl(url, tabId, frameId, parentUrls);
+    }
+
+    static checkDarkModeForActiveTab(url: Url): void {
+        ContentAction.getStateForActiveTab(url);
+    }
+
+    static toggleDarkMode(url: Url): void {
+        urlSettings.toggleDarkMode(url);
+        ContentAction.getStateForActiveTab(url);
+    }
+
+    static toggleDarkModeStem(url: Url): void {
+        urlSettings.toggleDarkModeStem(url);
+        ContentAction.getStateForActiveTab(url);
+    }
+
+    static toggleHue(url: Url): void {
+        urlSettings.toggleHueRotate(url);
+        ContentAction.getStateForActiveTab(url);
+    }
+
+    static toggleHueStem(url: Url): void {
+        urlSettings.toggleHueRotateStem(url);
+        ContentAction.getStateForActiveTab(url);
+    }
+
+
+    // This should only be called from anywhere but the content page, If this
+    // is called from the content page some insane amount of function calls
+    // would happen
+    static getStateForActiveTab(url: Url){
+        chrome.tabs.query({active: true, currentWindow: true}, function(tab){
+            // Frame id of 0 is the base frame
+            var tabId = tab[0].id
+
+            ContentAction.urlTree.updateTab(tabId, function(){
+                var frameData = ContentAction.urlTree.getAllFrameData(tabId);
+                console.log(frameData);
+                for(var frame in frameData){
+                    ContentAction.getStateForUrl(url, tabId, frameData[frame].frameId, frameData[frame].parentUrls);
+                }
+            });
         });
     }
 
-    static checkDarkMode(url: Url, tabId?: number){
-        if(tabId){
-            ContentAction.passStateToExecute(url, tabId);
+    static getStateForUrl(url: Url, tabId: number, frameId: number, parentUrls: string[]){
+        var isIFrame = false;
+        console.log(parentUrls);
+        if(parentUrls.length <= 1){
+            var state = urlSettings.getUrlState(url);
         } else {
-            ContentAction.passStateToExecute(url);
+            // Determine what css settings should be sent to the current frame
+            // based on parent frame settings
+            var state = urlSettings.getFrameState(parentUrls.reverse());
+            isIFrame = true;
+        }
+
+        if(state !== undefined){
+            ContentAction.handleDataForTab(state, tabId, frameId, isIFrame);
         }
     }
 
-    static toggleDarkMode(url: Url, tabId?: number){
-        urlSettings.toggleDarkMode(url);
-        ContentAction.passStateToExecute(url);
-    }
+    static handleDataForTab(state: {Dark: boolean, Hue: boolean, Contrast: number, BaseFrameIsDark?: boolean}, tabId: number, frameId: number, isIFrame: boolean){
+        if(!isIFrame){
+            if(state.Dark){
+                Icon.turnOn();
+            } else {
+                Icon.turnOff();
+            }
+        }
 
-    static toggleDarkModeStem(url: Url, tabId?: number){
-        urlSettings.toggleDarkModeStem(url);
-        ContentAction.passStateToExecute(url);
-    }
+        if(isIFrame){
+            var cssString = CssBuilder.buildForIFrame(state.Dark, state.Hue, state.Contrast, state.BaseFrameIsDark);
+            // The state that we get for iframes has to do with how many
+            // levels they are embedded within the parent page, but the
+            // javascript just needs to tell the frame that it is dark. This
+            // passes dark to the js so html[data-dark-mode-active="true"]
+            if(state.BaseFrameIsDark){
+                state.Dark = true;
+            } else {
+                state.Dark = false;
+            }
+        } else {
+            var cssString = CssBuilder.buildForBaseFrame(state.Dark, state.Hue, state.Contrast);
+        }
 
-    static toggleHue(url: Url, tabId?: number){
-        urlSettings.toggleHueRotate(url);
-        ContentAction.passStateToExecute(url);
-    }
+        var jsString = ContentAction.buildJsString(state.Dark)
+        console.log("Iframe: " + isIFrame + ", Css: " + cssString);
 
-    static toggleHueStem(url: Url, tabId?: number){
-        urlSettings.toggleHueRotateStem(url);
-        ContentAction.passStateToExecute(url);
+        ContentAction.updateContentPage(jsString, cssString, tabId, frameId);
     }
 
     private static buildJsString(Dark: boolean){
@@ -1069,34 +1184,217 @@ class ContentAction {
         `;
     }
 
-    static passStateToExecute(url: Url, tabId?: number){
-        var state = urlSettings.getUrlState(url);
+    private static passError(error: string, passableErrors: string[]){
+        for(var x in passableErrors){
+            if(error.indexOf(passableErrors[x]) !== -1){
+                return true;
+            }
+        }
+        return false;
+    }
 
-        if(state.Dark){
-            chrome.browserAction.setIcon({
-                "path": {
-                    "19": "img/dark-mode-on-19.png",
-                    "38": "img/dark-mode-on-38.png"
+    private static parseErrors(){
+        var errorsToCatch = [
+            "No frame with id",
+            "Cannot access contents of url"
+        ];
+
+        if(chrome.runtime.lastError){
+            var error = chrome.runtime.lastError.message;
+            if(!ContentAction.passError(error, errorsToCatch)){
+                console.log(error);
+            }
+        }
+    }
+
+    private static updateContentPage(jsString: string, cssString: string, tabId: number, frameId: number){
+
+
+        if(jsString.length > 0){
+            chrome.tabs.executeScript(tabId, {
+                "frameId": frameId,
+                "code": jsString,
+                "allFrames": false,
+                "matchAboutBlank": true,
+                "runAt": "document_start",
+            }, ContentAction.parseErrors);
+        }
+
+        if(cssString.length > 0){
+            chrome.tabs.insertCSS(tabId, {
+                "frameId": frameId,
+                "code": cssString,
+                "allFrames": false,
+                "matchAboutBlank": true,
+                "runAt": "document_start",
+            }, ContentAction.parseErrors);
+        }
+    }
+}
+// End ContentAction ------------------------------------------------------ }}}
+// Url Tree ---------------------------------------------------------- {{{
+
+class UrlTree {
+    tree: any;
+
+    constructor(){
+        this.tree = {};
+        this.populate();
+    }
+
+    populate(): void {
+        chrome.tabs.query({}, (tabs) => {
+            for(var tab in tabs){
+                var thisTabId = tabs[tab].id;
+
+                this.tree[thisTabId] = {}
+
+                this.convertFrameIdsToParentUrls(thisTabId);
+            }
+        });
+    }
+
+    addActiveTab(): void {
+
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            var thisTabId = tabs[0].id;
+
+            // Reset the tab with new frameIds.
+            this.tree[thisTabId] = {}
+
+            this.convertFrameIdsToParentUrls(thisTabId);
+        });
+    }
+
+    updateTab(tabId: number, callback: any){
+        if(this.tree[tabId] === undefined){
+            this.tree[tabId] = {}
+        }
+
+        this.convertFrameIdsToParentUrls(tabId, callback);
+    }
+
+    private convertFrameIdsToParentUrls(thisTabId: number, callback?: any){
+        chrome.webNavigation.getAllFrames({"tabId": thisTabId}, (frames) => {
+            for(var frame in frames){
+                this.tree[thisTabId][frames[frame].frameId] = {
+                    "url": frames[frame].url,
+                    "parentId": frames[frame].parentFrameId
                 }
-            });
-        } else {
-            chrome.browserAction.setIcon({
-                "path": {
-                    "19": "img/dark-mode-off-19.png",
-                    "38": "img/dark-mode-off-38.png"
+            }
+            if(callback !== undefined){
+                callback();
+            }
+        });
+
+    }
+
+    // The structure here is really important for finding the nest level of an
+    // iframe.
+    // tabId: {
+    //     frameId: {
+    //         url,
+    //         parentId,
+    //     },
+    //     frameId: {
+    //         url,
+    //         parentId,
+    //     }, ...
+    // }
+    add(url: string, parentUrl: string, tabId: number, frameId: number): void{
+        if(this.tree[tabId] === undefined) this.tree[tabId] = {};
+        console.log("Add:");
+        console.log("url: " + url);
+        console.log("parentUrl: " + parentUrl);
+
+        if(frameId === 0){
+            this.tree[tabId][frameId] = {
+                "url": url,
+                "parentId": -1
+            }
+        }
+
+        // How do you find the parentId from the parentUrl
+        var tabData = {};
+        for(var frame in this.tree[tabId]){
+            var frameUrl = this.tree[tabId][frame].url
+            tabData[frameUrl] = frame;
+        }
+
+        this.tree[tabId][frameId] = {
+            "url": url,
+            // "parentUrl": parentUrl,
+            "parentId": parseInt(tabData[parentUrl]),
+        };
+    }
+
+    getParentUrls(tabId: number, frameId: number): string[]{
+        var currentFrameId = frameId;
+        var currentFrameLevel = 0;
+        var maxLevel = 20;
+        var parentUrls = [this.tree[tabId][frameId].url];
+        while(!this.isBaseFrame(tabId, currentFrameId) && currentFrameLevel < maxLevel){
+            // Set the currentFrameId to the parentId of this frame,
+            // getting one frame closer to the parent url
+            // currentFrameId = this.tree[tabId][frameId].parentId
+            currentFrameId = this.tree[tabId][currentFrameId].parentId
+            try {
+                parentUrls.push(this.tree[tabId][currentFrameId].url);
+            } catch (e) {
+                if(e instanceof TypeError){
+                    // pass
                 }
+            }
+            currentFrameLevel++;
+        }
+        return parentUrls;
+    }
+
+    getAllFrameData(tabId: number): any{
+
+        var result = []
+
+        if(this.tree[tabId] === undefined) return result;
+        var tabData = this.tree[tabId];
+
+        for(var frameId in tabData){
+            result.push({
+                "frameId": parseInt(frameId),
+                "parentUrls": this.getParentUrls(tabId, frameId),
             });
         }
 
-        var cssString = CssBuilder.build(state.Dark, state.Hue, state.Contrast);
+        return result;
+    }
 
-        var jsString = ContentAction.buildJsString(state.Dark)
+    private isBaseFrame(tabId: number, frameId: number): boolean {
+        var frameData = this.tree[tabId][frameId];
 
-        ContentAction.updateContentPage(jsString, cssString, tabId);
+        // A base frame matches these characteristics:
+        // frameId is 0
+        // frame has no parent (undefined), more likely this is an abnormal
+        // frame, but it IS a base frame
+        // parentId is -1 (there is no parent)
+        if(frameId === 0) return true;
+        // This has to be checked before checking the parentId to avoid
+        // accessing an element from undefined
+        if(frameData === undefined) return true;
+        if(frameData.parentId === -1) return true;
+
+        return false;
+    }
+
+    private getParentUrl(tabId: number, frameId: number): string {
+        var parentId = this.tree[tabId][frameId].parentId;
+        return this.tree[tabId][parentId].url;
+    }
+
+    print(): void{
+        console.log(this.tree);
     }
 }
 
-// End ContentAction ------------------------------------------------------ }}}
+//  End Url Tree ------------------------------------------------------ }}}
 // Browser Action ---------------------------------------------------------- {{{
 
 function deactivateBrowserAction(){
@@ -1214,30 +1512,34 @@ class AutoDark {
     }
 
     static pageLooksCorrectNotification(url: Url){
-        chrome.notifications.create("", {
-            type: "basic",
-            iconUrl: "img/dark-mode-on-128.png",
-            title: "Dark Mode",
-            message: "Does this page look right?",
-            buttons: [
-                {title: "Yes"},
-                {title: "No"},
-            ]
-        }, function(notificationId){
-            chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex){
-                // Yes Click
-                if(buttonIndex === 0){
-                    chrome.notifications.clear(notificationId);
-                    AutoDark.toggleStemNotification();
-                }
+        if(!AutoDark.throttle(AutoDark.lastIsCorrectNotification, AutoDark.runInterval)){
+            AutoDark.lastIsCorrectNotification = Date.now();
+            chrome.notifications.create("", {
+                type: "basic",
+                iconUrl: "img/dark-mode-on-128.png",
+                title: "Dark Mode",
+                message: "Does this page look right?",
+                buttons: [
+                    {title: "Yes"},
+                    {title: "No"},
+                ]
+            }, function(notificationId){
+                chrome.notifications.onButtonClicked.addListener(function(notificationId, buttonIndex){
+                    // Yes Click
+                    if(buttonIndex === 0){
+                        chrome.notifications.clear(notificationId);
+                        AutoDark.toggleStemNotification();
+                    }
 
-                // No Click
-                if(buttonIndex === 1){
-                    ContentAction.toggleDarkMode(url);
-                    chrome.notifications.clear(notificationId);
-                }
+                    // No Click
+                    if(buttonIndex === 1){
+                        console.log("No Click!");
+                        ContentAction.toggleDarkMode(url);
+                        chrome.notifications.clear(notificationId);
+                    }
+                });
             });
-        });
+        }
     }
 
     static toggleStemNotification(){
@@ -1268,6 +1570,29 @@ class AutoDark {
 }
 
 // End AutoDark Class ------------------------------------------------ }}}
+// Icon --------------------------------------------------------------- {{{
+
+class Icon {
+    static turnOn(){
+        chrome.browserAction.setIcon({
+            "path": {
+                "19": "img/dark-mode-on-19.png",
+                "38": "img/dark-mode-on-38.png"
+            }
+        });
+    }
+
+    static turnOff(){
+        chrome.browserAction.setIcon({
+            "path": {
+                "19": "img/dark-mode-off-19.png",
+                "38": "img/dark-mode-off-38.png"
+            }
+        });
+    }
+}
+
+//  End Icon ----------------------------------------------------------- }}}
 // Context (Right Click) Menus --------------------------------------------- {{{
 
 // Setup Basic Toggle context menu
@@ -1318,7 +1643,6 @@ function updateContextMenuAndBrowserAction(){
     // `updateIntervalMs` milliseconds.
     if(Date.now() > updateContextMenuToggleUrlStemTimestamp + updateIntervalMs){
         currentUrl.update(function(){
-            console.log("current url updated to: " + currentUrl.getFull());
             if(currentUrl.getShouldUpdateMenu()){
                 if(showContextMenus){
                     // Update the relevant context menus
@@ -1390,7 +1714,10 @@ var autoDark = new AutoDark();
 
 var currentUrl = new Url();
 
-BackgroundReceiver.init();
+var urlTree = new UrlTree();
+
+BackgroundReceiver.init(urlTree);
+ContentAction.init(urlTree);
 
 var state = new State();
 

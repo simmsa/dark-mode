@@ -51,13 +51,13 @@ class Message {
         ));
     }
 
-    static receive(sender: string, receiver: string, intent: string, callback: (message: any, tabId?: number) => void){
+    static receive(sender: string, receiver: string, intent: string, callback: (message: any, tabId?: number, frameId?: number) => void){
         chrome.runtime.onMessage.addListener(function(message, msgSender, response){
             if(message.Sender === sender &&
                message.Receiver === receiver &&
                message.Intent === intent){
                 if(typeof(msgSender.tab) !== "undefined"){
-                    callback(message, msgSender.tab.id);
+                    callback(message, msgSender.tab.id, msgSender.frameId);
                 }
                 callback(message);
             }

@@ -6,11 +6,11 @@
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
-            "js":  ["lib/jquery.min.js", "build/Message.js", "build/ContentSender.js", "build/content.js"],
+            "js":  ["lib/jquery.min.js", "build/Message.js","build/CssBuilder.js", "build/ContentSender.js", "build/content.js"],
             "run_at": "document_start",
             "css": ["styles/css/dark-mode.css"],
             "all_frames": true,
-            "matches_about_blank": false
+            "matches_about_blank": true
         }
     ],
     "background": {
@@ -38,7 +38,8 @@
         "http://*/*",
         "https://*/*",
         "<all_urls>",
-        "notifications"
+        "notifications",
+        "webNavigation"
     ],
     "commands": {
         "toggle-dark-mode": {
