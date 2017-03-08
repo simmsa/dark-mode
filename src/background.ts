@@ -305,13 +305,10 @@ class UrlSettings extends PersistentStorage {
         switch(result){
             case QueryResult.Undefined:
                 return defaultValue;
-                break;
             case QueryResult.True:
                 return true;
-                break;
             case QueryResult.False:
                 return false;
-                break;
         }
     }
 
