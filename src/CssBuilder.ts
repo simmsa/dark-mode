@@ -1,4 +1,6 @@
 class CssBuilder {
+//  Element Creation and Selection -------------------------------------{{{
+
     static filter = "-webkit-filter";
 
     // Elements that should not be inverted
@@ -57,7 +59,7 @@ class CssBuilder {
     }
 
     static darkSelector(isDark: boolean, isIFrame: boolean, elements: string[]){
-        var selector = `html[data-dark-mode-active="${isDark}"][data-dark-mode-iframe="${isIFrame}"]:not(*:-webkit-full-screen-ancestor)`
+        var selector = `html[data-dark-mode-active="${isDark}"][data-dark-mode-iframe="${isIFrame}"]:not(*:-webkit-full-screen-ancestor):not(img)`
         return CssBuilder.buildSelector(selector, elements);
     }
 
@@ -70,12 +72,17 @@ class CssBuilder {
         return `${CssBuilder.filter}: ${invertStr} hue-rotate(${hueStr}) contrast(${contrast}%) !important;`
     }
 
+//  End Element Creation and Selection ---------------------------------}}}
+//  Base Frame ---------------------------------------------------------{{{
+
+
     static buildForBaseFrame(Dark: boolean, Hue: boolean, Contrast: number): string{
         if(!Dark){
             return "";
         }
 
-        var contrastUnInvert = 100 + (100 - Contrast);
+        // var contrastUnInvert = 100 + (100 - Contrast);
+        var contrastUnInvert = 100;
 
         return `
 @media screen {
@@ -94,6 +101,10 @@ class CssBuilder {
 }`
         ;
     }
+
+//  End Base Frame -----------------------------------------------------}}}
+//  Iframe -------------------------------------------------------------{{{
+
 
     static buildForIFrame(Dark: boolean, Hue: boolean, Contrast: number, BaseFrameIsDark: boolean): string{
         if(!BaseFrameIsDark){
@@ -117,11 +128,11 @@ class CssBuilder {
         return `
 @media screen {
     ${CssBuilder.darkSelector(true, true, [])}{
-        ${CssBuilder.buildFilter(Dark, Hue, 100)}
+        ${CssBuilder.buildFilter(!Dark, Hue, 100)}
     }
 
     ${CssBuilder.darkSelector(true, true, CssBuilder.iFrameUnInvertElements)} {
-        ${CssBuilder.buildFilter(!Dark, !Hue, 100)}
+        ${CssBuilder.buildFilter(Dark, !Hue, 100)}
     }
 
     ${CssBuilder.darkSelector(true, true, CssBuilder.unUnInvertElements)} {
@@ -130,7 +141,10 @@ class CssBuilder {
 }`;
     }
 
+//  End Iframe ---------------------------------------------------------}}}
 }
+//  Export Styles as Text ----------------------------------------------{{{
+
 
 // If called from node print out default css setup
 // Allows for creating the default styles/css/dark-mode.css file from gulp
@@ -144,3 +158,5 @@ try{
         // pass
     }
 }
+
+//  End Export Styles as Text ------------------------------------------}}}
