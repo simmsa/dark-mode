@@ -10,7 +10,6 @@
         "src/content.ts",
         "src/ContentSender.ts",
         "src/CssBuilder.ts",
-        "src/dark-mode.ts",
         "src/DefaultState.ts",
         "src/Message.ts",
         "src/popup.tsx",
