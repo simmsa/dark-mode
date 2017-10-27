@@ -3,3 +3,5 @@ typings/
 node_modules/
 build/
 styles/css/
+lib/
+tags
