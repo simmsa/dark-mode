@@ -1,0 +1,12 @@
+function! AfterTscCompile(...)
+  echo 'Typescript compile successful!'
+endfunction
+
+function! CompileTypescript()
+    call jobstart('tsc', {'on_exit': function('AfterTscCompile')})
+endfunction
+
+augroup dark_mode
+    au!
+    au BufWritePost *.ts,*.tsx call CompileTypescript()
+augroup END
