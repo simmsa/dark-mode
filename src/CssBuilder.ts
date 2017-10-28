@@ -117,18 +117,20 @@ class CssBuilder {
 }`;
         }
 
+        // These cascade, so changing the first one will affects the second
+        // and third. Basically, don't touch this!
         return `
 @media screen {
     ${CssBuilder.darkSelector(true, true, [])}{
-        ${CssBuilder.buildFilter(!Dark, Hue, 100)}
+        ${CssBuilder.buildFilter(Dark, Hue, 100)}
     }
 
     ${CssBuilder.darkSelector(true, true, CssBuilder.iFrameUnInvertElements)} {
-        ${CssBuilder.buildFilter(Dark, !Hue, 100)}
+        ${CssBuilder.buildFilter(!Dark, !Hue, 100)}
     }
 
     ${CssBuilder.darkSelector(true, true, CssBuilder.unUnInvertElements)} {
-        ${CssBuilder.buildFilter(!Dark, Hue, 100)}
+        ${CssBuilder.buildFilter(Dark, Hue, 100)}
     }
 }`;
     }
