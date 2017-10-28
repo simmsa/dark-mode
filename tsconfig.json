@@ -3,7 +3,8 @@
         "rootDir": "src",
         "outDir": "build",
         "jsx": "react",
-        "module": "umd"
+        "module": "umd",
+        "strict": true
     },
     "files": [
         "src/**/*"
