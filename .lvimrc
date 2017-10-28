@@ -8,5 +8,6 @@ endfunction
 
 augroup dark_mode
     au!
+    au FileType javascript,typescript set shiftwidth=2 tabstop=2
     au BufWritePost *.ts,*.tsx call CompileTypescript()
 augroup END
