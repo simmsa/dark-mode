@@ -1,5 +1,5 @@
 // Define a message standard
-class Message {
+export default class Message {
 
   // Reasons for sending a message
   // tslint:disable:object-literal-sort-keys
