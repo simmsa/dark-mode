@@ -41,23 +41,13 @@ class CssBuilder {
     ];
 
     static buildSelector(selector: string, elements: string[]): string{
-        var result = "";
-
         if(elements.length === 0){
             return selector + " ";
         }
 
-        for(var x in elements){
-            if(x == 0){
-                result += selector + " " + elements[x] + ",\n";
-            } else if(x != elements.length - 1){
-                result += "    " + selector + " " + elements[x] + ",\n";
-            } else {
-                result += "    " + selector + " " + elements[x];
-            }
-        }
-
-        return result;
+        return elements.map((element, index) => {
+            return `${selector} ${element}`;
+        }).join(", ");
     }
 
     static darkSelector(isDark: boolean, isIFrame: boolean, elements: string[]){
