@@ -13,6 +13,7 @@ export default class SettingId {
   // Access Group
   // SettingId.Group.CurrentUrl -> "CurrentUrl"
 
+  /* tslint:disable:object-literal-sort-keys */
   private static Fields = {
     Id: {
       Name: "Id",
@@ -89,7 +90,7 @@ export default class SettingId {
   private static StemUrlGroup = "StemUrl";
   private static GlobalGroup = "Global";
 
-  static CurrentUrl = {
+  public static CurrentUrl = {
     Id: SettingId.CurrentUrlGroup,
     Dark: SettingId.CurrentUrlGroup + SettingId.Fields.Dark.Name,
     Hue: SettingId.CurrentUrlGroup + SettingId.Fields.Hue.Name,
@@ -99,7 +100,7 @@ export default class SettingId {
       SettingId.CurrentUrlGroup + SettingId.Fields.CheckedAutoDark.Name,
   };
 
-  static StemUrl = {
+  public static StemUrl = {
     Id: SettingId.StemUrlGroup,
     Dark: SettingId.StemUrlGroup + SettingId.Fields.Dark.Name,
     Hue: SettingId.StemUrlGroup + SettingId.Fields.Hue.Name,
@@ -109,7 +110,7 @@ export default class SettingId {
       SettingId.StemUrlGroup + SettingId.Fields.ShouldAutoDark.Name,
   };
 
-  static Global = {
+  public static Global = {
     Id: SettingId.GlobalGroup,
     Dark: SettingId.GlobalGroup + SettingId.Fields.Dark.Name,
     Hue: SettingId.GlobalGroup + SettingId.Fields.Hue.Name,
@@ -122,7 +123,7 @@ export default class SettingId {
     LogAutoDark: SettingId.GlobalGroup + SettingId.Fields.LogAutoDark.Name,
   };
 
-  static Group = {
+  public static Group = {
     CurrentUrl: SettingId.CurrentUrlGroup,
     StemUrl: SettingId.StemUrlGroup,
     Global: SettingId.GlobalGroup,
@@ -130,7 +131,7 @@ export default class SettingId {
     Init: "Init",
   };
 
-  static Field = {
+  public static Field = {
     Id: SettingId.Fields.Id.Name,
     Dark: SettingId.Fields.Dark.Name,
     Hue: SettingId.Fields.Hue.Name,
@@ -147,7 +148,7 @@ export default class SettingId {
     UrlStem: SettingId.Fields.UrlStem.Name,
   };
 
-  static Type = {
+  public static Type = {
     Id: SettingId.Fields.Id.Type,
     Dark: SettingId.Fields.Dark.Type,
     Hue: SettingId.Fields.Hue.Type,
@@ -161,7 +162,7 @@ export default class SettingId {
     ShouldAutoDark: SettingId.Fields.ShouldAutoDark.Type,
   };
 
-  static Default = {
+  public static Default = {
     Dark: SettingId.Fields.Dark.Default,
     Hue: SettingId.Fields.Hue.Default,
     Contrast: SettingId.Fields.Contrast.Default,
