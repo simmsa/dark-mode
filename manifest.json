@@ -10,7 +10,7 @@
             "run_at": "document_start",
             "css": ["styles/css/dark-mode.css"],
             "all_frames": true,
-            "matches_about_blank": true
+            "match_about_blank": true
         }
     ],
     "background": {
