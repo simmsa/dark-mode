@@ -2,7 +2,8 @@
 class Message {
 
   // Reasons for sending a message
-  static Intent = {
+  // tslint:disable:object-literal-sort-keys
+  public static Intent = {
     InitPopup: "InitPopup",
     InitContent: "InitContent",
     InitAutoDark: "InitAutoDark",
@@ -15,19 +16,19 @@ class Message {
     SendState: "SendState",
   };
 
-  static Sender = {
+  public static Sender = {
     ContentPage: "ContentPageSender",
     Background: "BackgroundSender",
     Popup: "PopupSender",
   };
 
-  static Receiver = {
+  public static Receiver = {
     ContentPage: "ContentPageReceiver",
     Background: "BackgroundReceiver",
     Popup: "PopupReceiver",
   };
 
-  static format(sender: string, receiver: string, intent: string, data: any) {
+  public static format(sender: string, receiver: string, intent: string, data: any) {
     return {
       Sender: sender,
       Receiver: receiver,
@@ -36,21 +37,21 @@ class Message {
     };
   }
 
-  static send(sender: string, receiver: string, intent: string, data: any) {
+  public static send(sender: string, receiver: string, intent: string, data: any) {
     chrome.runtime.sendMessage(Message.format(sender, receiver, intent, data));
   }
 
-  static receive(
+  public static receive(
     sender: string,
     receiver: string,
     intent: string,
     callback: (message: any, tabId?: number, frameId?: number) => void,
   ) {
-    chrome.runtime.onMessage.addListener(function(
+    chrome.runtime.onMessage.addListener((
       message,
       msgSender,
       response,
-    ) {
+    ) => {
       if (
         message.Sender === sender &&
         message.Receiver === receiver &&
