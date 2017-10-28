@@ -54,6 +54,20 @@ class DarkModeContentManager {
 
         document.documentElement.setAttribute(prefix + newAttribute, value);
 
+        jQuery(window).bind("load", function() {
+            if (this.isDark) {
+                var shadowDomElements = document.querySelectorAll("twitterwidget");
+                for (var x = 0; x < shadowDomElements.length; x++) {
+                    if(shadowDomElements[x].attributes.getNamedItem("data-dark-mode-active") !== null) return;
+                    shadowDomElements[x].setAttribute("data-dark-mode-active", "true");
+                    shadowDomElements[x].setAttribute("data-dark-mode-iframe", "true");
+                    var css = document.createElement('style');
+                    css.innerHTML = "img { filter: invert(100%) hue-rotate(180deg) }"
+                    shadowDomElements[x].shadowRoot.appendChild(css);
+                }
+            }
+        })
+
         jQuery("iframe").ready(function(){
             jQuery("iframe").each(function(index, elem){
                 try{
