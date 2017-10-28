@@ -6,15 +6,7 @@
         "module": "umd"
     },
     "files": [
-        "src/background.ts",
-        "src/content.ts",
-        "src/ContentSender.ts",
-        "src/CssBuilder.ts",
-        "src/DefaultState.ts",
-        "src/Message.ts",
-        "src/popup.tsx",
-        "src/SettingId.ts",
-        "src/tests.ts"
+        "src/**/*"
     ],
     "exclude": [
         "lib"
