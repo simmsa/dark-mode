@@ -1,11 +1,5 @@
-//  Typings ---------------------------------------------------------------- {{{
-
-/// <reference path="../typings/tsd.d.ts" />
-
-//  End Typings ------------------------------------------------------------ }}}
-
+// Define a message standard
 class Message {
-  // Define a message standard
 
   // Reasons for sending a message
   static Intent = {
