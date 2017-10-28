@@ -1,31 +1,31 @@
-/// <reference path="SettingId.ts" />
+import SettingId from "./SettingId";
 
-class DefaultState {
+export default class DefaultState {
   // Url Strings
-  urlFull = "about:blank";
-  urlStem = "about:blank";
+  public urlFull = "about:blank";
+  public urlStem = "about:blank";
 
   // Current Url Settings
-  currentUrlDark = SettingId.Default.Dark;
-  currentUrlHue = SettingId.Default.Hue;
-  currentUrlContrast = SettingId.Default.Contrast;
+  public currentUrlDark = SettingId.Default.Dark;
+  public currentUrlHue = SettingId.Default.Hue;
+  public currentUrlContrast = SettingId.Default.Contrast;
 
   // Stem Url Settings
-  stemUrlDark = SettingId.Default.Dark;
-  stemUrlHue = SettingId.Default.Hue;
-  stemUrlContrast = SettingId.Default.Contrast;
+  public stemUrlDark = SettingId.Default.Dark;
+  public stemUrlHue = SettingId.Default.Hue;
+  public stemUrlContrast = SettingId.Default.Contrast;
 
   // Global Dark Mode Settings
-  globalDark = SettingId.Default.Dark;
-  globalAutoDark = SettingId.Default.AutoDark;
-  globalLogAutoDark = SettingId.Default.LogAutoDark;
-  globalShowNotifications = SettingId.Default.ShowNotifications;
-  globalHue = SettingId.Default.Hue;
-  globalContrast = SettingId.Default.Contrast;
-  globalKeyboardShortcut = "init";
+  public globalDark = SettingId.Default.Dark;
+  public globalAutoDark = SettingId.Default.AutoDark;
+  public globalLogAutoDark = SettingId.Default.LogAutoDark;
+  public globalShowNotifications = SettingId.Default.ShowNotifications;
+  public globalHue = SettingId.Default.Hue;
+  public globalContrast = SettingId.Default.Contrast;
+  public globalKeyboardShortcut = "init";
 
-  pack(): any {
-    var result = {};
+  public pack(): any {
+    const result = {};
 
     // Current Url
     result[SettingId.Group.CurrentUrl] = {};
