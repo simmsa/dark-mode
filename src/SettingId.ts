@@ -1,4 +1,4 @@
-class SettingId {
+export default class SettingId {
   // Standardize naming of Fields that are accessed from multiple places
   //
   // Access Field Id:
