@@ -7,6 +7,8 @@ class CssBuilder {
     // To fix this specific elements are uninverted, with another `filter: invert()`.
     // Effectively inverting an element to 200% or back to normal
     static unInvertElements = [
+        ".no-dark",
+        ".no-dark > *",
         "img",
         "video",
         "body *[style*=url]",
