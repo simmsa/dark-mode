@@ -24,9 +24,18 @@ class DarkModeContentManager {
             this.initAutoDarkEvent();
         }
         this.requestState();
-
+        this.addIsDarkClassToElementsWithBackgroundImage();
     }
 
+    addIsDarkClassToElementsWithBackgroundImage(){
+        jQuery('document').ready(function(){
+            jQuery('div').each(function() {
+                if(jQuery(this).css('background-image').match(/url.*jpg/)){
+                    jQuery(this).addClass("no-dark");
+                }
+            })
+        })
+    }
 
     setParentUrl(){
         // This is an empty string if this frame has no parent
