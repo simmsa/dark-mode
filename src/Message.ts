@@ -50,7 +50,6 @@ export default class Message {
     chrome.runtime.onMessage.addListener((
       message,
       msgSender,
-      response,
     ) => {
       if (
         message.Sender === sender &&
