@@ -537,14 +537,14 @@ class UrlSettings extends PersistentStorage {
       console.log("stem: " + stem);
     }
     if (debug) {
-      console.log("stem_Url: " + stem_Url);
+      console.log("stemUrl: " + stemUrl);
     }
     if (debug) {
-      console.log("stem_Url_Field: " + stem_Url_Field);
+      console.log("stemUrlField: " + stemUrlField);
     }
 
     // The value exists, successfully run toggle
-    if (this.allArgsFalse(stem, stem_Url, stem_Url_Field)) {
+    if (this.allArgsFalse(stem, stemUrl, stemUrlField)) {
       if (choice === "toggle") {
         this.dataObject[urlStem][cleanedUrl][field] = !this.dataObject[urlStem][
           cleanedUrl
@@ -552,7 +552,7 @@ class UrlSettings extends PersistentStorage {
       } else {
         this.dataObject[urlStem][cleanedUrl][field] = value;
       }
-    } else if (this.allArgsFalse(stem, stem_Url)) {
+    } else if (this.allArgsFalse(stem, stemUrl)) {
       // There is a stem and a url but no matching field
       // Create the field and insert the default value
       this.dataObject[urlStem][cleanedUrl][field] = value;
