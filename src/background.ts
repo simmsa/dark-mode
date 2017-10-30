@@ -101,11 +101,11 @@ class GlobalSettings extends PersistentStorage {
     super("globalSettings");
   }
 
-  getField(field: string): any {
+  private getField(field: string): any {
     return this.dataObject[field];
   }
 
-  toggleField(field: string, defaultValue: boolean): void {
+  private toggleField(field: string, defaultValue: boolean): void {
     if (typeof this.getField(field) !== "undefined") {
       this.dataObject[field] = !this.getField(field);
     } else {
@@ -119,7 +119,7 @@ class GlobalSettings extends PersistentStorage {
     this.save();
   }
 
-  checkField(field: string, defaultValue: any): any {
+  private checkField(field: string, defaultValue: any): any {
     if (typeof this.getField(field) !== "undefined") {
       return this.getField(field);
     } else {
@@ -128,14 +128,14 @@ class GlobalSettings extends PersistentStorage {
   }
 
   // Auto Dark
-  checkAutoDark(): boolean {
+  public checkAutoDark(): boolean {
     return this.checkField(
       SettingId.Field.AutoDark,
       SettingId.Default.AutoDark,
     );
   }
 
-  toggleAutoDark(): void {
+  public toggleAutoDark(): void {
     return this.toggleField(
       SettingId.Field.AutoDark,
       SettingId.Default.AutoDark,
@@ -143,32 +143,32 @@ class GlobalSettings extends PersistentStorage {
   }
 
   // Dark
-  checkDark(): boolean {
+  public checkDark(): boolean {
     return this.checkField(SettingId.Field.Dark, SettingId.Default.Dark);
   }
 
-  toggleDark(): void {
+  public toggleDark(): void {
     return this.toggleField(SettingId.Field.Dark, SettingId.Default.Dark);
   }
 
   // Hue
-  checkHue(): boolean {
+  public checkHue(): boolean {
     return this.checkField(SettingId.Field.Hue, SettingId.Default.Hue);
   }
 
-  toggleHue(): void {
+  public toggleHue(): void {
     return this.toggleField(SettingId.Field.Hue, SettingId.Default.Hue);
   }
 
   // Notifications
-  checkShowNotifications(): boolean {
+  public checkShowNotifications(): boolean {
     return this.checkField(
       SettingId.Field.ShowNotifications,
       SettingId.Default.ShowNotifications,
     );
   }
 
-  toggleShowNotifications(): void {
+  public toggleShowNotifications(): void {
     return this.toggleField(
       SettingId.Field.ShowNotifications,
       SettingId.Default.ShowNotifications,
@@ -176,14 +176,14 @@ class GlobalSettings extends PersistentStorage {
   }
 
   // Log AutoDark
-  checkLogAutoDark(): boolean {
+  public checkLogAutoDark(): boolean {
     return this.checkField(
       SettingId.Field.LogAutoDark,
       SettingId.Default.LogAutoDark,
     );
   }
 
-  toggleLogAutoDark(): void {
+  public toggleLogAutoDark(): void {
     return this.toggleField(
       SettingId.Field.LogAutoDark,
       SettingId.Default.LogAutoDark,
@@ -203,8 +203,8 @@ enum QueryResult {
 }
 
 class UrlSettings extends PersistentStorage {
-  fields: any;
-  globalSettings: GlobalSettings;
+  private fields: any;
+  private globalSettings: GlobalSettings;
 
   constructor(globalSettingObject) {
     super("urlInfo");
@@ -383,7 +383,7 @@ class UrlSettings extends PersistentStorage {
     }
   }
 
-  checkDarkMode(url: Url): boolean {
+  public checkDarkMode(url: Url): boolean {
     // If the stem and the url are undefined turn dark mode ON!
     return this.checkUrlForFieldBool(
       url,
@@ -392,7 +392,7 @@ class UrlSettings extends PersistentStorage {
     );
   }
 
-  checkDarkModeStem(url: Url): boolean {
+  public checkDarkModeStem(url: Url): boolean {
     return this.checkUrlStemForFieldBool(
       url,
       this.fields.darkMode.name,
@@ -401,7 +401,7 @@ class UrlSettings extends PersistentStorage {
   }
 
   // Special case for auto dark detection
-  checkDarkModeIsUndefined(url: Url): boolean {
+  public checkDarkModeIsUndefined(url: Url): boolean {
     const result = this.checkUrlForField(url, this.fields.darkMode.name);
     if (result === QueryResult.Undefined) {
       return true;
@@ -410,7 +410,7 @@ class UrlSettings extends PersistentStorage {
   }
 
   // Special case for auto dark detection
-  checkDarkModeStemIsUndefined(url: Url): boolean {
+  public checkDarkModeStemIsUndefined(url: Url): boolean {
     const result = this.checkUrlStemForField(url, this.fields.darkMode.name);
     if (result === QueryResult.Undefined) {
       return true;
@@ -418,7 +418,7 @@ class UrlSettings extends PersistentStorage {
     return false;
   }
 
-  checkHueRotate(url: Url): boolean {
+  public checkHueRotate(url: Url): boolean {
     // If the stem and the url are undefined turn hue rotate ON!
     return this.checkUrlForFieldBool(
       url,
@@ -427,7 +427,7 @@ class UrlSettings extends PersistentStorage {
     );
   }
 
-  checkHueRotateStem(url: Url): boolean {
+  public checkHueRotateStem(url: Url): boolean {
     return this.checkUrlStemForFieldBool(
       url,
       this.fields.hueRotate.name,
@@ -435,7 +435,7 @@ class UrlSettings extends PersistentStorage {
     );
   }
 
-  getContrast(url: Url): number {
+  public getContrast(url: Url): number {
     const result = this.checkUrlForField(url, SettingId.Field.Contrast);
     const stemResult = this.checkUrlStemForField(url, SettingId.Field.Contrast);
     if (result !== QueryResult.Undefined) {
@@ -446,7 +446,7 @@ class UrlSettings extends PersistentStorage {
     return SettingId.Default.Contrast;
   }
 
-  getContrastStem(url: Url): number {
+  public getContrastStem(url: Url): number {
     const result = this.checkUrlStemForField(url, SettingId.Field.Contrast);
     if (result !== QueryResult.Undefined) {
       return result;
@@ -454,7 +454,7 @@ class UrlSettings extends PersistentStorage {
     return SettingId.Default.Contrast;
   }
 
-  setContrast(url: Url, value: number) {
+  public setContrast(url: Url, value: number) {
     this.setUrlFieldToValue(
       url,
       SettingId.Field.Contrast,
@@ -464,7 +464,7 @@ class UrlSettings extends PersistentStorage {
     );
   }
 
-  setContrastStem(url: Url, value: number) {
+  public setContrastStem(url: Url, value: number) {
     this.setUrlStemFieldToValue(
       url,
       SettingId.Field.Contrast,
@@ -636,21 +636,21 @@ class UrlSettings extends PersistentStorage {
     );
   }
 
-  toggleDarkMode(url: Url) {
+  public toggleDarkMode(url: Url) {
     // Dark mode is always on (true), so when it is toggled for the first
     // time set the value to off (false)
     this.toggleUrl(url, this.fields.darkMode.name, false);
   }
 
-  toggleDarkModeStem(url: Url) {
+  public toggleDarkModeStem(url: Url) {
     this.toggleUrlStem(url, this.fields.darkMode.name, false);
   }
 
-  toggleHueRotate(url: Url) {
+  public toggleHueRotate(url: Url) {
     this.toggleUrl(url, this.fields.hueRotate.name, false);
   }
 
-  toggleHueRotateStem(url: Url) {
+  public toggleHueRotateStem(url: Url) {
     this.toggleUrlStem(url, this.fields.hueRotate.name, false);
   }
 
@@ -680,31 +680,31 @@ class UrlSettings extends PersistentStorage {
     this.save();
   }
 
-  clearUrl(url: Url) {
+  public clearUrl(url: Url) {
     this.removeUrl(url);
   }
 
-  clearUrlStem(url: Url) {
+  public clearUrlStem(url: Url) {
     this.removeStem(url);
   }
 
-  clearDarkMode(url: Url) {
+  public clearDarkMode(url: Url) {
     this.removeField(url, this.fields.darkMode.name);
   }
 
-  clearDarkModeStem(url: Url) {
+  public clearDarkModeStem(url: Url) {
     this.removeStemField(url, this.fields.darkMode.name);
   }
 
-  clearHueRotate(url: Url) {
+  public clearHueRotate(url: Url) {
     this.removeField(url, this.fields.hueRotate.name);
   }
 
-  clearHueRotateStem(url: Url) {
+  public clearHueRotateStem(url: Url) {
     this.removeStemField(url, this.fields.hueRotate.name);
   }
 
-  getUrlState(url: Url): any {
+  public getUrlState(url: Url): any {
     const result = {};
 
     result[SettingId.Field.Dark] = this.checkDarkMode(url);
@@ -714,7 +714,7 @@ class UrlSettings extends PersistentStorage {
     return result;
   }
 
-  getFrameState(rawUrls: string[]): any {
+  public getFrameState(rawUrls: string[]): any {
     // Iterate through urls to determine the dark and hue settings of
     // iframes embedded multiple levels into a page
     console.log(rawUrls);
@@ -753,7 +753,7 @@ class UrlSettings extends PersistentStorage {
   }
 
   // Auto Dark Logging Specific
-  setCheckedAutoDark(url: Url): void {
+  public setCheckedAutoDark(url: Url): void {
     this.setUrlFieldToValue(
       url,
       SettingId.Field.CheckedAutoDark,
@@ -796,7 +796,7 @@ class UrlSettings extends PersistentStorage {
     }
   }
 
-  getCheckedAutoDark(url: Url): boolean {
+  public getCheckedAutoDark(url: Url): boolean {
     return (
       this.checkUrlForFieldBool(
         url,
@@ -817,21 +817,21 @@ class UrlSettings extends PersistentStorage {
 
 class Url {
   // Example input url: https://www.google.com/search?q=test
-  stem: string; // https://www.google.com -> protocol + hostname
-  domain: string; // google.com -> domain
-  normal: string; // https://www.google.com/search -> protocol + hostname + path, no query or fragment strings
-  full: string; // everything
+  private stem: string; // https://www.google.com -> protocol + hostname
+  private domain: string; // google.com -> domain
+  private normal: string; // https://www.google.com/search -> protocol + hostname + path, no query or fragment strings
+  private full: string; // everything
 
-  shouldUpdateMenu: boolean;
-  shouldAutoDark: boolean;
+  private shouldUpdateMenu: boolean;
+  private shouldAutoDark: boolean;
 
-  defaultUrl = "about:blank";
+  private defaultUrl = "about:blank";
 
-  updateBlacklist = ["chrome://", "chrome-extension://", "about:blank"];
+  private updateBlacklist = ["chrome://", "chrome-extension://", "about:blank"];
 
-  parseBlacklist = ["chrome://", "chrome-extension://", "file://"];
+  private parseBlacklist = ["chrome://", "chrome-extension://", "file://"];
 
-  autoDarkModeBlacklist = [".pdf"];
+  private autoDarkModeBlacklist = [".pdf"];
 
   constructor(newUrl?: string) {
     if (newUrl) {
@@ -841,7 +841,7 @@ class Url {
     }
   }
 
-  update(callback?: () => void) {
+  public update(callback?: () => void) {
     if (debug) {
       console.log("Updating URL class url!");
     }
@@ -869,7 +869,7 @@ class Url {
     }
   }
 
-  parse(input: string) {
+  public parse(input: string) {
     // If the url has not changed, do nothing
     if (input === this.full) {
       return;
@@ -917,8 +917,8 @@ class Url {
     this.setShouldAutoDark(input);
   }
 
-  inputInList(input: string, list: string[]): any {
-    for (var i = 0; i < list.length; i++) {
+  public inputInList(input: string, list: string[]): any {
+    for (let i = 0; i < list.length; i++) {
       if (input.indexOf(list[i]) > -1) {
         return { result: true, position: i };
       }
@@ -926,40 +926,40 @@ class Url {
     return { result: false, position: -1 };
   }
 
-  setShouldAutoDark(input: string) {
+  public setShouldAutoDark(input: string) {
     this.shouldAutoDark = !this.inputInList(input, this.autoDarkModeBlacklist)
       .result;
   }
 
-  setShouldUpdateMenu(input: string) {
+  public setShouldUpdateMenu(input: string) {
     this.shouldUpdateMenu = !this.inputInList(input, this.updateBlacklist)
       .result;
   }
 
-  getFull(): string {
+  public getFull(): string {
     return this.full;
   }
 
-  getStem(): string {
+  public getStem(): string {
     return this.stem;
   }
 
-  getDomain(): string {
+  public getDomain(): string {
     if (debug) {
       console.log("Getting domain: " + this.domain);
     }
     return this.domain;
   }
 
-  getNormal(): string {
+  public getNormal(): string {
     return this.normal;
   }
 
-  getShouldAutoDark(): boolean {
+  public getShouldAutoDark(): boolean {
     return this.shouldAutoDark;
   }
 
-  getShouldUpdateMenu() {
+  public getShouldUpdateMenu() {
     return this.shouldUpdateMenu;
   }
 }
@@ -968,9 +968,9 @@ class Url {
 // BackgroundReceiver ------------------------------------------------- {{{
 
 class BackgroundReceiver extends Message {
-  static urlTree: UrlTree;
+  private static urlTree: UrlTree;
 
-  static init(inputUrlTree: UrlTree) {
+  public static init(inputUrlTree: UrlTree) {
     BackgroundReceiver.urlTree = inputUrlTree;
     BackgroundReceiver.receiveContentUrl();
     BackgroundReceiver.receiveAutoDark();
@@ -1124,7 +1124,7 @@ class BackgroundReceiver extends Message {
     }
   }
 
-  static updatePopupAndContent() {
+  public static updatePopupAndContent() {
     state.update(currentUrl, urlSettings, globalSettings, () => {
       BackgroundSender.sendState();
       ContentAction.checkDarkModeForActiveTab(currentUrl);
@@ -1134,7 +1134,7 @@ class BackgroundReceiver extends Message {
   //  End Receive Popup Toggle ------------------------------------------ }}}
   //  Receive Popup Clear ----------------------------------------------- {{{
 
-  static receivePopupClear() {
+  public static receivePopupClear() {
     Message.receive(
       Message.Sender.Popup,
       Message.Receiver.Background,
@@ -1143,7 +1143,7 @@ class BackgroundReceiver extends Message {
     );
   }
 
-  static handleReceivePopupClear(message) {
+  public static handleReceivePopupClear(message) {
     if (debug) {
       console.log("Received popupClear message in destination!");
     }
@@ -1172,7 +1172,7 @@ class BackgroundReceiver extends Message {
   //  End Receive Popup Clear ------------------------------------------- }}}
   //  Receive Change Field ---------------------------------------------- {{{
 
-  static receiveChangeField() {
+  public static receiveChangeField() {
     if (debug) {
       console.log("receiveChangeField");
     }
@@ -1184,7 +1184,7 @@ class BackgroundReceiver extends Message {
     );
   }
 
-  static handleReceiveChangeField(message) {
+  public static handleReceiveChangeField(message) {
     switch (message.Data.Group) {
       case SettingId.Group.CurrentUrl:
         switch (message.Data.Field) {
@@ -1214,8 +1214,8 @@ class BackgroundReceiver extends Message {
 // BackgroundSender --------------------------------------------------- {{{
 
 class BackgroundSender extends Message {
-  static sendState() {
-    var dataPackage = state.pack();
+  public static sendState() {
+    const dataPackage = state.pack();
     if (debug) {
       console.log("Sending state to popup");
     }
@@ -1235,7 +1235,7 @@ class BackgroundSender extends Message {
 // State -------------------------------------------------------------- {{{
 
 class State extends DefaultState {
-  update(
+  public update(
     url: Url,
     settings: UrlSettings,
     globalSettings: GlobalSettings,
@@ -1264,7 +1264,7 @@ class State extends DefaultState {
     this.updateKeyboardShortcut(callback);
   }
 
-  updateKeyboardShortcut(callback: () => void) {
+  public updateKeyboardShortcut(callback: () => void) {
     chrome.commands.getAll(commands => {
       this.globalKeyboardShortcut = commands[1]["shortcut"];
       callback();
@@ -1276,37 +1276,37 @@ class State extends DefaultState {
 // ContentAction ---------------------------------------------------------- {{{
 
 class ContentAction {
-  static urlTree: UrlTree;
+  public static urlTree: UrlTree;
 
-  static init(inputUrlTree: UrlTree) {
+  public static init(inputUrlTree: UrlTree) {
     ContentAction.urlTree = inputUrlTree;
   }
 
-  static checkDarkMode(url: Url, tabId: number, frameId: number): void {
-    var parentUrls = ContentAction.urlTree.getParentUrls(tabId, frameId);
+  public static checkDarkMode(url: Url, tabId: number, frameId: number): void {
+    const parentUrls = ContentAction.urlTree.getParentUrls(tabId, frameId);
     ContentAction.getStateForUrl(url, tabId, frameId, parentUrls);
   }
 
-  static checkDarkModeForActiveTab(url: Url): void {
+  public static checkDarkModeForActiveTab(url: Url): void {
     ContentAction.getStateForActiveTab(url);
   }
 
-  static toggleDarkMode(url: Url): void {
+  public static toggleDarkMode(url: Url): void {
     urlSettings.toggleDarkMode(url);
     ContentAction.getStateForActiveTab(url);
   }
 
-  static toggleDarkModeStem(url: Url): void {
+  public static toggleDarkModeStem(url: Url): void {
     urlSettings.toggleDarkModeStem(url);
     ContentAction.getStateForActiveTab(url);
   }
 
-  static toggleHue(url: Url): void {
+  public static toggleHue(url: Url): void {
     urlSettings.toggleHueRotate(url);
     ContentAction.getStateForActiveTab(url);
   }
 
-  static toggleHueStem(url: Url): void {
+  public static toggleHueStem(url: Url): void {
     urlSettings.toggleHueRotateStem(url);
     ContentAction.getStateForActiveTab(url);
   }
@@ -1314,7 +1314,7 @@ class ContentAction {
   // This should only be called from anywhere but the content page, If this
   // is called from the content page some insane amount of function calls
   // would happen
-  static getStateForActiveTab(url: Url) {
+  public static getStateForActiveTab(url: Url) {
     chrome.tabs.query({ active: true, currentWindow: true }, function(tab) {
       // Frame id of 0 is the base frame
       const tabId = tab[0].id;
@@ -1334,7 +1334,7 @@ class ContentAction {
     });
   }
 
-  static getStateForUrl(
+  public static getStateForUrl(
     url: Url,
     tabId: number,
     frameId: number,
@@ -1357,7 +1357,7 @@ class ContentAction {
     }
   }
 
-  static handleDataForTab(
+  public static handleDataForTab(
     state: {
       Dark: boolean;
       Hue: boolean;
@@ -1472,14 +1472,14 @@ class ContentAction {
 // Url Tree ---------------------------------------------------------- {{{
 
 class UrlTree {
-  tree: any;
+  private tree: any;
 
   constructor() {
     this.tree = {};
     this.populate();
   }
 
-  populate(): void {
+  public populate(): void {
     chrome.tabs.query({}, tabs => {
       for (var tab in tabs) {
         var thisTabId = tabs[tab].id;
@@ -1491,7 +1491,7 @@ class UrlTree {
     });
   }
 
-  addActiveTab(): void {
+  public addActiveTab(): void {
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
       const thisTabId = tabs[0].id;
 
@@ -1502,7 +1502,7 @@ class UrlTree {
     });
   }
 
-  updateTab(tabId: number, callback: any) {
+  public updateTab(tabId: number, callback: any) {
     if (this.tree[tabId] === undefined) {
       this.tree[tabId] = {};
     }
@@ -1536,7 +1536,7 @@ class UrlTree {
   //         parentId,
   //     }, ...
   // }
-  add(url: string, parentUrl: string, tabId: number, frameId: number): void {
+  public add(url: string, parentUrl: string, tabId: number, frameId: number): void {
     if (this.tree[tabId] === undefined) this.tree[tabId] = {};
     console.log("Add:");
     console.log("url: " + url);
@@ -1563,11 +1563,11 @@ class UrlTree {
     };
   }
 
-  getParentUrls(tabId: number, frameId: number): string[] {
-    var currentFrameId = frameId;
-    var currentFrameLevel = 0;
-    var maxLevel = 20;
-    var parentUrls = [this.tree[tabId][frameId].url];
+  public getParentUrls(tabId: number, frameId: number): string[] {
+    let currentFrameId = frameId;
+    let currentFrameLevel = 0;
+    const maxLevel = 20;
+    const parentUrls = [this.tree[tabId][frameId].url];
     while (
       !this.isBaseFrame(tabId, currentFrameId) &&
       currentFrameLevel < maxLevel
@@ -1588,8 +1588,8 @@ class UrlTree {
     return parentUrls;
   }
 
-  getAllFrameData(tabId: number): any {
-    var result = [];
+  public getAllFrameData(tabId: number): any {
+    const result = [];
 
     if (this.tree[tabId] === undefined) return result;
     var tabData = this.tree[tabId];
@@ -1727,7 +1727,7 @@ class AutoDark {
     }
   }
 
-  static measureBrightnessOfCurrentTab(
+  public static measureBrightnessOfCurrentTab(
     url: Url,
     urlSettings: UrlSettings,
     brightnessCallback: (Url, number) => void,
@@ -1748,14 +1748,14 @@ class AutoDark {
     }
   }
 
-  static throttle(lastRun: number, interval: number) {
+  public static throttle(lastRun: number, interval: number) {
     if (Date.now() < interval + lastRun) {
       return true;
     }
     return false;
   }
 
-  static parseBrightness(url: Url, brightness: number) {
+  public static parseBrightness(url: Url, brightness: number) {
     // If the page is light, toggle the page to darkness
     if (
       brightness > AutoDark.brightnessThreshold &&
@@ -1767,13 +1767,13 @@ class AutoDark {
     AutoDark.lastRun = Date.now();
   }
 
-  static startNotifications(url: Url) {
+  public static startNotifications(url: Url) {
     if (globalSettings.checkShowNotifications()) {
       AutoDark.pageLooksCorrectNotification(url);
     }
   }
 
-  static pageLooksCorrectNotification(url: Url) {
+  public static pageLooksCorrectNotification(url: Url) {
     if (
       !AutoDark.throttle(
         AutoDark.lastIsCorrectNotification,
@@ -1813,7 +1813,7 @@ class AutoDark {
     }
   }
 
-  static toggleStemNotification() {
+  public static toggleStemNotification() {
     if (
       !AutoDark.throttle(
         AutoDark.lastStemNotification,
@@ -1854,7 +1854,7 @@ class AutoDark {
 // Icon --------------------------------------------------------------- {{{
 
 class Icon {
-  static turnOn() {
+  public static turnOn() {
     chrome.browserAction.setIcon({
       path: {
         "19": "img/dark-mode-on-19.png",
@@ -1863,7 +1863,7 @@ class Icon {
     });
   }
 
-  static turnOff() {
+  public static turnOff() {
     chrome.browserAction.setIcon({
       path: {
         "19": "img/dark-mode-off-19.png",
