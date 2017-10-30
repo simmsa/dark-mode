@@ -70,13 +70,13 @@ class PersistentStorage {
   }
 
   protected save() {
-    var saveIntervalMs = 100;
+    const saveIntervalMs = 100;
     if (Date.now() > this.lastSave + saveIntervalMs) {
       chrome.storage.local.remove(this.name);
       if (debug) {
         console.log("Saving: " + this.name);
       }
-      var saveObject = {};
+      const saveObject = {};
       saveObject[this.name] = this.dataObject;
       if (debug) {
         console.log(saveObject);
@@ -237,7 +237,7 @@ class UrlSettings extends PersistentStorage {
   }
 
   private checkUrlStem(url: Url): QueryResult {
-    var urlStem = url.getStem();
+    const urlStem = url.getStem();
     if (this.exists(urlStem, this.dataObject)) {
       return QueryResult.True;
     }
@@ -245,8 +245,8 @@ class UrlSettings extends PersistentStorage {
   }
 
   private checkUrlForField(url: Url, field: string): QueryResult {
-    var urlStem = url.getStem();
-    var cleanedUrl = url.getNormal();
+    const urlStem = url.getStem();
+    const cleanedUrl = url.getNormal();
     if (this.exists(urlStem, this.dataObject)) {
       if (this.exists(cleanedUrl, this.dataObject[urlStem])) {
         if (this.exists(field, this.dataObject[urlStem][cleanedUrl])) {
@@ -260,7 +260,7 @@ class UrlSettings extends PersistentStorage {
   }
 
   private checkUrlStemForField(url: Url, field: string): QueryResult {
-    var urlStem = url.getStem();
+    const urlStem = url.getStem();
     if (this.exists(urlStem, this.dataObject)) {
       if (this.exists(field, this.dataObject[urlStem])) {
         return this.returnQueryResultIfBool(this.dataObject[urlStem][field]);
@@ -270,8 +270,8 @@ class UrlSettings extends PersistentStorage {
   }
 
   private checkUrlStemForUrl(url: Url): QueryResult {
-    var urlStem = url.getStem();
-    var cleanedUrl = url.getNormal();
+    const urlStem = url.getStem();
+    const cleanedUrl = url.getNormal();
     if (this.exists(urlStem, this.dataObject)) {
       if (this.exists(cleanedUrl, this.dataObject[urlStem])) {
         return QueryResult.True;
@@ -298,8 +298,8 @@ class UrlSettings extends PersistentStorage {
     //  True             | False                 | False             |
     //  False            | False                 | False             |
 
-    var urlResult = this.checkUrlForField(url, field);
-    var urlStemResult = this.checkUrlStemForField(url, field);
+    const urlResult = this.checkUrlForField(url, field);
+    const urlStemResult = this.checkUrlStemForField(url, field);
 
     if (debug) {
       console.log(
@@ -371,7 +371,7 @@ class UrlSettings extends PersistentStorage {
     field: string,
     defaultValue: boolean,
   ): boolean {
-    var result = this.checkUrlStemForField(url, field);
+    const result = this.checkUrlStemForField(url, field);
 
     switch (result) {
       case QueryResult.Undefined:
@@ -402,7 +402,7 @@ class UrlSettings extends PersistentStorage {
 
   // Special case for auto dark detection
   checkDarkModeIsUndefined(url: Url): boolean {
-    var result = this.checkUrlForField(url, this.fields.darkMode.name);
+    const result = this.checkUrlForField(url, this.fields.darkMode.name);
     if (result === QueryResult.Undefined) {
       return true;
     }
@@ -411,7 +411,7 @@ class UrlSettings extends PersistentStorage {
 
   // Special case for auto dark detection
   checkDarkModeStemIsUndefined(url: Url): boolean {
-    var result = this.checkUrlStemForField(url, this.fields.darkMode.name);
+    const result = this.checkUrlStemForField(url, this.fields.darkMode.name);
     if (result === QueryResult.Undefined) {
       return true;
     }
@@ -436,8 +436,8 @@ class UrlSettings extends PersistentStorage {
   }
 
   getContrast(url: Url): number {
-    var result = this.checkUrlForField(url, SettingId.Field.Contrast);
-    var stemResult = this.checkUrlStemForField(url, SettingId.Field.Contrast);
+    const result = this.checkUrlForField(url, SettingId.Field.Contrast);
+    const stemResult = this.checkUrlStemForField(url, SettingId.Field.Contrast);
     if (result !== QueryResult.Undefined) {
       return result;
     } else if (stemResult !== QueryResult.Undefined) {
@@ -447,7 +447,7 @@ class UrlSettings extends PersistentStorage {
   }
 
   getContrastStem(url: Url): number {
-    var result = this.checkUrlStemForField(url, SettingId.Field.Contrast);
+    const result = this.checkUrlStemForField(url, SettingId.Field.Contrast);
     if (result !== QueryResult.Undefined) {
       return result;
     }
@@ -522,16 +522,16 @@ class UrlSettings extends PersistentStorage {
     // Check if stem exists
     // Check if stem -> url exists
     // Check if stem -> url -> field exists
-    var stem = this.isQueryUndefined(this.checkUrlStem(url));
-    var stem_Url = this.isQueryUndefined(this.checkUrlStemForUrl(url));
-    var stem_Url_Field = this.isQueryUndefined(
+    const stem = this.isQueryUndefined(this.checkUrlStem(url));
+    const stemUrl = this.isQueryUndefined(this.checkUrlStemForUrl(url));
+    const stemUrlField = this.isQueryUndefined(
       this.checkUrlForField(url, field),
     );
 
-    var urlStem = url.getStem();
-    var cleanedUrl = url.getNormal();
+    const urlStem = url.getStem();
+    const cleanedUrl = url.getNormal();
 
-    var isNotUndefined = this.allArgsFalse(true, true);
+    const isNotUndefined = this.allArgsFalse(true, true);
 
     if (debug) {
       console.log("stem: " + stem);
@@ -600,12 +600,12 @@ class UrlSettings extends PersistentStorage {
 
     // Check if stem exists
     // Check if stem -> field exists
-    var stem = this.isQueryUndefined(this.checkUrlStem(url));
-    var stem_Field = this.isQueryUndefined(
+    const stem = this.isQueryUndefined(this.checkUrlStem(url));
+    const stemField = this.isQueryUndefined(
       this.checkUrlStemForField(url, field),
     );
 
-    var urlStem = url.getStem();
+    const urlStem = url.getStem();
 
     // The stem -> field exists, run toggle
     if (this.allArgsFalse(stem, stem_Field)) {
@@ -705,7 +705,7 @@ class UrlSettings extends PersistentStorage {
   }
 
   getUrlState(url: Url): any {
-    var result = {};
+    const result = {};
 
     result[SettingId.Field.Dark] = this.checkDarkMode(url);
     result[SettingId.Field.Hue] = this.checkHueRotate(url);
@@ -718,8 +718,8 @@ class UrlSettings extends PersistentStorage {
     // Iterate through urls to determine the dark and hue settings of
     // iframes embedded multiple levels into a page
     console.log(rawUrls);
-    var url = new Url(rawUrls.shift());
-    var currentState = this.getUrlState(url);
+    const url = new Url(rawUrls.shift());
+    const currentState = this.getUrlState(url);
 
     // If the parent url is not dark no inversions are taking place, no
     // iteration necessary
@@ -773,7 +773,7 @@ class UrlSettings extends PersistentStorage {
   }
 
   private setStemShouldAutoDark(url: Url): void {
-    var siteObject = this.dataObject[url.getStem()];
+    const siteObject = this.dataObject[url.getStem()];
     if (typeof siteObject !== "undefined") {
       if (Object.keys(siteObject).length >= AutoDark.MinDarkSites) {
         var darkSites = 0;
@@ -876,21 +876,21 @@ class Url {
     }
 
     // Test url against parseBlacklist
-    var inParseBlacklist = this.inputInList(input, this.parseBlacklist);
+    const inParseBlacklist = this.inputInList(input, this.parseBlacklist);
     if (inParseBlacklist.result) {
       this.stem = this.domain = this.normal = this.full = this.parseBlacklist[
         inParseBlacklist.position
       ];
     } else {
       try {
-        var url = new URI(input).normalize();
+        const url = new URI(input).normalize();
         this.stem = new URI({
           protocol: url.protocol(),
           hostname: url.hostname(),
         }).toString();
 
         // If the subdomain is not www start the domain with that
-        var subdomain = url.subdomain();
+        const subdomain = url.subdomain();
         if (subdomain !== "www" && subdomain.length > 0) {
           this.domain = subdomain + "." + url.domain();
         } else {
@@ -1259,7 +1259,8 @@ class State extends DefaultState {
     this.globalLogAutoDark = globalSettings.checkLogAutoDark();
     this.globalShowNotifications = globalSettings.checkShowNotifications();
     this.globalHue = globalSettings.checkHue();
-    this.globalContrast = 99;
+    const globalContrast = 99;
+    this.globalContrast = globalContrast;
     this.updateKeyboardShortcut(callback);
   }
 
@@ -1316,7 +1317,7 @@ class ContentAction {
   static getStateForActiveTab(url: Url) {
     chrome.tabs.query({ active: true, currentWindow: true }, function(tab) {
       // Frame id of 0 is the base frame
-      var tabId = tab[0].id;
+      const tabId = tab[0].id;
 
       ContentAction.urlTree.updateTab(tabId, function() {
         var frameData = ContentAction.urlTree.getAllFrameData(tabId);
@@ -1339,14 +1340,15 @@ class ContentAction {
     frameId: number,
     parentUrls: string[],
   ) {
-    var isIFrame = false;
+    let isIFrame = false;
     console.log(parentUrls);
+    let urlState;
     if (parentUrls.length <= 1) {
-      var state = urlSettings.getUrlState(url);
+      urlState = urlSettings.getUrlState(url);
     } else {
       // Determine what css settings should be sent to the current frame
       // based on parent frame settings
-      var state = urlSettings.getFrameState(parentUrls.reverse());
+      urlState = urlSettings.getFrameState(parentUrls.reverse());
       isIFrame = true;
     }
 
@@ -1374,8 +1376,9 @@ class ContentAction {
       }
     }
 
+    let cssString;
     if (isIFrame) {
-      var cssString = CssBuilder.buildForIFrame(
+      cssString = CssBuilder.buildForIFrame(
         state.Dark,
         state.Hue,
         state.Contrast,
@@ -1391,14 +1394,14 @@ class ContentAction {
         state.Dark = false;
       }
     } else {
-      var cssString = CssBuilder.buildForBaseFrame(
+      cssString = CssBuilder.buildForBaseFrame(
         state.Dark,
         state.Hue,
         state.Contrast,
       );
     }
 
-    var jsString = ContentAction.buildJsString(state.Dark);
+    const jsString = ContentAction.buildJsString(state.Dark);
     console.log("Iframe: " + isIFrame + ", Css: " + cssString);
 
     ContentAction.updateContentPage(jsString, cssString, tabId, frameId);
@@ -1411,7 +1414,7 @@ class ContentAction {
   }
 
   private static passError(error: string, passableErrors: string[]) {
-    for (var x in passableErrors) {
+    for (const x in passableErrors) {
       if (error.indexOf(passableErrors[x]) !== -1) {
         return true;
       }
@@ -1420,10 +1423,10 @@ class ContentAction {
   }
 
   private static parseErrors() {
-    var errorsToCatch = ["No frame with id", "Cannot access contents of url"];
+    const errorsToCatch = ["No frame with id", "Cannot access contents of url"];
 
     if (chrome.runtime.lastError) {
-      var error = chrome.runtime.lastError.message;
+      const error = chrome.runtime.lastError.message;
       if (!ContentAction.passError(error, errorsToCatch)) {
         console.log(error);
       }
@@ -1490,7 +1493,7 @@ class UrlTree {
 
   addActiveTab(): void {
     chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-      var thisTabId = tabs[0].id;
+      const thisTabId = tabs[0].id;
 
       // Reset the tab with new frameIds.
       this.tree[thisTabId] = {};
@@ -1590,6 +1593,7 @@ class UrlTree {
 
     if (this.tree[tabId] === undefined) return result;
     var tabData = this.tree[tabId];
+    const tabData = this.tree[tabId];
 
     for (var frameId in tabData) {
       result.push({
@@ -1602,7 +1606,7 @@ class UrlTree {
   }
 
   private isBaseFrame(tabId: number, frameId: number): boolean {
-    var frameData = this.tree[tabId][frameId];
+    const frameData = this.tree[tabId][frameId];
 
     // A base frame matches these characteristics:
     // frameId is 0
@@ -1619,7 +1623,7 @@ class UrlTree {
   }
 
   private getParentUrl(tabId: number, frameId: number): string {
-    var parentId = this.tree[tabId][frameId].parentId;
+    const parentId = this.tree[tabId][frameId].parentId;
     return this.tree[tabId][parentId].url;
   }
 
@@ -1896,11 +1900,11 @@ function createToggleStemContextMenu() {
   });
 }
 
-var updateContextMenuToggleUrlStemTimestamp = Date.now();
-var updateIntervalMs = 10;
+let updateContextMenuToggleUrlStemTimestamp = Date.now();
+const updateIntervalMs = 10;
 
-var showContextMenus = true;
-var contextMenusRemoved = false;
+let showContextMenus = true;
+let contextMenusRemoved = false;
 
 function updateContextMenuAndBrowserAction() {
   // My solution to rate limit changing this too often
@@ -1975,7 +1979,8 @@ const ParseIntBase10 = (input: string): number => {
 //  End Utils -----------------------------------------------------------}}}
 // Main ------------------------------------------------------------------- {{{
 
-var debug = false;
+const debug = false;
+const startupTimeout = 5;
 
 setTimeout(function() {
   updateContextMenuAndBrowserAction();
@@ -1984,18 +1989,18 @@ setTimeout(function() {
   }
 }, 5);
 
-var globalSettings = new GlobalSettings();
-var urlSettings = new UrlSettings(globalSettings);
-var autoDark = new AutoDark();
+const globalSettings = new GlobalSettings();
+const urlSettings = new UrlSettings(globalSettings);
+const autoDark = new AutoDark();
 
-var currentUrl = new Url();
+const currentUrl = new Url();
 
-var urlTree = new UrlTree();
+const urlTree = new UrlTree();
 
 BackgroundReceiver.init(urlTree);
 ContentAction.init(urlTree);
 
-var state = new State();
+const state = new State();
 
 currentUrl.update(function() {
   createToggleStemContextMenu();
