@@ -1,12 +1,11 @@
-// Typings ---------------------------------------------------------------- {{{
+import * as resemble from "resemblejs";
+import * as URI from "urijs";
 
-/// <reference path="../typings/tsd.d.ts" />
-/// <reference path="SettingId.ts" />
-/// <reference path="Message.ts" />
-/// <reference path="DefaultState.ts" />
-/// <reference path="CssBuilder.ts" />
+import CssBuilder from "./CssBuilder";
+import DefaultState from "./DefaultState";
+import Message from "./Message";
+import SettingId from "./SettingId";
 
-//  End Typings ------------------------------------------------------------ }}}
 // PersistentStorage Class ------------------------------------------------ {{{
 
 class PersistentStorage {
