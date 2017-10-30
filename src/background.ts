@@ -8,6 +8,7 @@ import SettingId from "./SettingId";
 
 // PersistentStorage Class ------------------------------------------------ {{{
 
+// tslint:disable:object-literal-sort-keys
 class PersistentStorage {
   protected dataObject: any;
   private name: string;
@@ -41,6 +42,7 @@ class PersistentStorage {
       return this.dataObject[key];
     } catch (e) {
       if (debug) {
+        // tslint:disable:no-console
         console.log(
           key +
             " does not exist in PersistentStorage object named: " +
@@ -93,6 +95,7 @@ class PersistentStorage {
 // End PersistentStorage Class -------------------------------------------- }}}
 // GlobalSettings Class ----------------------------------------------- {{{
 
+// tslint:disable:max-classes-per-file
 class GlobalSettings extends PersistentStorage {
   constructor() {
     super("globalSettings");
