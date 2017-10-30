@@ -982,7 +982,7 @@ class BackgroundReceiver extends Message {
 
   //  Receive Content Url ------------------------------------------------ {{{
 
-  static receiveContentUrl() {
+  public static receiveContentUrl() {
     Message.receive(
       Message.Sender.ContentPage,
       Message.Receiver.Background,
@@ -991,9 +991,9 @@ class BackgroundReceiver extends Message {
     );
   }
 
-  static handleReceiveContentUrl(message: any, tabId: number, frameId: number) {
+  public static handleReceiveContentUrl(message: any, tabId: number, frameId: number) {
     if (tabId !== undefined && frameId !== undefined) {
-      urlTree.updateTab(tabId, function() {
+      urlTree.updateTab(tabId, () => {
         ContentAction.checkDarkMode(new Url(message.Data.Url), tabId, frameId);
       });
     }
@@ -1002,7 +1002,7 @@ class BackgroundReceiver extends Message {
   //  End Receive Content Url -------------------------------------------- }}}
   //  Receive Auto Dark Init --------------------------------------------- {{{
 
-  static receiveAutoDark() {
+  public static receiveAutoDark() {
     Message.receive(
       Message.Sender.ContentPage,
       Message.Receiver.Background,
@@ -1011,7 +1011,7 @@ class BackgroundReceiver extends Message {
     );
   }
 
-  static handleReceiveAutoDark(message: any, tabId: number) {
+  public static handleReceiveAutoDark(message: any, tabId: number) {
     // Check if:
     // The url exists
     // Running from parent frame
@@ -1020,7 +1020,7 @@ class BackgroundReceiver extends Message {
     if (debug) {
       console.log(
         'typeof(message.Data.Url) != "undefined":\t\t\t\t',
-        typeof message.Data.Url != "undefined",
+        typeof message.Data.Url !== "undefined",
       );
       console.log(
         "message.Data.Url === message.Data.FrameUrl:\t\t\t\t",
@@ -1034,11 +1034,11 @@ class BackgroundReceiver extends Message {
     }
 
     if (
-      typeof message.Data.Url != "undefined" &&
+      typeof message.Data.Url !== "undefined" &&
       message.Data.Url === message.Data.FrameUrl &&
       message.Data.Url === currentUrl.getFull()
     ) {
-      autoDark.check(currentUrl, urlSettings, function() {
+      autoDark.check(currentUrl, urlSettings, () => {
         ContentAction.toggleDarkMode(currentUrl);
       });
     }
@@ -1047,7 +1047,7 @@ class BackgroundReceiver extends Message {
   //  End Receive Auto Dark Init ----------------------------------------- }}}
   //  Receive Request State ---------------------------------------------- {{{
 
-  static receiveRequestState() {
+  public static receiveRequestState() {
     Message.receive(
       Message.Sender.Popup,
       Message.Receiver.Background,
@@ -1056,8 +1056,8 @@ class BackgroundReceiver extends Message {
     );
   }
 
-  static handleRequestState(message: any) {
-    state.update(currentUrl, urlSettings, globalSettings, function() {
+  public static handleRequestState(message: any) {
+    state.update(currentUrl, urlSettings, globalSettings, () => {
       BackgroundSender.sendState();
     });
   }
@@ -1065,7 +1065,7 @@ class BackgroundReceiver extends Message {
   //  End Receive Request State ------------------------------------------ }}}
   //  Receive Popup Toggle ---------------------------------------------- {{{
 
-  static receivePopupToggle() {
+  public static receivePopupToggle() {
     Message.receive(
       Message.Sender.Popup,
       Message.Receiver.Background,
@@ -1074,7 +1074,7 @@ class BackgroundReceiver extends Message {
     );
   }
 
-  static handlePopupToggle(message) {
+  public static handlePopupToggle(message) {
     switch (message.Data.Group) {
       // Current Url Toggle
       case SettingId.Group.CurrentUrl:
@@ -1125,7 +1125,7 @@ class BackgroundReceiver extends Message {
   }
 
   static updatePopupAndContent() {
-    state.update(currentUrl, urlSettings, globalSettings, function() {
+    state.update(currentUrl, urlSettings, globalSettings, () => {
       BackgroundSender.sendState();
       ContentAction.checkDarkModeForActiveTab(currentUrl);
     });
@@ -1613,11 +1613,17 @@ class UrlTree {
     // frame has no parent (undefined), more likely this is an abnormal
     // frame, but it IS a base frame
     // parentId is -1 (there is no parent)
-    if (frameId === 0) return true;
+    if (frameId === 0) {
+      return true;
+    }
     // This has to be checked before checking the parentId to avoid
     // accessing an element from undefined
-    if (frameData === undefined) return true;
-    if (frameData.parentId === -1) return true;
+    if (frameData === undefined) {
+     return true;
+    }
+    if (frameData.parentId === -1) {
+      return true;
+    }
 
     return false;
   }
@@ -1627,7 +1633,7 @@ class UrlTree {
     return this.tree[tabId][parentId].url;
   }
 
-  print(): void {
+  public print(): void {
     console.log(this.tree);
   }
 }
@@ -1636,13 +1642,15 @@ class UrlTree {
 // Browser Action ---------------------------------------------------------- {{{
 
 function deactivateBrowserAction() {
-  if (true) console.log("Deactivating browser action!");
-  chrome.tabs.getSelected(null, function(tab) {
+  if (debug) {
+    console.log("Deactivating browser action!");
+  }
+  chrome.tabs.getSelected(null, (tab) => {
     chrome.browserAction.disable(tab.id);
     chrome.browserAction.setIcon({
       path: {
-        "19": "img/dark-mode-inactive-19.png",
-        "38": "img/dark-mode-inactive-38.png",
+        19: "img/dark-mode-inactive-19.png",
+        38: "img/dark-mode-inactive-38.png",
       },
       tabId: tab.id,
     });
@@ -1650,13 +1658,15 @@ function deactivateBrowserAction() {
 }
 
 function activateBrowserAction() {
-  if (true) console.log("Activating browser action!");
-  chrome.tabs.getSelected(null, function(tab) {
+  if (debug) {
+    console.log("Activating browser action!");
+  }
+  chrome.tabs.getSelected(null, (tab) => {
     chrome.browserAction.enable(tab.id);
     chrome.browserAction.setIcon({
       path: {
-        "19": "img/dark-mode-on-19.png",
-        "38": "img/dark-mode-on-38.png",
+        19: "img/dark-mode-on-19.png",
+        38: "img/dark-mode-on-38.png",
       },
       tabId: tab.id,
     });
@@ -1666,10 +1676,12 @@ function activateBrowserAction() {
 // End Browser Action ------------------------------------------------------ }}}
 // Listen for Keystrokes --------------------------------------------------- {{{
 
-chrome.commands.onCommand.addListener(function(command) {
+chrome.commands.onCommand.addListener((command) => {
   switch (command) {
     case "toggle-dark-mode":
-      if (debug) console.log("Keyboard Shortcut caught");
+      if (debug) {
+        console.log("Keyboard Shortcut caught");
+      }
       ContentAction.toggleDarkMode(currentUrl);
       break;
   }
@@ -1679,25 +1691,25 @@ chrome.commands.onCommand.addListener(function(command) {
 // AutoDark Class ---------------------------------------------------- {{{
 
 class AutoDark {
-  static brightnessThreshold = 50;
-  static runInterval = 1000; // ms
-  static stemRunInterval = 10000; //ms
+  private static brightnessThreshold = 50;
+  private static runInterval = 1000; // ms
+  private static stemRunInterval = 10000; // ms
 
   // I can't find the cause, but something causes many of these functions
   // to run multiple times. To fix this, function execution times are
   // tracked below and functions are ran through the `throttle` function
   // to determine if they should execute again based on their previous
   // execution time.
-  static lastIsCorrectNotification = Date.now();
-  static lastStemNotification = Date.now();
-  static lastRun = Date.now();
-  static ResembleLastRun = Date.now();
-  static lastCheck = Date.now();
+  private static lastIsCorrectNotification = Date.now();
+  private static lastStemNotification = Date.now();
+  private static lastRun = Date.now();
+  private static ResembleLastRun = Date.now();
+  private static lastCheck = Date.now();
 
   // Number of sites UrlSettings checks before it marks a stem as dark
-  static MinDarkSites = 5;
+  public static MinDarkSites = 5;
 
-  check(url: Url, urlSettings: UrlSettings, lightCallback: () => void): void {
+  public check(url: Url, urlSettings: UrlSettings, lightCallback: () => void): void {
     if (
       url.getShouldAutoDark() &&
       urlSettings.checkDarkModeIsUndefined(url) &&
@@ -1778,14 +1790,14 @@ class AutoDark {
           message: "Does this page look right?",
           buttons: [{ title: "Yes" }, { title: "No" }],
         },
-        function(notificationId) {
-          chrome.notifications.onButtonClicked.addListener(function(
-            notificationId,
+        (notificationId) => {
+          chrome.notifications.onButtonClicked.addListener((
+            notifId,
             buttonIndex,
-          ) {
+            ) => {
             // Yes Click
             if (buttonIndex === 0) {
-              chrome.notifications.clear(notificationId);
+              chrome.notifications.clear(notifId);
               AutoDark.toggleStemNotification();
             }
 
@@ -1793,7 +1805,7 @@ class AutoDark {
             if (buttonIndex === 1) {
               console.log("No Click!");
               ContentAction.toggleDarkMode(url);
-              chrome.notifications.clear(notificationId);
+              chrome.notifications.clear(notifId);
             }
           });
         },
@@ -1819,17 +1831,17 @@ class AutoDark {
             "Turn off dark mode for all " + currentUrl.getDomain() + " urls?",
           buttons: [{ title: "Yes" }, { title: "No" }],
         },
-        function(notificationId) {
-          chrome.notifications.onButtonClicked.addListener(function(
-            notificationId,
+        (notificationId) => {
+          chrome.notifications.onButtonClicked.addListener((
+            notifId,
             buttonIndex,
-          ) {
+            ) => {
             // Yes Click
             if (buttonIndex === 0) {
               ContentAction.toggleDarkModeStem(currentUrl);
-              chrome.notifications.clear(notificationId);
+              chrome.notifications.clear(notifId);
             } else {
-              chrome.notifications.clear(notificationId);
+              chrome.notifications.clear(notifId);
             }
           });
         },
@@ -1869,7 +1881,7 @@ function createToggleDarkModeContextMenu() {
   chrome.contextMenus.create({
     id: "toggleDarkMode",
     title: "Toggle Dark Mode",
-    onclick: function() {
+    onclick: () => {
       ContentAction.toggleDarkMode(currentUrl);
     },
     contexts: ["all"],
@@ -1893,7 +1905,7 @@ function createToggleStemContextMenu() {
   chrome.contextMenus.create({
     id: "toggleStemFromContextMenu",
     title: "Toggle Dark Mode for all " + currentUrl.getDomain() + " urls",
-    onclick: function() {
+    onclick: () => {
       ContentAction.toggleDarkModeStem(currentUrl);
     },
     contexts: ["all"],
@@ -1911,7 +1923,7 @@ function updateContextMenuAndBrowserAction() {
   // If one of the events triggers this function don't do it again for
   // `updateIntervalMs` milliseconds.
   if (Date.now() > updateContextMenuToggleUrlStemTimestamp + updateIntervalMs) {
-    currentUrl.update(function() {
+    currentUrl.update(() => {
       if (currentUrl.getShouldUpdateMenu()) {
         if (showContextMenus) {
           // Update the relevant context menus
@@ -1945,26 +1957,26 @@ function updateContextMenuAndBrowserAction() {
 // End Context (Right Click) Menus ----------------------------------------- }}}
 // Context Menu Events ----------------------------------------------------- {{{
 
-chrome.tabs.onHighlighted.addListener(function() {
+chrome.tabs.onHighlighted.addListener(() => {
   updateContextMenuAndBrowserAction();
 });
 
-chrome.tabs.onUpdated.addListener(function() {
+chrome.tabs.onUpdated.addListener(() => {
   updateContextMenuAndBrowserAction();
 });
-chrome.tabs.onActivated.addListener(function() {
-  updateContextMenuAndBrowserAction();
-});
-
-chrome.windows.onCreated.addListener(function() {
+chrome.tabs.onActivated.addListener(() => {
   updateContextMenuAndBrowserAction();
 });
 
-chrome.windows.onFocusChanged.addListener(function() {
+chrome.windows.onCreated.addListener(() => {
   updateContextMenuAndBrowserAction();
 });
 
-chrome.contextMenus.onClicked.addListener(function() {
+chrome.windows.onFocusChanged.addListener(() => {
+  updateContextMenuAndBrowserAction();
+});
+
+chrome.contextMenus.onClicked.addListener(() => {
   updateContextMenuAndBrowserAction();
 });
 
@@ -1982,12 +1994,12 @@ const ParseIntBase10 = (input: string): number => {
 const debug = false;
 const startupTimeout = 5;
 
-setTimeout(function() {
+setTimeout(() => {
   updateContextMenuAndBrowserAction();
   if (debug) {
     console.log("Hello from Typescript!");
   }
-}, 5);
+}, startupTimeout);
 
 const globalSettings = new GlobalSettings();
 const urlSettings = new UrlSettings(globalSettings);
@@ -2002,7 +2014,7 @@ ContentAction.init(urlTree);
 
 const state = new State();
 
-currentUrl.update(function() {
+currentUrl.update(() => {
   createToggleStemContextMenu();
   state.update(currentUrl, urlSettings, globalSettings, function() {});
 });
