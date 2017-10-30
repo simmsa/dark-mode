@@ -1427,8 +1427,10 @@ class ContentAction {
 
     if (chrome.runtime.lastError) {
       const error = chrome.runtime.lastError.message;
-      if (!ContentAction.passError(error, errorsToCatch)) {
-        console.log(error);
+      if (error !== undefined) {
+        if (!ContentAction.passError(error, errorsToCatch)) {
+          console.log(error);
+        }
       }
     }
   }
