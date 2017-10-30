@@ -1962,6 +1962,14 @@ chrome.contextMenus.onClicked.addListener(function() {
 });
 
 // End Context Menu Events ------------------------------------------------- }}}
+//  Utils ---------------------------------------------------------------{{{
+
+const ParseIntBase10 = (input: string): number => {
+  const base = 10;
+  return parseInt(input, base);
+};
+
+//  End Utils -----------------------------------------------------------}}}
 // Main ------------------------------------------------------------------- {{{
 
 var debug = false;
