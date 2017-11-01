@@ -190,16 +190,20 @@ setTimeout(() => {
 
 const globalSettings = new GlobalSettings();
 const urlSettings = new UrlSettings();
-const autoDark = new AutoDark(globalSettings);
 
 const currentUrl = new Url();
 
 const urlTree = new UrlTree();
-
-BackgroundReceiver.init(urlTree);
+const state = new State();
 ContentAction.init(urlTree, urlSettings);
 
-const state = new State();
+BackgroundReceiver.init(
+  urlTree,
+  currentUrl,
+  urlSettings,
+  globalSettings,
+  state,
+);
 
 currentUrl.update(() => {
   createToggleStemContextMenu();
