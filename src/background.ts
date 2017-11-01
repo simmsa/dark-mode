@@ -1,5 +1,6 @@
 import * as resemble from "resemblejs";
 
+import AutoDark from "./AutoDark";
 import BackgroundReceiver from "./BackgroundReceiver";
 import ContentAction from "./ContentAction";
 import GlobalSettings from "./GlobalSettings";
@@ -375,7 +376,7 @@ setTimeout(() => {
 
 const globalSettings = new GlobalSettings();
 const urlSettings = new UrlSettings();
-const autoDark = new AutoDark();
+const autoDark = new AutoDark(globalSettings);
 
 const currentUrl = new Url();
 
