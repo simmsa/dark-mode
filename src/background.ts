@@ -71,9 +71,9 @@ class Url {
     }
   }
 
-  public parse(input: string) {
+  public parse(input: string | undefined) {
     // If the url has not changed, do nothing
-    if (input === this.full) {
+    if (input === this.full || input === undefined) {
       return;
     }
 
