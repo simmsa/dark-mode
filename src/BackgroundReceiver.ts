@@ -1,3 +1,4 @@
+import BackgroundSender from "./BackgroundSender";
 import Message from "./Message";
 import SettingId from "./SettingId";
 

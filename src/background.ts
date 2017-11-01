@@ -4,34 +4,12 @@ import BackgroundReceiver from "./BackgroundReceiver";
 import CssBuilder from "./CssBuilder";
 import DefaultState from "./DefaultState";
 import GlobalSettings from "./GlobalSettings";
-import Message from "./Message";
 import Url from "./Url";
 import UrlSettings from "./UrlSettings";
 
 // tslint:disable:max-classes-per-file
 // tslint:disable:object-literal-sort-keys
 // tslint:disable:no-console
-// BackgroundSender --------------------------------------------------- {{{
-
-class BackgroundSender extends Message {
-  public static sendState() {
-    const dataPackage = state.pack();
-    if (debug) {
-      console.log("Sending state to popup");
-    }
-    if (debug) {
-      console.log(dataPackage);
-    }
-    Message.send(
-      Message.Sender.Background,
-      Message.Receiver.Popup,
-      Message.Intent.SendState,
-      dataPackage,
-    );
-  }
-}
-
-// End BackgroundSender ----------------------------------------------- }}}
 // State -------------------------------------------------------------- {{{
 
 class State extends DefaultState {
