@@ -195,11 +195,9 @@ enum QueryResult {
 
 class UrlSettings extends PersistentStorage {
   private fields: any;
-  private globalSettings: GlobalSettings;
 
-  constructor(globalSettingObject) {
+  constructor() {
     super("urlInfo");
-    this.globalSettings = globalSettingObject;
     // List the fields that exist and can be accessed
     this.fields = {
       darkMode: {
@@ -1995,7 +1993,7 @@ setTimeout(() => {
 }, startupTimeout);
 
 const globalSettings = new GlobalSettings();
-const urlSettings = new UrlSettings(globalSettings);
+const urlSettings = new UrlSettings();
 const autoDark = new AutoDark();
 
 const currentUrl = new Url();
