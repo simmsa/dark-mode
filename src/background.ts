@@ -93,11 +93,7 @@ class Url {
 
         // If the subdomain is not www start the domain with that
         const subdomain = url.subdomain();
-        if (subdomain !== "www" && subdomain.length > 0) {
-          this.domain = subdomain + "." + url.domain();
-        } else {
-          this.domain = url.domain();
-        }
+        this.domain = subdomain !== "www" && subdomain.length > 0 ? subdomain + "." + url.domain() : url.domain();
 
         this.normal = new URI({
           protocol: url.protocol(),
