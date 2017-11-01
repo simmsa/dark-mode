@@ -59,7 +59,10 @@ class Url {
             console.log("The error is: " + e);
           }
         }
-        callback();
+
+        if (callback !== undefined) {
+          callback();
+        }
       });
     } catch (e) {
       if (debug) {
