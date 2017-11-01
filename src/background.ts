@@ -45,7 +45,9 @@ class Url {
     try {
       chrome.tabs.query({ currentWindow: true, active: true }, tabs => {
         try {
-          this.parse(tabs[0].url);
+          if (tabs !== undefined && tabs[0] !== undefined) {
+            this.parse(tabs[0].url);
+          }
         } catch (e) {
           if (debug) {
             console.log("There is no valid url in tabs object: ");
