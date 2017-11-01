@@ -708,7 +708,6 @@ class UrlSettings extends PersistentStorage {
   public getFrameState(rawUrls: string[]): any {
     // Iterate through urls to determine the dark and hue settings of
     // iframes embedded multiple levels into a page
-    console.log(rawUrls);
     const url = new Url(rawUrls.shift());
     const currentState = this.getUrlState(url);
 
@@ -719,11 +718,10 @@ class UrlSettings extends PersistentStorage {
       return currentState;
     }
     currentState.BaseFrameIsDark = true;
-    console.log(currentState);
 
-    for (var rawUrl in rawUrls) {
-      var nextUrl = new Url(rawUrls[rawUrl]);
-      var nextState = this.getUrlState(nextUrl);
+    rawUrls.map((nextUrl) => {
+      const parsedUrl = new Url(nextUrl);
+      const nextState = this.getUrlState(parsedUrl);
 
       // If an iframe is embedded one level deep it should needs to have
       // the inversion turned off (actually re inverted) so
@@ -731,15 +729,17 @@ class UrlSettings extends PersistentStorage {
       // And if an iframe is 2 levels deep it needs to have inversion
       // turned back on basically
       // (true ^ true) ^ true = true
+      // tslint:disable:no-bitwise
       currentState.Dark = currentState.Dark ^ nextState.Dark;
       currentState.Hue = currentState.Hue ^ nextState.Hue;
       currentState.Contrast = nextState.Contrast;
 
-      if (nextUrl.getFull() === "about:blank") {
+      if (parsedUrl.getFull() === "about:blank") {
         currentState.Hue = !currentState.Hue;
         currentState.Dark = !currentState.Dark;
       }
-    }
+    });
+
     return currentState;
   }
 
