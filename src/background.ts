@@ -106,16 +106,7 @@ class GlobalSettings extends PersistentStorage {
   }
 
   private toggleField(field: string, defaultValue: boolean): void {
-    if (typeof this.getField(field) !== "undefined") {
-      this.dataObject[field] = !this.getField(field);
-    } else {
-      this.dataObject[field] = !defaultValue;
-    }
-    this.save();
-  }
-
-  setField(field: string, value: any): void {
-    this.dataObject[field] = value;
+    this.dataObject[field] = typeof this.getField(field) !== "undefined" ? !this.getField(field) : !defaultValue;
     this.save();
   }
 
