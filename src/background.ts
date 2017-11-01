@@ -211,10 +211,6 @@ class UrlSettings extends PersistentStorage {
     };
   }
 
-  private getSettings(): any {
-    return this.dataObject;
-  }
-
   private returnQueryResultIfBool(input: any): any {
     if (input === true) {
       return QueryResult.True;
