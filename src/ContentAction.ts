@@ -1,6 +1,8 @@
 import CssBuilder from "./CssBuilder";
+import Icon from "./Icon";
 import Url from "./Url";
 import UrlSettings from "./UrlSettings";
+import UrlTree from "./UrlTree";
 
 // tslint:disable:no-console
 class ContentAction {
