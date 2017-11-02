@@ -168,14 +168,6 @@ chrome.contextMenus.onClicked.addListener(() => {
 });
 
 // End Context Menu Events ------------------------------------------------- }}}
-//  Utils ---------------------------------------------------------------{{{
-
-const ParseIntBase10 = (input: string): number => {
-  const base = 10;
-  return parseInt(input, base);
-};
-
-//  End Utils -----------------------------------------------------------}}}
 // Main ------------------------------------------------------------------- {{{
 
 const debug = false;
