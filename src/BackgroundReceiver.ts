@@ -98,9 +98,7 @@ class BackgroundReceiver extends Message {
       message.Data.Url === message.Data.FrameUrl &&
       message.Data.Url === BackgroundReceiver.currentUrl.getFull()
     ) {
-      BackgroundReceiver.autoDark.check(BackgroundReceiver.currentUrl, BackgroundReceiver.urlSettings, () => {
-        ContentAction.toggleDarkMode(BackgroundReceiver.currentUrl);
-      });
+      BackgroundReceiver.autoDark.check(BackgroundReceiver.currentUrl, BackgroundReceiver.urlSettings);
     }
   }
 

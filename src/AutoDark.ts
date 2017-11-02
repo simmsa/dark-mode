@@ -1,3 +1,5 @@
+import * as resemble from "resemblejs";
+
 import ContentAction from "./ContentAction";
 import GlobalSettings from "./GlobalSettings";
 import Url from "./Url";
@@ -28,17 +30,17 @@ class AutoDark {
     AutoDark.globalSettings = inputGlobalSettings;
   }
 
-  public check(url: Url, urlSettings: UrlSettings, lightCallback: () => void): void {
+  public check(currentUrl: Url, urlSettings: UrlSettings): void {
     if (
-      url.getShouldAutoDark() &&
-      urlSettings.checkDarkModeIsUndefined(url) &&
-      urlSettings.checkDarkModeStemIsUndefined(url) &&
+      currentUrl.getShouldAutoDark() &&
+      urlSettings.checkDarkModeIsUndefined(currentUrl) &&
+      urlSettings.checkDarkModeStemIsUndefined(currentUrl) &&
       AutoDark.globalSettings.checkAutoDark() &&
       !AutoDark.throttle(AutoDark.lastCheck, AutoDark.runInterval) &&
-      !urlSettings.getCheckedAutoDark(url)
+      !urlSettings.getCheckedAutoDark(currentUrl)
     ) {
       AutoDark.measureBrightnessOfCurrentTab(
-        url,
+        currentUrl,
         urlSettings,
         AutoDark.parseBrightness,
       );
@@ -47,24 +49,23 @@ class AutoDark {
   }
 
   public static measureBrightnessOfCurrentTab(
-    url: Url,
+    currentUrl: Url,
     urlSettings: UrlSettings,
     brightnessCallback: (Url, num: number) => void,
   ) {
     // captureVisibleTab cannot capture screenshots of background tabs
     // so the url we are checking must match the current url
-    // if (
-    //   currentUrl.getFull() === url.getFull() &&
-    //   !AutoDark.throttle(AutoDark.ResembleLastRun, AutoDark.runInterval)
-    // ) {
-    //   chrome.tabs.captureVisibleTab(screenshot => {
-    //     resemble(screenshot).onComplete(data => {
-    //       urlSettings.setCheckedAutoDark(url);
-    //       AutoDark.ResembleLastRun = Date.now();
-    //       brightnessCallback(url, data.brightness);
-    //     });
-    //   });
-    // }
+    if (
+      !AutoDark.throttle(AutoDark.ResembleLastRun, AutoDark.runInterval)
+    ) {
+      chrome.tabs.captureVisibleTab(screenshot => {
+        resemble(screenshot).onComplete(data => {
+          urlSettings.setCheckedAutoDark(currentUrl);
+          AutoDark.ResembleLastRun = Date.now();
+          brightnessCallback(currentUrl, data.brightness);
+        });
+      });
+    }
   }
 
   public static throttle(lastRun: number, interval: number) {
