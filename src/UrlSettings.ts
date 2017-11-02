@@ -1,4 +1,10 @@
+import AutoDark from "./AutoDark";
 import PersistentStorage from "./PersistentStorage";
+import SettingId from "./SettingId";
+import Url from "./Url";
+
+// tslint:disable:no-console
+const debug = false;
 
 // I would like to put this inside the `UrlSettings` class but typescript does
 // not allow this.
