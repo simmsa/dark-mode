@@ -109,7 +109,7 @@ class AutoDark {
           title: "Dark Mode",
           type: "basic",
         },
-        (notificationId) => {
+        () => {
           chrome.notifications.onButtonClicked.addListener((
             notifId,
             buttonIndex,
@@ -148,7 +148,7 @@ class AutoDark {
           title: "Dark Mode",
           type: "basic",
         },
-        (notificationId) => {
+        () => {
           chrome.notifications.onButtonClicked.addListener((
             notifId,
             buttonIndex,
