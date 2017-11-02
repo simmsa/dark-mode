@@ -177,7 +177,7 @@ setTimeout(() => {
 }, startupTimeout);
 
 const globalSettings = new GlobalSettings();
-const urlSettings = new UrlSettings();
+const urlSettings = new UrlSettings(globalSettings);
 
 const currentUrl = new Url();
 

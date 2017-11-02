@@ -1,4 +1,5 @@
 import AutoDark from "./AutoDark";
+import GlobalSettings from "./GlobalSettings";
 import PersistentStorage from "./PersistentStorage";
 import SettingId from "./SettingId";
 import Url from "./Url";
@@ -16,9 +17,12 @@ export enum QueryResult {
 
 class UrlSettings extends PersistentStorage {
   private fields: any;
+  private globalSettings: GlobalSettings;
 
-  constructor() {
+  constructor(inputGlobalSettings: GlobalSettings) {
     super("urlInfo");
+
+    this.globalSettings = inputGlobalSettings;
     // List the fields that exist and can be accessed
     this.fields = {
       darkMode: {
@@ -194,7 +198,7 @@ class UrlSettings extends PersistentStorage {
     return this.checkUrlForFieldBool(
       url,
       this.fields.darkMode.name,
-      globalSettings.checkDark(),
+      this.globalSettings.checkDark(),
     );
   }
 
@@ -202,7 +206,7 @@ class UrlSettings extends PersistentStorage {
     return this.checkUrlStemForFieldBool(
       url,
       this.fields.darkMode.name,
-      globalSettings.checkDark(),
+      this.globalSettings.checkDark(),
     );
   }
 
@@ -229,7 +233,7 @@ class UrlSettings extends PersistentStorage {
     return this.checkUrlForFieldBool(
       url,
       this.fields.hueRotate.name,
-      globalSettings.checkHue(),
+      this.globalSettings.checkHue(),
     );
   }
 
@@ -237,7 +241,7 @@ class UrlSettings extends PersistentStorage {
     return this.checkUrlStemForFieldBool(
       url,
       this.fields.hueRotate.name,
-      globalSettings.checkHue(),
+      this.globalSettings.checkHue(),
     );
   }
 
