@@ -1,10 +1,11 @@
 import Message from "./Message";
+import State from "./State";
 
 // tslint:disable:no-console
 const debug = false;
 
 class BackgroundSender extends Message {
-  public static sendState() {
+  public static sendState(state: State) {
     const dataPackage = state.pack();
     if (debug) {
       console.log("Sending state to popup");

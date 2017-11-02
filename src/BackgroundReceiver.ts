@@ -120,7 +120,7 @@ class BackgroundReceiver extends Message {
   public static handleRequestState() {
     BackgroundReceiver.state.update(
       BackgroundReceiver.currentUrl, BackgroundReceiver.urlSettings, BackgroundReceiver.globalSettings, () => {
-      BackgroundSender.sendState();
+      BackgroundSender.sendState(BackgroundReceiver.state);
     });
   }
 
@@ -189,7 +189,7 @@ class BackgroundReceiver extends Message {
   public static updatePopupAndContent() {
     BackgroundReceiver.state.update(
       BackgroundReceiver.currentUrl, BackgroundReceiver.urlSettings, BackgroundReceiver.globalSettings, () => {
-      BackgroundSender.sendState();
+      BackgroundSender.sendState(BackgroundReceiver.state);
       ContentAction.checkDarkModeForActiveTab(BackgroundReceiver.currentUrl);
     });
   }
