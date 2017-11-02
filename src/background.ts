@@ -10,37 +10,35 @@ import UrlTree from "./UrlTree";
 // tslint:disable:no-console
 // Browser Action ---------------------------------------------------------- {{{
 
-function deactivateBrowserAction() {
-  if (debug) {
-    console.log("Deactivating browser action!");
-  }
-  chrome.tabs.getSelected(null, (tab) => {
-    chrome.browserAction.disable(tab.id);
-    chrome.browserAction.setIcon({
-      path: {
-        19: "img/dark-mode-inactive-19.png",
-        38: "img/dark-mode-inactive-38.png",
-      },
-      tabId: tab.id,
-    });
-  });
-}
+const updateBrowserAction = (action: "activate" | "deactivate") => {
+  const imgAttr = action === "activate" ? "on" : "inactive";
 
-function activateBrowserAction() {
-  if (debug) {
-    console.log("Activating browser action!");
-  }
-  chrome.tabs.getSelected(null, (tab) => {
-    chrome.browserAction.enable(tab.id);
+  chrome.tabs.query({active: true}, (tabs) => {
+    const tabId = tabs[0].id;
+
+    if (action === "activate") {
+      chrome.browserAction.enable(tabId);
+    } else {
+      chrome.browserAction.disable(tabId);
+    }
+
     chrome.browserAction.setIcon({
       path: {
-        19: "img/dark-mode-on-19.png",
-        38: "img/dark-mode-on-38.png",
+        19: `img/dark-mode-${imgAttr}-19.png`,
+        38: `img/dark-mode-${imgAttr}-38.png`,
       },
-      tabId: tab.id,
+      tabId,
     });
   });
-}
+};
+
+const deactivateBrowserAction = () => {
+  updateBrowserAction("deactivate");
+};
+
+const activateBrowserAction = () => {
+  updateBrowserAction("activate");
+};
 
 // End Browser Action ------------------------------------------------------ }}}
 // Listen for Keystrokes --------------------------------------------------- {{{
