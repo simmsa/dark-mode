@@ -1,6 +1,3 @@
-import * as resemble from "resemblejs";
-
-import AutoDark from "./AutoDark";
 import BackgroundReceiver from "./BackgroundReceiver";
 import ContentAction from "./ContentAction";
 import GlobalSettings from "./GlobalSettings";
@@ -9,7 +6,6 @@ import Url from "./Url";
 import UrlSettings from "./UrlSettings";
 import UrlTree from "./UrlTree";
 
-// tslint:disable:max-classes-per-file
 // tslint:disable:object-literal-sort-keys
 // tslint:disable:no-console
 // Browser Action ---------------------------------------------------------- {{{
