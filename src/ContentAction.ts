@@ -186,9 +186,9 @@ class ContentAction {
       chrome.tabs.executeScript(
         tabId,
         {
-          frameId,
-          code: jsString,
           allFrames: true,
+          code: jsString,
+          frameId,
           matchAboutBlank: true,
           runAt: "document_start",
         },
@@ -200,9 +200,9 @@ class ContentAction {
       chrome.tabs.insertCSS(
         tabId,
         {
-          frameId,
-          code: cssString,
           allFrames: true,
+          code: cssString,
+          frameId,
           matchAboutBlank: true,
           runAt: "document_start",
         },
