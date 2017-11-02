@@ -195,7 +195,7 @@ BackgroundReceiver.init(
 
 currentUrl.update(() => {
   createToggleStemContextMenu();
-  state.update(currentUrl, urlSettings, globalSettings, function() {});
+  state.update(currentUrl, urlSettings, globalSettings, () => {return; });
 });
 
 // End Main --------------------------------------------------------------- }}}
