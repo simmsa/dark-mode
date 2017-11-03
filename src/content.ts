@@ -3,7 +3,6 @@ import ContentSender from "./ContentSender";
 class DarkModeContentManager {
   private parentUrl: string;
   private isDark: boolean;
-  isIFrame: boolean;
 
   private addIsDarkClassToElementsWithBackgroundImage() {
   constructor() {
