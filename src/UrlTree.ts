@@ -19,13 +19,6 @@ class UrlTree {
         }
 
       });
-      // for (const tab in tabs) {
-      //   var thisTabId = tabs[tab].id;
-
-      //   this.tree[thisTabId] = {};
-
-      //   this.convertFrameIdsToParentUrls(thisTabId);
-      // }
     });
   }
 
