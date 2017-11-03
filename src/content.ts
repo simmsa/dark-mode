@@ -155,5 +155,3 @@ class DarkModeContentManager {
 // popup/keyboard/content menu
 // @ts-ignore
 window.darkModeContentManager = new DarkModeContentManager();
-// @ts-ignore
-window.darkModeContentManager.init();
