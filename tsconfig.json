@@ -5,6 +5,13 @@
         "jsx": "react",
         "module": "umd",
         "strict": true
+        "skipLibCheck": true,
+        "strict": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "noImplicitAny": false,
+        "noImplicitReturns": true,
+        "noUnusedParameters": true,
     },
     "include": [
         "src/**/*"
