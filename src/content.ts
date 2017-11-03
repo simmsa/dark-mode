@@ -1,10 +1,11 @@
 import ContentSender from "./ContentSender";
 
 class DarkModeContentManager {
-  parentUrl: string;
+  private parentUrl: string;
+  private isDark: boolean;
   isIFrame: boolean;
-  isDark: boolean;
 
+  private addIsDarkClassToElementsWithBackgroundImage() {
   constructor() {
     this.updateAttributes();
     this.setParentUrl();
@@ -36,16 +37,16 @@ class DarkModeContentManager {
     });
   }
 
-  setParentUrl() {
+  private setParentUrl() {
     // This is an empty string if this frame has no parent
     this.parentUrl = document.referrer;
   }
 
-  requestState(): void {
+  private requestState(): void {
     ContentSender.sendUrl(document.URL, this.parentUrl);
   }
 
-  setDarkAttribute(newAttribute: string, value: any): void {
+  private setDarkAttribute(newAttribute: string, value: any): void {
     var prefix = "data-dark-mode";
     if (newAttribute !== "") {
       prefix += "-";
@@ -92,7 +93,7 @@ class DarkModeContentManager {
     });
   }
 
-  setIframeAttributes(active: string) {
+  private setIFramesDark() {
     var allFrames = document.querySelectorAll("iframe");
     var darkCss = CssBuilder.buildForBaseFrame(true, true, 85);
 
@@ -127,13 +128,13 @@ class DarkModeContentManager {
     }
   }
 
-  initAutoDarkEvent(): void {
+  private initAutoDarkEvent(): void {
     document.addEventListener("DOMContentLoaded", event => {
       ContentSender.sendCheckAutoDark(this.parentUrl, document.URL);
     });
   }
 
-  updateAttributes(darkModeActive?: boolean) {
+  private updateAttributes(darkModeActive?: boolean) {
     if (typeof darkModeActive !== "undefined") {
       this.isDark = darkModeActive;
       if (darkModeActive) {
