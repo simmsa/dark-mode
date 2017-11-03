@@ -155,4 +155,10 @@ class DarkModeContentManager {
   }
 }
 
-var darkModeContentManager = new DarkModeContentManager();
+// We add this to `window` so it can be accessed as a global variable from the
+// background script to change the dark settings from the
+// popup/keyboard/content menu
+// @ts-ignore
+window.darkModeContentManager = new DarkModeContentManager();
+// @ts-ignore
+window.darkModeContentManager.init();
