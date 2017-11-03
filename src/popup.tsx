@@ -7,9 +7,13 @@
 
 //  End Typings ------------------------------------------------------------ }}}
 
-function capitalize(s: string): string {
-  return s[0].toUpperCase() + s.slice(1);
-}
+const capitalize = (s: string): string => {
+  try {
+    return s[0].toUpperCase() + s.slice(1);
+  } catch (e) {
+    return s;
+  }
+};
 
 //  UrlSettingsCollapse ------------------------------------------------ {{{
 
