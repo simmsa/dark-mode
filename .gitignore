@@ -6,3 +6,5 @@ styles/css/
 lib/
 tags
 dist/
+ReleaseBuilds/
+key.pem
