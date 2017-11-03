@@ -2,6 +2,7 @@
     "extends": ["tslint:latest", "tslint-react"],
     "rules": {
         "arrow-parens": false,
+        "no-magic-numbers": true,
         "interface-name": false,
         "member-ordering": [true, {
           "order": [
