@@ -54,8 +54,7 @@ class ContentAction {
 
       if (tabId !== undefined) {
           ContentAction.urlTree.updateTab(tabId, () => {
-            const frameData = ContentAction.urlTree.getAllFrameData(tabId);
-            console.log(frameData);
+            const frameData: Array<{frameId: number, parentUrls: any}> = ContentAction.urlTree.getAllFrameData(tabId);
             if (frameData !== undefined) {
               frameData.map((frame) => {
                 ContentAction.getStateForUrl(
