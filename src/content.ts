@@ -11,11 +11,8 @@ class DarkModeContentManager {
     this.setParentUrl();
     if (window.location !== window.parent.location) {
       this.setDarkAttribute("iframe", "true");
-      this.isIFrame = true;
-      // this.setDarkAttribute("active", "false");
     } else {
       this.setDarkAttribute("iframe", "false");
-      this.isIFrame = false;
       // Only send auto dark message from the parent page
       this.initAutoDarkEvent();
     }
