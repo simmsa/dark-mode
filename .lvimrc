@@ -1,15 +1,30 @@
-function! AfterTscCompile(...)
-  echo 'Typescript compile successful!'
+let g:dark_std_err_buffer = ''
+
+function! BuildExtension()
+    let g:dark_std_err_buffer = ''
+    call BuildWebpack()
 endfunction
 
-function! CompileTypescript()
-    call jobstart('tsc', {'on_exit': function('AfterTscCompile')})
+function! BuildWebpack()
+    call jobstart('npm run build', {'on_stderr': function('BufferStdErr'), 'on_exit': function('EchoErrors')})
+endfunction
+
+function! BufferStdErr(job_id, data, event)
+    let g:dark_std_err_buffer = g:dark_std_err_buffer . join(a:data, "\n")
+endfunction
+
+function! EchoErrors(job_id, exit_code, event)
+    if a:exit_code != 0
+        echo "Webpack Build Error:\n" . g:dark_std_err_buffer
+    else
+        echo 'Dark Mode Build Successful!'
+    endif
 endfunction
 
 augroup dark_mode
     au!
     au FileType json,javascript,typescript set shiftwidth=2 tabstop=2
-    au BufWritePost *.ts,*.tsx call CompileTypescript()
+    au BufWritePost *.ts,*.tsx call BuildExtension()
 augroup END
 
 nnoremap <silent> gd :YcmCompleter GoToDefinition<CR>
