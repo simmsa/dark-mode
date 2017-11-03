@@ -11,3 +11,7 @@ augroup dark_mode
     au FileType javascript,typescript set shiftwidth=2 tabstop=2
     au BufWritePost *.ts,*.tsx call CompileTypescript()
 augroup END
+
+nnoremap <silent> gd :YcmCompleter GoToDefinition<CR>
+nnoremap <silent> gt :YcmCompleter GetType<CR>
+nnoremap <silent> gm :YcmCompleter GetDoc<CR>
