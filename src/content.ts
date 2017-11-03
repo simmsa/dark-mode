@@ -4,7 +4,6 @@ class DarkModeContentManager {
   private parentUrl: string;
   private isDark: boolean;
 
-  private addIsDarkClassToElementsWithBackgroundImage() {
   constructor() {
     this.requestState();
     this.updateAttributes();
@@ -19,15 +18,15 @@ class DarkModeContentManager {
     this.addIsDarkClassToElementsWithBackgroundImage();
   }
 
-  addIsDarkClassToElementsWithBackgroundImage() {
-    jQuery("document").ready(function() {
-      jQuery("div").each(function() {
-        if (
-          jQuery(this)
-            .css("background-image")
-            .match(/url.*jpg/)
-        ) {
-          jQuery(this).addClass("no-dark");
+  private addIsDarkClassToElementsWithBackgroundImage() {
+    document.addEventListener("DOMContentLoaded", () => {
+      const divs = document.querySelectorAll("div");
+      Object.keys(divs).map((divKey) => {
+        const div: HTMLDivElement = divs[divKey];
+        const divStyle = window.getComputedStyle(div);
+        const divStyleBgImage = divStyle.backgroundImage;
+        if (divStyleBgImage && divStyleBgImage.match(/url.*jpg/)) {
+          div.classList.add("no-dark");
         }
       });
     });
