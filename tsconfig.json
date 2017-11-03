@@ -12,6 +12,7 @@
         "noImplicitAny": false,
         "noImplicitReturns": true,
         "noUnusedParameters": true,
+        "lib": ["ES6", "dom"]
     },
     "include": [
         "src/**/*"
