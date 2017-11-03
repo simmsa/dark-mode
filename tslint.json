@@ -1,6 +1,17 @@
 {
     "extends": ["tslint:latest", "tslint-react"],
     "rules": {
-        "arrow-parens": false
+        "arrow-parens": false,
+        "interface-name": false,
+        "member-ordering": [true, {
+          "order": [
+            "static-field",
+            "static-method",
+            "constructor",
+            "private-instance-method",
+            "protected-instance-method",
+            "public-instance-method"
+          ]
+        }]
     }
 }
