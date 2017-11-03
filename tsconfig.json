@@ -1,10 +1,10 @@
 {
     "compilerOptions":{
+        "target": "es5",
         "rootDir": "src",
         "outDir": "build",
         "jsx": "react",
-        "module": "umd",
-        "strict": true
+        "module": "commonjs",
         "skipLibCheck": true,
         "strict": true,
         "noImplicitThis": true,
