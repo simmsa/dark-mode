@@ -121,7 +121,7 @@ class ContentAction {
       cssString = CssBuilder.buildForIFrame(
         state.Dark,
         state.Hue,
-        state.Contrast,
+        CssBuilder.iFrameContrast,
         state.BaseFrameIsDark,
       );
       // The state that we get for iframes has to do with how many
