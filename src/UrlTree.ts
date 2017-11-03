@@ -56,17 +56,12 @@ class UrlTree {
         frames.map((frame) => {
           const frameId = frame.frameId;
           this.tree[thisTabId][frameId] = {
-            url: frame.url,
             parentId: frame.parentFrameId,
+            url: frame.url,
           };
         });
       }
-      // for (var frame in frames) {
-      //   this.tree[thisTabId][frames[frame].frameId] = {
-      //     url: frames[frame].url,
-      //     parentId: frames[frame].parentFrameId,
-      //   };
-      // }
+
       if (callback !== undefined) {
         callback();
       }
@@ -96,8 +91,8 @@ class UrlTree {
 
     if (frameId === 0) {
       this.tree[tabId][frameId] = {
-        url,
         parentId: -1,
+        url,
       };
     }
 
@@ -112,9 +107,8 @@ class UrlTree {
     // }
 
     this.tree[tabId][frameId] = {
+      parentId: utils.ParseIntBase10(tabData[parentUrl]),
       url,
-      // "parentUrl": parentUrl,
-      parentId: ParseIntBase10(tabData[parentUrl]),
     };
   }
 
