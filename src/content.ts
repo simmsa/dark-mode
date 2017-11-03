@@ -124,9 +124,9 @@ class DarkModeContentManager {
   }
 
   private initAutoDarkEvent(): void {
-    document.addEventListener("DOMContentLoaded", event => {
-      ContentSender.sendCheckAutoDark(this.parentUrl, document.URL);
-    });
+    // document.addEventListener("DOMContentLoaded", () => {
+    //   ContentSender.sendCheckAutoDark(this.parentUrl, document.URL);
+    // });
   }
 
   private updateAttributes(darkModeActive?: boolean) {
