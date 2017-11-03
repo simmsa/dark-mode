@@ -16,5 +16,12 @@
     "ts-node": "^3.3.0",
     "typescript": "^2.6.1",
     "webpack": "^3.8.1"
+  },
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "resemblejs": "^2.2.6",
+    "urijs": "^1.19.0"
   }
 }
