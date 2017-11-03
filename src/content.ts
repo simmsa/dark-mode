@@ -6,6 +6,7 @@ class DarkModeContentManager {
 
   private addIsDarkClassToElementsWithBackgroundImage() {
   constructor() {
+    this.requestState();
     this.updateAttributes();
     this.setParentUrl();
     if (window.location !== window.parent.location) {
@@ -18,7 +19,6 @@ class DarkModeContentManager {
       // Only send auto dark message from the parent page
       this.initAutoDarkEvent();
     }
-    this.requestState();
     this.addIsDarkClassToElementsWithBackgroundImage();
   }
 
