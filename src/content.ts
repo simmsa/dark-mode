@@ -1,9 +1,4 @@
-//  Typings ---------------------------------------------------------------- {{{
-
-/// <reference path="../typings/tsd.d.ts" />
-/// <reference path="ContentSender.ts" />
-
-//  End Typings ------------------------------------------------------------ }}}
+import ContentSender from "./ContentSender";
 
 class DarkModeContentManager {
   parentUrl: string;
