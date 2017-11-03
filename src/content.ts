@@ -42,7 +42,7 @@ class DarkModeContentManager {
   }
 
   private setDarkAttribute(newAttribute: string, value: any): void {
-    var prefix = "data-dark-mode";
+    let prefix = "data-dark-mode";
     if (newAttribute !== "") {
       prefix += "-";
     }
