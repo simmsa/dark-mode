@@ -15,6 +15,7 @@ class DarkModeContentManager {
       // Only send auto dark message from the parent page
       this.initAutoDarkEvent();
     }
+    this.setIFramesDark();
     this.addIsDarkClassToElementsWithBackgroundImage();
   }
 
@@ -48,79 +49,27 @@ class DarkModeContentManager {
     }
 
     document.documentElement.setAttribute(prefix + newAttribute, value);
-
-    jQuery(window).bind("load", function() {
-      if (this.isDark) {
-        var shadowDomElements = document.querySelectorAll("twitterwidget");
-        for (var x = 0; x < shadowDomElements.length; x++) {
-          if (
-            shadowDomElements[x].attributes.getNamedItem(
-              "data-dark-mode-active",
-            ) !== null
-          )
-            return;
-          shadowDomElements[x].setAttribute("data-dark-mode-active", "true");
-          shadowDomElements[x].setAttribute("data-dark-mode-iframe", "true");
-          var css = document.createElement("style");
-          css.innerHTML = "img { filter: invert(100%) hue-rotate(180deg) }";
-          shadowDomElements[x].shadowRoot.appendChild(css);
-        }
-      }
-    });
-
-    jQuery("iframe").ready(function() {
-      jQuery("iframe").each(function(index, elem) {
-        try {
-          jQuery(this)
-            .contents()
-            .find("html")
-            .attr(prefix + newAttribute, value);
-          jQuery(this)
-            .contents()
-            .find("html")
-            .attr(prefix + "iframe", "true");
-        } catch (e) {
-          if (e instanceof DOMException) {
-            // Ignore the cross domain error!
-          }
-        }
-      });
-    });
   }
 
   private setIFramesDark() {
-    var allFrames = document.querySelectorAll("iframe");
-    var darkCss = CssBuilder.buildForBaseFrame(true, true, 85);
+    // DOMFrameContentLoaded is the right event? but causes the background to
+    // flicker when iframes are loaded/unloaded
+    // document.addEventListener("DOMFrameContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
+      const iframes = document.querySelectorAll("iframe");
+      Object.keys(iframes).map((iframeKey) => {
+        const iframe: HTMLIFrameElement = iframes[iframeKey];
 
-    for (var i = 0; i < allFrames.length; i++) {
-      try {
-        // Add the attributes
-        allFrames[i]["contentWindow"].document.documentElement.setAttribute(
-          "data-dark-mode-active",
-          active,
-        );
-        allFrames[i]["contentWindow"].document.documentElement.setAttribute(
-          "data-dark-mode-iframe",
-          "true",
-        );
+        const darkModeActiveAttr: Attr = document.createAttribute("data-dark-mode-active");
+        darkModeActiveAttr.value = "true";
 
-        // Add the styles to the end of the head
-        var styleTag = document.createElement("style");
-        styleTag.type = "text/css";
-        styleTag.appendChild(document.createTextNode(darkCss));
+        const darkModeIFrameAttr: Attr = document.createAttribute("data-dark-mode-iframe");
+        darkModeIFrameAttr.value = "true";
 
-        allFrames[i]["contentWindow"].document.head.appendChild(styleTag);
-      } catch (e) {
-        if (e instanceof DOMException) {
-          // Ignore the cross domain exception
-        } else {
-          console.log(
-            "Dark Mode: Error when trying to add attribute to html element that is not a DOMException!: " +
-              e,
-          );
-        }
-      }
-    }
+        iframe.attributes.setNamedItem(darkModeActiveAttr);
+        iframe.attributes.setNamedItem(darkModeIFrameAttr);
+      });
+    });
   }
 
   private initAutoDarkEvent(): void {
