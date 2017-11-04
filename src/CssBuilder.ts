@@ -1,4 +1,4 @@
-class CssBuilder {
+export default class CssBuilder {
   //  Element Creation and Selection -------------------------------------{{{
 
   static filter = "-webkit-filter";
