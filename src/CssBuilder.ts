@@ -1,6 +1,8 @@
 export default class CssBuilder {
   //  Element Creation and Selection -------------------------------------{{{
 
+  public static iFrameContrast = 100;
+  public static defaultContrast = 85;
   private static filter = "-webkit-filter";
 
   // Elements that should not be inverted
@@ -78,9 +80,6 @@ export default class CssBuilder {
       return "";
     }
 
-    // var contrastUnInvert = 100 + (100 - Contrast);
-    var contrastUnInvert = 100;
-
     return `
 @media screen {
     ${CssBuilder.darkSelector(Dark, false, [])}{
@@ -89,11 +88,11 @@ export default class CssBuilder {
     }
 
     ${CssBuilder.darkSelector(Dark, false, CssBuilder.unInvertElements)} {
-        ${CssBuilder.buildFilter(Dark, Hue, contrastUnInvert)}
+        ${CssBuilder.buildFilter(Dark, Hue, CssBuilder.iFrameContrast)}
     }
 
     ${CssBuilder.darkSelector(Dark, false, CssBuilder.unUnInvertElements)} {
-        ${CssBuilder.buildFilter(!Dark, Hue, 100)}
+        ${CssBuilder.buildFilter(!Dark, Hue, CssBuilder.iFrameContrast)}
     }
 }`;
   }
@@ -130,15 +129,15 @@ export default class CssBuilder {
     return `
 @media screen {
     ${CssBuilder.darkSelector(true, true, [])}{
-        ${CssBuilder.buildFilter(Dark, Hue, 100)}
+        ${CssBuilder.buildFilter(Dark, Hue, Contrast || CssBuilder.iFrameContrast)}
     }
 
     ${CssBuilder.darkSelector(true, true, CssBuilder.iFrameUnInvertElements)} {
-        ${CssBuilder.buildFilter(!Dark, !Hue, 100)}
+        ${CssBuilder.buildFilter(!Dark, !Hue, Contrast || CssBuilder.iFrameContrast)}
     }
 
     ${CssBuilder.darkSelector(true, true, CssBuilder.unUnInvertElements)} {
-        ${CssBuilder.buildFilter(Dark, Hue, 100)}
+        ${CssBuilder.buildFilter(Dark, Hue, Contrast || CssBuilder.iFrameContrast)}
     }
 }`;
   }
@@ -151,8 +150,9 @@ export default class CssBuilder {
 // Allows for creating the default styles/css/dark-mode.css file from gulp
 try {
   if (require.main === module) {
-    console.log(CssBuilder.buildForBaseFrame(true, true, 85));
-    console.log(CssBuilder.buildForIFrame(false, false, 85, true));
+    // tslint:disable:no-console
+    console.log(CssBuilder.buildForBaseFrame(true, true, CssBuilder.defaultContrast));
+    console.log(CssBuilder.buildForIFrame(false, false, CssBuilder.iFrameContrast, true));
   }
 } catch (e) {
   if (e instanceof ReferenceError) {
