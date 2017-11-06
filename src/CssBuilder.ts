@@ -85,7 +85,7 @@ export default class CssBuilder {
 @media screen {
     ${CssBuilder.darkSelector(Dark, false, [])}{
         ${CssBuilder.buildFilter(Dark, Hue, Contrast)}
-        background-color: #171717;
+        background-color: #000000;
     }
 
     ${CssBuilder.darkSelector(Dark, false, CssBuilder.unInvertElements)} {
