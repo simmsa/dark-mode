@@ -1,12 +1,12 @@
 export default class CssBuilder {
   //  Element Creation and Selection -------------------------------------{{{
 
-  static filter = "-webkit-filter";
+  private static filter = "-webkit-filter";
 
   // Elements that should not be inverted
   // To fix this specific elements are uninverted, with another `filter: invert()`.
   // Effectively inverting an element to 200% or back to normal
-  static unInvertElements = [
+  private static unInvertElements = [
     ".no-dark",
     ".no-dark > *",
     "img",
@@ -22,7 +22,7 @@ export default class CssBuilder {
     'body div[style*=url] > * embed[type="application/x-shockwave-flash"]',
   ];
 
-  static iFrameUnInvertElements = [
+  private static iFrameUnInvertElements = [
     "img",
     "video", // Fixes twitter embedded videos, but has other side effects?
     "body *[style*=url]",
@@ -31,7 +31,7 @@ export default class CssBuilder {
   ];
 
   // Edge cases that need to be un un inverted
-  static unUnInvertElements = [
+  private static unUnInvertElements = [
     // Google search input
     "body input[style*=transparent]",
     "body *[style*=url] img",
@@ -40,7 +40,7 @@ export default class CssBuilder {
     'body *[style*=url] embed[type="application/x-shockwave-flash"]',
   ];
 
-  static buildSelector(selector: string, elements: string[]): string {
+  private static buildSelector(selector: string, elements: string[]): string {
     if (elements.length === 0) {
       return selector + " ";
     }
@@ -57,19 +57,19 @@ export default class CssBuilder {
     return CssBuilder.buildSelector(selector, elements);
   }
 
-  static buildFilter(invert?: boolean, hue?: boolean, contrast?: number) {
+  public static buildFilter(invert?: boolean, hue?: boolean, contrast?: number) {
     if (invert === undefined && hue === undefined && contrast === undefined) {
       return `${CssBuilder.filter}: none !important;`;
     }
-    var invertStr = invert ? "invert()" : "invert(0%)";
-    var hueStr = hue ? "180deg" : "0deg";
+    const invertStr = invert ? "invert()" : "invert(0%)";
+    const hueStr = hue ? "180deg" : "0deg";
     return `${CssBuilder.filter}: ${invertStr} hue-rotate(${hueStr}) contrast(${contrast}%) !important;`;
   }
 
   //  End Element Creation and Selection ---------------------------------}}}
   //  Base Frame ---------------------------------------------------------{{{
 
-  static buildForBaseFrame(
+  public static buildForBaseFrame(
     Dark: boolean,
     Hue: boolean,
     Contrast: number,
@@ -101,7 +101,7 @@ export default class CssBuilder {
   //  End Base Frame -----------------------------------------------------}}}
   //  Iframe -------------------------------------------------------------{{{
 
-  static buildForIFrame(
+  public static buildForIFrame(
     Dark: boolean,
     Hue: boolean,
     Contrast: number,
