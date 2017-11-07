@@ -33,6 +33,12 @@ class UrlSettingsCollapse extends React.Component<
   private tooltipHtmlId: string;
   private tooltipjQueryId: string;
 
+  private setupTooltip() {
+    $(this.tooltipjQueryId).tooltip({
+      title: this.props.tooltipValue,
+    });
+  }
+
   public  componentWillMount() {
     this.tooltipHtmlId = this.props.identifier + "Tooltip";
     this.tooltipjQueryId = "#" + this.tooltipHtmlId;
@@ -40,12 +46,6 @@ class UrlSettingsCollapse extends React.Component<
 
   public componentDidMount() {
     this.setupTooltip();
-  }
-
-  setupTooltip() {
-    $(this.tooltipjQueryId).tooltip({
-      title: this.props.tooltipValue,
-    });
   }
 
   public render() {
@@ -496,6 +496,15 @@ interface ResetButtonProps {
 }
 
 class ResetButton extends React.Component<ResetButtonProps, {}> {
+  private sendResetMessage() {
+    Message.send(
+      Message.Sender.Popup,
+      Message.Receiver.Background,
+      Message.Intent.ResetGroup,
+      this.props.group,
+    );
+  }
+
   public render() {
     return (
       <div className="form-group">
@@ -509,15 +518,6 @@ class ResetButton extends React.Component<ResetButtonProps, {}> {
           </button>
         </div>
       </div>
-    );
-  }
-
-  sendResetMessage() {
-    Message.send(
-      Message.Sender.Popup,
-      Message.Receiver.Background,
-      Message.Intent.ResetGroup,
-      this.props.group,
     );
   }
 }
