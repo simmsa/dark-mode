@@ -10,7 +10,6 @@ export default class CssBuilder {
   // Effectively inverting an element to 200% or back to normal
   private static unInvertElements = [
     ".no-dark",
-    ".no-dark > *",
     "img",
     "video",
     "body *[style*=url]",
@@ -22,6 +21,10 @@ export default class CssBuilder {
     "body div[style*=url] > * video",
     'body div[style*=url] > * object[type="application/x-shockwave-flash"]',
     'body div[style*=url] > * embed[type="application/x-shockwave-flash"]',
+  ];
+
+  private static specialCases = [
+    ".no-dark img",
   ];
 
   private static iFrameUnInvertElements = [
@@ -85,6 +88,10 @@ export default class CssBuilder {
     ${CssBuilder.darkSelector(Dark, false, [])}{
         ${CssBuilder.buildFilter(Dark, Hue, Contrast)}
         background-color: #000000;
+    }
+
+    ${CssBuilder.darkSelector(Dark, false, CssBuilder.specialCases)} {
+        ${CssBuilder.buildFilter(!Dark, !Hue, CssBuilder.iFrameContrast)}
     }
 
     ${CssBuilder.darkSelector(Dark, false, CssBuilder.unInvertElements)} {
