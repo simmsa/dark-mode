@@ -51,10 +51,10 @@ export default class CssBuilder {
     }
 
     return elements
-      .map((element, index) => {
+      .map((element) => {
         return `${selector} ${element}`;
       })
-      .join(", ");
+      .join(",\n    ");
   }
 
   static darkSelector(isDark: boolean, isIFrame: boolean, elements: string[]) {
