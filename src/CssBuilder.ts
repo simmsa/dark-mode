@@ -57,8 +57,15 @@ export default class CssBuilder {
       .join(",\n    ");
   }
 
-  static darkSelector(isDark: boolean, isIFrame: boolean, elements: string[]) {
-    var selector = `html[data-dark-mode-active="${isDark}"][data-dark-mode-iframe="${isIFrame}"]:not(*:-webkit-full-screen-ancestor):not(img)`;
+  private static darkSelector(isDark: boolean, isIFrame: boolean, elements: string[]) {
+    const selector =
+      `html[data-dark-mode-active="${
+        isDark}"][data-dark-mode-iframe="${isIFrame}"]:not(*:-webkit-full-screen-ancestor):not(img)`;
+    return CssBuilder.buildSelector(selector, elements);
+  }
+
+  private static shadowRootSelector(elements: string[]) {
+    const selector = "twitterwidget::shadow";
     return CssBuilder.buildSelector(selector, elements);
   }
 
@@ -95,6 +102,10 @@ export default class CssBuilder {
     }
 
     ${CssBuilder.darkSelector(Dark, false, CssBuilder.unInvertElements)} {
+        ${CssBuilder.buildFilter(Dark, Hue, CssBuilder.iFrameContrast)}
+    }
+
+    ${CssBuilder.shadowRootSelector(CssBuilder.unInvertElements)}{
         ${CssBuilder.buildFilter(Dark, Hue, CssBuilder.iFrameContrast)}
     }
 
