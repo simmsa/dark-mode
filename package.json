@@ -2,6 +2,7 @@
   "version": "0.3.0",
   "scripts": {
     "css": "ts-node src/CssBuilder.ts > styles/css/dark-mode.css",
+    "incrementVersion": "ts-node src/incrementVersion.ts",
     "less": "for file in styles/less/*.less; do lessc $file styles/css/`basename $file .less`.css ; done",
     "webpack": "webpack --config src/webpack.config.ts",
     "build": "npm run css && npm run less && npm run webpack"
@@ -12,7 +13,10 @@
     "@types/react": "^16.0.19",
     "@types/webpack": "^3.0.14",
     "crx-webpack-plugin": "^0.1.5",
+    "inquirer": "^3.3.0",
+    "jsonfile": "^4.0.0",
     "less": "^2.7.3",
+    "semver": "^5.4.1",
     "ts-loader": "^3.1.1",
     "ts-node": "^3.3.0",
     "typescript": "^2.6.1",
