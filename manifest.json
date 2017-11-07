@@ -1,53 +1,59 @@
 {
-    "manifest_version": 2,
-    "name": "Dark Mode - Rest your eyes",
-    "version": "0.3.0",
-
-    "content_scripts": [
-        {
-            "matches": ["<all_urls>"],
-            "js":  ["dist/content-bundle.js"],
-            "run_at": "document_start",
-            "css": ["styles/css/dark-mode.css"],
-
-            "all_frames": true,
-            "match_about_blank": true
-        }
-    ],
-    "background": {
-        "scripts": ["dist/background-bundle.js"]
-    },
-    "web_accessible_resources": [
+  "manifest_version": 2,
+  "name": "Dark Mode - Rest your eyes",
+  "version": "0.3.1",
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "dist/content-bundle.js"
+      ],
+      "run_at": "document_start",
+      "css": [
         "styles/css/dark-mode.css"
-    ],
-    "description": "Make websites easier on your eyes.",
-    "icons": {
-        "128": "img/dark-mode-on-128.png",
-        "48": "img/dark-mode-on-48.png",
-        "16": "img/dark-mode-on-16.png"
-    },
-    "browser_action": {
-        "default_icon": "img/dark-mode-on-48.png",
-        "default_title": "Dark mode settings",
-        "default_popup": "index.html"
-    },
-    "permissions": [
-        "tabs",
-        "storage",
-        "contextMenus",
-        "activeTab",
-        "http://*/*",
-        "https://*/*",
-        "<all_urls>",
-        "notifications",
-        "webNavigation"
-    ],
-    "commands": {
-        "toggle-dark-mode": {
-            "suggested_key": {
-                "default": "Ctrl+Shift+I"
-            },
-            "description": "Toggle dark mode"
-        }
+      ],
+      "all_frames": true,
+      "match_about_blank": true
     }
+  ],
+  "background": {
+    "scripts": [
+      "dist/background-bundle.js"
+    ]
+  },
+  "web_accessible_resources": [
+    "styles/css/dark-mode.css"
+  ],
+  "description": "Make websites easier on your eyes.",
+  "icons": {
+    "16": "img/dark-mode-on-16.png",
+    "48": "img/dark-mode-on-48.png",
+    "128": "img/dark-mode-on-128.png"
+  },
+  "browser_action": {
+    "default_icon": "img/dark-mode-on-48.png",
+    "default_title": "Dark mode settings",
+    "default_popup": "index.html"
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "contextMenus",
+    "activeTab",
+    "http://*/*",
+    "https://*/*",
+    "<all_urls>",
+    "notifications",
+    "webNavigation"
+  ],
+  "commands": {
+    "toggle-dark-mode": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+I"
+      },
+      "description": "Toggle dark mode"
+    }
+  }
 }

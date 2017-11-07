@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.3.1",
   "scripts": {
     "css": "ts-node src/CssBuilder.ts > styles/css/dark-mode.css",
     "incrementVersion": "ts-node src/incrementVersion.ts",
