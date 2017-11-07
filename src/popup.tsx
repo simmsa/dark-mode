@@ -30,15 +30,15 @@ class UrlSettingsCollapse extends React.Component<
   UrlSettingsCollapseProps,
   {}
 > {
-  tooltipHtmlId: string;
-  tooltipjQueryId: string;
+  private tooltipHtmlId: string;
+  private tooltipjQueryId: string;
 
-  componentWillMount() {
+  public  componentWillMount() {
     this.tooltipHtmlId = this.props.identifier + "Tooltip";
     this.tooltipjQueryId = "#" + this.tooltipHtmlId;
   }
 
-  componentDidMount() {
+  public componentDidMount() {
     this.setupTooltip();
   }
 
@@ -48,7 +48,7 @@ class UrlSettingsCollapse extends React.Component<
     });
   }
 
-  render() {
+  public render() {
     return (
       <div className="panel panel-default">
         <div
@@ -133,11 +133,12 @@ interface GlobalSettingsCollapseProps {
   keyboardShortcut: string;
 }
 
+// tslint:disable:max-classes-per-file
 class GlobalSettingsCollapse extends React.Component<
   GlobalSettingsCollapseProps,
   {}
 > {
-  render() {
+  public render() {
     return (
       <div className="panel panel-default">
         <div className="panel-heading" role="tab" id="headingThree">
@@ -469,7 +470,7 @@ class ToggleSlider extends React.Component<ToggleSliderProps, {}> {
     );
   }
 
-  render() {
+  public render() {
     return (
       <div className="form-group">
         <label
@@ -495,7 +496,7 @@ interface ResetButtonProps {
 }
 
 class ResetButton extends React.Component<ResetButtonProps, {}> {
-  render() {
+  public render() {
     return (
       <div className="form-group">
         <div className="col-xs-12">
