@@ -1,3 +1,5 @@
+import * as utils from "./utils";
+
 // tslint:disable:no-console
 class UrlTree {
   private tree: any;
@@ -131,25 +133,20 @@ class UrlTree {
   }
 
   public getAllFrameData(tabId: number): any {
-    const result = [];
-
-    if (this.tree[tabId] === undefined) {
-      return [];
-    }
-
     const tabData = this.tree[tabId];
     console.log("tabData: ", tabData);
 
-    // tslint:disable:forin
-    for (const frameId in tabData) {
-      const frameIdNumber = ParseIntBase10(frameId);
-      result.push({
-        frameId: frameIdNumber,
-        parentUrls: this.getParentUrls(tabId, frameIdNumber),
-      });
+    if (tabData === undefined) {
+      return [];
     }
 
-    return result;
+    return Object.keys(tabData).map((key) => {
+      const frameId = utils.ParseIntBase10(key);
+      return {
+        frameId,
+        parentUrls: this.getParentUrls(tabId, frameId),
+      };
+    });
   }
 
   public isBaseFrame(tabId: number, frameId: number): boolean {
