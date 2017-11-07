@@ -111,7 +111,7 @@ export default class CssBuilder {
     Dark: boolean,
     Hue: boolean,
     Contrast: number,
-    BaseFrameIsDark: boolean,
+    BaseFrameIsDark: boolean | undefined,
   ): string {
     if (!BaseFrameIsDark) {
       // Kill every inversion
