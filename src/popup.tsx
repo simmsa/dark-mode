@@ -1,11 +1,11 @@
-//  Typings ---------------------------------------------------------------- {{{
+// Right now jquery is loaded as an external library, don't include it here
+// import * as $ from "jquery";
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 
-/// <reference path="../typings/tsd.d.ts" />
-/// <reference path="SettingId.ts" />
-/// <reference path="Message.ts" />
-/// <reference path="DefaultState.ts" />
-
-//  End Typings ------------------------------------------------------------ }}}
+import DefaultState from "./DefaultState";
+import Message from "./Message";
+import SettingId from "./SettingId";
 
 const capitalize = (s: string): string => {
   try {
