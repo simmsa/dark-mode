@@ -496,6 +496,11 @@ interface ResetButtonProps {
 }
 
 class ResetButton extends React.Component<ResetButtonProps, {}> {
+  constructor(props) {
+    super(props);
+    this.sendResetMessage = this.sendResetMessage.bind(this);
+  }
+
   private sendResetMessage() {
     Message.send(
       Message.Sender.Popup,
@@ -512,7 +517,7 @@ class ResetButton extends React.Component<ResetButtonProps, {}> {
           <button
             type="button"
             className="btn btn-danger btn-small reset-button"
-            onClick={this.sendResetMessage.bind(this)}
+            onClick={this.sendResetMessage}
           >
             {this.props.buttonText}
           </button>
