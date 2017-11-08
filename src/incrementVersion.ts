@@ -15,7 +15,6 @@ incrementChoices["major '" + semver.inc(currentVersion, "major") + "'"] = "major
 
 const filesToCommit = ["package.json", "package-lock.json", "manifest.json"];
 
-// tslint:disable:no-console
 const updatePackageVersionInFile = (fname, versionNumber) => {
   const currentPackage = require(`../${fname}`);
 
@@ -32,37 +31,81 @@ const hasCleanGitStatus = () => {
   return status === "";
 };
 
-if (hasCleanGitStatus()) {
-  inquirer.prompt({
+// tslint:disable:no-console
+const main = async () => {
+  if (!hasCleanGitStatus()) {
+    console.log("This command needs a clean git status, please commit then try again!");
+    return;
+  }
+
+  const nextVersionChoice = (await inquirer.prompt({
     choices: Object.keys(incrementChoices),
     message: "Updating current version: " + currentVersion + "\nChoose the versioning increment",
     name: "versionIncrement",
     type: "list",
-  })
-  .then((answer) => {
-    console.log(answer.versionIncrement);
-    const newVersion = semver.inc(currentVersion, incrementChoices[answer.versionIncrement]);
-    inquirer.prompt({
-      message: "What features are included in version " + newVersion + ":",
-      name: "commitNote",
+  })).versionIncrement;
+
+  const nextVersionNumber: string = semver.inc(currentVersion, incrementChoices[nextVersionChoice]);
+
+  const commitLineNumChars = 72;
+
+  let commitTitleIsValid = false;
+  let commitTitle: string = "";
+
+  while (!commitTitleIsValid) {
+    commitTitle = (await inquirer.prompt({
+      message: "Add a title for version " + nextVersionNumber + ":",
+      name: "commitTitle",
       type: "input",
-    })
-    .then((nextAnswer) => {
-      filesToCommit.map((fname) => {
-        updatePackageVersionInFile(fname, newVersion);
-      });
+    })).commitTitle;
 
-      exec("git add " + filesToCommit.join(" "), {encoding: "utf8"});
-      exec(`git commit -m "v${newVersion}: ${nextAnswer.commitNote}"`);
-      exec("git tag " + "v" + newVersion);
-      console.log("Updated version to " + newVersion + " with message " + nextAnswer.commitNote);
-    }).catch((error) => {
-      console.log("Inner error", error);
-    });
+    if (commitTitle.length  + nextVersionNumber.length > commitLineNumChars) {
+      console.log("Commit title is too long! Please try again");
+    } else {
+      commitTitleIsValid = true;
+    }
+  }
 
-  }).catch((error) => {
-    console.log("Unable to update version! Error: ", error);
+  let readBulletPoint = true;
+  const bulletPoints: string[] = [];
+
+  while (readBulletPoint) {
+    const bulletPoint = (await inquirer.prompt({
+      message: "Add a bullet point for " + nextVersionNumber + ". Press x to exit:\n",
+      name: "bulletPoint",
+      type: "input",
+    })).bulletPoint;
+
+    if (bulletPoint === "x") {
+      readBulletPoint = false;
+    } else {
+      // Use `fold` to elegantly wrap text
+      const formattedBulletPoint = exec(`echo "${bulletPoint}" | fold -s -w ${commitLineNumChars}`).toString();
+      bulletPoints.push(formattedBulletPoint);
+    }
+  }
+
+  const formattedBulletPoints = bulletPoints.map((point) => {
+    return `* ${point}`;
+  }).join("\n");
+
+  const completeCommit = `v${nextVersionNumber}: ${commitTitle}\n\n${formattedBulletPoints}`;
+
+  filesToCommit.map((fname) => {
+    updatePackageVersionInFile(fname, nextVersionNumber);
   });
-} else {
-  console.log("This command needs a clean git status, please commit then try again!");
-}
+
+  exec("git add " + filesToCommit.join(" "), {encoding: "utf8"});
+  exec(`git commit -m "${completeCommit}"`);
+  exec("git tag " + "v" + nextVersionNumber);
+
+  exec(`echo "${formattedBulletPoints}" | pbcopy`);
+
+  console.log(`Updated ${currentVersion} -> ${nextVersionNumber} with message:\n${completeCommit}`);
+  console.log("Copied bullet points to the clipboard!");
+};
+
+(async () => {
+  await main();
+  process.exit(0);
+})();
