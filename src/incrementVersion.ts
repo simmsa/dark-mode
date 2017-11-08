@@ -3,10 +3,13 @@ import * as child_process from "child_process";
 import * as inquirer from "inquirer";
 import * as jsonfile from "jsonfile";
 import * as semver from "semver";
+import * as wordwrap from "wordwrap";
 
 // tslint:disable:no-var-requires
+const commitLineNumChars = 72;
 const currentVersion = require("../package").version;
 const exec = child_process.execSync;
+const wrap = wordwrap(commitLineNumChars);
 
 const incrementChoices = {};
 incrementChoices["patch '" + semver.inc(currentVersion, "patch") + "'"] = "patch";
@@ -28,7 +31,7 @@ const updatePackageVersionInFile = (fname, versionNumber) => {
 
 const hasCleanGitStatus = () => {
   const status = exec("git status --porcelain", {encoding: "utf8"}).trim();
-  return status === "";
+  return status !== "";
 };
 
 // tslint:disable:no-console
@@ -46,8 +49,6 @@ const main = async () => {
   })).versionIncrement;
 
   const nextVersionNumber: string = semver.inc(currentVersion, incrementChoices[nextVersionChoice]);
-
-  const commitLineNumChars = 72;
 
   let commitTitleIsValid = false;
   let commitTitle: string = "";
@@ -70,7 +71,7 @@ const main = async () => {
   const bulletPoints: string[] = [];
 
   while (readBulletPoint) {
-    const bulletPoint = (await inquirer.prompt({
+    const bulletPoint: string = (await inquirer.prompt({
       message: "Add a bullet point for " + nextVersionNumber + ". Press x to exit:\n",
       name: "bulletPoint",
       type: "input",
@@ -79,9 +80,8 @@ const main = async () => {
     if (bulletPoint === "x") {
       readBulletPoint = false;
     } else {
-      // Use `fold` to elegantly wrap text
-      const formattedBulletPoint = exec(`echo "${bulletPoint}" | fold -s -w ${commitLineNumChars}`).toString();
-      bulletPoints.push(formattedBulletPoint);
+      const wrappedBulletPoint = wrap(bulletPoint);
+      bulletPoints.push(wrappedBulletPoint);
     }
   }
 
