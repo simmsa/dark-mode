@@ -1,5 +1,5 @@
 {
-  "version": "0.3.1",
+  "version": "0.3.2",
   "scripts": {
     "css": "ts-node src/CssBuilder.ts > styles/css/dark-mode.css",
     "incrementVersion": "ts-node src/incrementVersion.ts",
@@ -20,10 +20,12 @@
     "ts-loader": "^3.1.1",
     "ts-node": "^3.3.0",
     "typescript": "^2.6.1",
-    "webpack": "^3.8.1"
+    "webpack": "^3.8.1",
+    "wordwrap": "^1.0.0"
   },
   "dependencies": {
     "jquery": "^3.2.1",
+    "node-fetch": "^1.7.3",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "resemblejs": "^2.2.6",
