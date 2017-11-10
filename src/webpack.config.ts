@@ -13,7 +13,7 @@ const config = (env: any): webpack.Configuration => {
     entry: {
       background: "./src/background.ts",
       content: "./src/content.ts",
-      popup: "./src/popup.tsx",
+      popup: "./src/popup/index.tsx",
     },
     module: {
       rules: [

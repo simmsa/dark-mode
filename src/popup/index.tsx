@@ -3,9 +3,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import DefaultState from "./DefaultState";
-import Message from "./Message";
-import SettingId from "./SettingId";
+import DefaultState from "../DefaultState";
+import Message from "../Message";
+import SettingId from "../SettingId";
 
 const capitalize = (s: string): string => {
   try {
