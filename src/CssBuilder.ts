@@ -110,7 +110,7 @@ export default class CssBuilder {
     }
 
     ${CssBuilder.darkSelector(Dark, false, CssBuilder.unUnInvertElements)} {
-        ${CssBuilder.buildFilter(!Dark, Hue, CssBuilder.iFrameContrast)}
+        ${CssBuilder.buildFilter(!Dark, !Hue, CssBuilder.iFrameContrast)}
     }
 }`;
   }
