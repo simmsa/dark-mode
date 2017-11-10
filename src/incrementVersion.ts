@@ -1,13 +1,15 @@
 import * as child_process from "child_process";
 
+import * as dotenv from "dotenv";
 import * as inquirer from "inquirer";
 import * as jsonfile from "jsonfile";
+import fetch from "node-fetch";
 import * as semver from "semver";
 import * as wordwrap from "wordwrap";
 
 // tslint:disable:no-var-requires
-const commitLineNumChars = 72;
 const currentVersion = require("../package").version;
+const commitLineNumChars = 72;
 const exec = child_process.execSync;
 const wrap = wordwrap(commitLineNumChars);
 
@@ -31,7 +33,7 @@ const updatePackageVersionInFile = (fname, versionNumber) => {
 
 const hasCleanGitStatus = () => {
   const status = exec("git status --porcelain", {encoding: "utf8"}).trim();
-  return status !== "";
+  return status === "";
 };
 
 // tslint:disable:no-console
@@ -101,11 +103,78 @@ const main = async () => {
 
   exec(`echo "${formattedBulletPoints}" | pbcopy`);
 
-  console.log(`Updated ${currentVersion} -> ${nextVersionNumber} with message:\n${completeCommit}`);
-  console.log("Copied bullet points to the clipboard!");
+  console.log(`Committed ${currentVersion} -> ${nextVersionNumber} with message:\n${completeCommit}`);
+
+  const pushToMaster = (await inquirer.prompt({
+    message: "Should we push to origin?",
+    name: "shouldUpload",
+    type: "confirm",
+  })).shouldUpload;
+
+  if (pushToMaster) {
+    console.log("Pushing To Master");
+    exec("git push origin master");
+  }
+
+  const uploadToWeb = (await inquirer.prompt({
+    message: "Would you like to upload this to github as a release?",
+    name: "shouldUpload",
+    type: "confirm",
+  })).shouldUpload;
+
+  if (!uploadToWeb) {
+    return;
+  }
+
+  console.log(`Building ${nextVersionNumber}...`);
+  exec("npm run build");
+
+  const env = dotenv.config().parsed;
+  const ghToken = env.GITHUB_TOKEN;
+  const baseGitHubUrl = (accessPoint: string) => `https://${accessPoint}.github.com/repos/simmsa/dark-mode`;
+  const githubApiUrl = baseGitHubUrl("api");
+  const githubUploadUrl = baseGitHubUrl("uploads");
+
+  console.log("Uploading github release...");
+
+  const uploadResult = await fetch(`${githubApiUrl}/releases?access_token=${ghToken}`, {
+    body: JSON.stringify({
+      body: formattedBulletPoints,
+      draft: false,
+      name: commitTitle,
+      prerelease: false,
+      tag_name: `v${nextVersionNumber}`,
+    }),
+    method: "POST",
+  });
+
+  const uploadJson = await uploadResult.json();
+  const releaseId = uploadJson.id;
+
+  const successStatus = 201;
+  if (uploadResult.status !== successStatus) {
+    console.log("Failed github release upload!");
+    return;
+  }
+
+  console.log("Metadata uploaded successfully!");
+  console.log("Uploading release crx...");
+
+  const crxFName = `dark-mode-${nextVersionNumber.replace(/\./g, "-")}.crx`;
+  const crxFLocation = `ReleaseBuilds/${crxFName}`;
+
+  const uploadUrl = `${githubUploadUrl}/releases/${releaseId}/assets?name=${crxFName}`;
+
+  const contentType = '-H "Content-Type: application/zip"';
+  const auth = `-H "Authorization: token ${ghToken}"`;
+
+  // We use `curl` because `node-fetch` and the github api don't get along
+  // with file uploads. It seems to be related to chunked uploads and file
+  // streams
+  exec(`curl ${contentType} ${auth} --data-binary @${crxFLocation} ${uploadUrl}`);
 };
 
 (async () => {
   await main();
-  process.exit(0);
+  console.log("incrementVersion complete!");
 })();

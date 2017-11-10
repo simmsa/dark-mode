@@ -8,3 +8,4 @@ tags
 dist/
 ReleaseBuilds/
 key.pem
+.env

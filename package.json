@@ -14,9 +14,11 @@
   "devDependencies": {
     "@types/chrome": "0.0.52",
     "@types/node": "^8.0.47",
+    "@types/node-fetch": "^1.6.7",
     "@types/react": "^16.0.19",
     "@types/webpack": "^3.0.14",
     "crx-webpack-plugin": "^0.1.5",
+    "dotenv": "^4.0.0",
     "inquirer": "^3.3.0",
     "jsonfile": "^4.0.0",
     "less": "^2.7.3",
