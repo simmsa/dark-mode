@@ -6,7 +6,7 @@ function! BuildExtension()
 endfunction
 
 function! BuildWebpack()
-    call jobstart('npm run build', {'on_stderr': function('BufferStdErr'), 'on_exit': function('EchoErrors')})
+    call jobstart('npm run buildDev', {'on_stderr': function('BufferStdErr'), 'on_exit': function('EchoErrors')})
 endfunction
 
 function! BufferStdErr(job_id, data, event)
