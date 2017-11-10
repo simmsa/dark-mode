@@ -58,7 +58,6 @@ export default class Message {
       ) {
         if (typeof msgSender.tab !== "undefined") {
           callback(message, msgSender.tab.id, msgSender.frameId);
-          return;
         }
         callback(message);
       }
