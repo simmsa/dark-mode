@@ -13,6 +13,7 @@
             "protected-instance-method",
             "public-instance-method"
           ]
-        }]
+        }],
+        "jsx-no-multiline-js": false
     }
 }
