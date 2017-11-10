@@ -169,19 +169,17 @@ class BackgroundReceiver extends Message {
             break;
           case SettingId.Field.Dark:
             BackgroundReceiver.globalSettings.toggleDark();
-            BackgroundReceiver.updatePopupAndContent();
             break;
           case SettingId.Field.ShowNotifications:
             BackgroundReceiver.globalSettings.toggleShowNotifications();
-            BackgroundReceiver.updatePopupAndContent();
             break;
           case SettingId.Field.Hue:
             BackgroundReceiver.globalSettings.toggleHue();
-            BackgroundReceiver.updatePopupAndContent();
             break;
         }
         break;
     }
+    BackgroundReceiver.updatePopupAndContent();
   }
 
   public static updatePopupAndContent() {
