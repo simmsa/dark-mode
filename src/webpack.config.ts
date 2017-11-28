@@ -70,18 +70,6 @@ const config = (env: any): webpack.Configuration => {
           path.join(__dirname, "..", "img", "dark-mode-on-16.png"),
 
           path.join(__dirname, "..", "img", "dark-mode-logo-w-text.svg"),
-
-          path.join(__dirname, "..", "lib", "jquery.min.js"),
-
-          path.join(__dirname, "..", "bootstrap", "js", "bootstrap.min.js"),
-          path.join(__dirname, "..", "bootstrap", "js", "bootstrap-switch.min.js"),
-          path.join(__dirname, "..", "bootstrap", "js", "bootstrap-slider.js"),
-
-          path.join(__dirname, "..", "bootstrap", "css", "bootstrap.min.css"),
-          path.join(__dirname, "..", "bootstrap", "css", "bootstrap-switch.min.css"),
-          path.join(__dirname, "..", "bootstrap", "css", "bootstrap-slider.css"),
-
-          path.join(__dirname, "..", "bootstrap", "fonts", "glyphicons-halflings-regular.ttf"),
         ],
         keyFile: path.join(__dirname, "..", "key.pem"),
         name: `dark-mode-${packageJson.version.replace(/\./g, "-")}${env && env.development ? "-dev" : ""}`,
