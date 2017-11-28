@@ -23,9 +23,7 @@ export default class CssBuilder {
     'body div[style*=url] > * embed[type="application/x-shockwave-flash"]',
   ];
 
-  private static specialCases = [
-    ".no-dark img",
-  ];
+  private static specialCases = [".no-dark img"];
 
   private static iFrameUnInvertElements = [
     "img",
@@ -51,7 +49,7 @@ export default class CssBuilder {
     }
 
     return elements
-      .map((element) => {
+      .map(element => {
         return `${selector} ${element}`;
       })
       .join(",\n    ");
@@ -69,7 +67,11 @@ export default class CssBuilder {
     return CssBuilder.buildSelector(selector, elements);
   }
 
-  public static buildFilter(invert?: boolean, hue?: boolean, contrast?: number) {
+  public static buildFilter(
+    invert?: boolean,
+    hue?: boolean,
+    contrast?: number,
+  ) {
     if (invert === undefined && hue === undefined && contrast === undefined) {
       return `${CssBuilder.filter}: none !important;`;
     }
@@ -147,15 +149,27 @@ export default class CssBuilder {
     return `
 @media screen {
     ${CssBuilder.darkSelector(true, true, [])}{
-        ${CssBuilder.buildFilter(Dark, Hue, Contrast || CssBuilder.iFrameContrast)}
+        ${CssBuilder.buildFilter(
+          Dark,
+          Hue,
+          Contrast || CssBuilder.iFrameContrast,
+        )}
     }
 
     ${CssBuilder.darkSelector(true, true, CssBuilder.iFrameUnInvertElements)} {
-        ${CssBuilder.buildFilter(!Dark, !Hue, Contrast || CssBuilder.iFrameContrast)}
+        ${CssBuilder.buildFilter(
+          !Dark,
+          !Hue,
+          Contrast || CssBuilder.iFrameContrast,
+        )}
     }
 
     ${CssBuilder.darkSelector(true, true, CssBuilder.unUnInvertElements)} {
-        ${CssBuilder.buildFilter(Dark, Hue, Contrast || CssBuilder.iFrameContrast)}
+        ${CssBuilder.buildFilter(
+          Dark,
+          Hue,
+          Contrast || CssBuilder.iFrameContrast,
+        )}
     }
 }`;
   }
@@ -169,8 +183,12 @@ export default class CssBuilder {
 try {
   if (require.main === module) {
     // tslint:disable:no-console
-    console.log(CssBuilder.buildForBaseFrame(true, true, CssBuilder.defaultContrast));
-    console.log(CssBuilder.buildForIFrame(false, false, CssBuilder.iFrameContrast, true));
+    console.log(
+      CssBuilder.buildForBaseFrame(true, true, CssBuilder.defaultContrast),
+    );
+    console.log(
+      CssBuilder.buildForIFrame(false, false, CssBuilder.iFrameContrast, true),
+    );
   }
 } catch (e) {
   if (e instanceof ReferenceError) {
