@@ -23,7 +23,7 @@ class DarkModeContentManager {
   private addIsDarkClassToElementsWithBackgroundImage() {
     document.addEventListener("DOMContentLoaded", () => {
       const divs = document.querySelectorAll("div");
-      Object.keys(divs).map((divKey) => {
+      Object.keys(divs).map(divKey => {
         const div: HTMLDivElement = divs[divKey];
         const divStyle = window.getComputedStyle(div);
         const divStyleBgImage = divStyle.backgroundImage;
@@ -58,13 +58,17 @@ class DarkModeContentManager {
     // document.addEventListener("DOMFrameContentLoaded", () => {
     document.addEventListener("DOMContentLoaded", () => {
       const iframes = document.querySelectorAll("iframe");
-      Object.keys(iframes).map((iframeKey) => {
+      Object.keys(iframes).map(iframeKey => {
         const iframe: HTMLIFrameElement = iframes[iframeKey];
 
-        const darkModeActiveAttr: Attr = document.createAttribute("data-dark-mode-active");
+        const darkModeActiveAttr: Attr = document.createAttribute(
+          "data-dark-mode-active",
+        );
         darkModeActiveAttr.value = "true";
 
-        const darkModeIFrameAttr: Attr = document.createAttribute("data-dark-mode-iframe");
+        const darkModeIFrameAttr: Attr = document.createAttribute(
+          "data-dark-mode-iframe",
+        );
         darkModeIFrameAttr.value = "true";
 
         iframe.attributes.setNamedItem(darkModeActiveAttr);
