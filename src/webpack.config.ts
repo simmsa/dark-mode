@@ -72,7 +72,10 @@ const config = (env: any): webpack.Configuration => {
           path.join(__dirname, "..", "img", "dark-mode-logo-w-text.svg"),
         ],
         keyFile: path.join(__dirname, "..", "key.pem"),
-        name: `dark-mode-${packageJson.version.replace(/\./g, "-")}${env && env.development ? "-dev" : ""}`,
+        name: `dark-mode-${packageJson.version.replace(/\./g, "-")}${env &&
+        env.development
+          ? "-dev"
+          : ""}`,
         outputPath: path.join(__dirname, "..", "ReleaseBuilds"),
         updateUrl: "https://github.com/simmsa/dark-mode",
       }),
