@@ -32,11 +32,14 @@
     "wordwrap": "^1.0.0"
   },
   "dependencies": {
+    "color": "^2.0.1",
     "jquery": "^3.2.1",
+    "material-ui": "^1.0.0-beta.20",
     "node-fetch": "^1.7.3",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "resemblejs": "^2.2.6",
+    "typeface-roboto": "0.0.43",
     "urijs": "^1.19.0"
   }
 }
