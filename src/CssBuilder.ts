@@ -43,6 +43,11 @@ export default class CssBuilder {
     'body *[style*=url] embed[type="application/x-shockwave-flash"]',
   ];
 
+  private static siteRules = {
+    "blog.mozilla.org": ["#masthead"],
+    "example.com": [".test"],
+  };
+
   private static buildSelector(selector: string, elements: string[]): string {
     if (elements.length === 0) {
       return selector + " ";
@@ -55,16 +60,45 @@ export default class CssBuilder {
       .join(",\n    ");
   }
 
-  private static darkSelector(isDark: boolean, isIFrame: boolean, elements: string[]) {
-    const selector =
-      `html[data-dark-mode-active="${
-        isDark}"][data-dark-mode-iframe="${isIFrame}"]:not(*:-webkit-full-screen-ancestor):not(img)`;
+  private static darkSelector(
+    isDark: boolean,
+    isIFrame: boolean,
+    elements: string[],
+  ) {
+    // const selector = `html[data-dark-mode-active="${isDark}"][data-dark-mode-iframe="${isIFrame}"]
+    // :not(*:-webkit-full-screen-ancestor):not(img)`;
+    const selector = `html[data-dark-mode-active="${isDark}"][data-dark-mode-iframe="${isIFrame}"]`;
+    return CssBuilder.buildSelector(selector, elements);
+  }
+
+  private static siteSelector(url: string, elements: string[]): string {
+    const selector = `html[data-dark-mode-active="true"][data-dark-mode-url*="${url}"]`;
     return CssBuilder.buildSelector(selector, elements);
   }
 
   private static shadowRootSelector(elements: string[]) {
     const selector = "twitterwidget::shadow";
     return CssBuilder.buildSelector(selector, elements);
+  }
+
+  public static buildSiteRules(): string {
+    const invertRules = Object.keys(CssBuilder.siteRules)
+      .map(url => {
+        return `${CssBuilder.siteSelector(url, CssBuilder.siteRules[url])} {
+        ${CssBuilder.buildFilter(true, true, CssBuilder.iFrameContrast)}
+    }`;
+      })
+      .join("\n\n    ");
+
+    const unInvertRules = Object.keys(CssBuilder.siteRules)
+      .map(url => {
+        return `${CssBuilder.siteSelector(url, CssBuilder.siteRules[url])} > * {
+        ${CssBuilder.buildFilter(true, true, CssBuilder.iFrameContrast)}
+    }`;
+      })
+      .join("\n\n    ");
+
+    return invertRules + "\n\n    " + unInvertRules;
   }
 
   public static buildFilter(
@@ -98,6 +132,8 @@ export default class CssBuilder {
         ${CssBuilder.buildFilter(Dark, Hue, Contrast)}
         background-color: #000000;
     }
+
+    ${CssBuilder.buildSiteRules()}
 
     ${CssBuilder.darkSelector(Dark, false, CssBuilder.specialCases)} {
         ${CssBuilder.buildFilter(!Dark, !Hue, CssBuilder.iFrameContrast)}
