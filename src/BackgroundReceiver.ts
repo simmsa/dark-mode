@@ -30,8 +30,8 @@ class BackgroundReceiver extends Message {
     BackgroundReceiver.currentUrl = inputCurrentUrl;
     BackgroundReceiver.urlSettings = inputUrlSettings;
     BackgroundReceiver.globalSettings = inputGlobalSettings;
-    BackgroundReceiver.state = inputState,
-    BackgroundReceiver.autoDark = new AutoDark(inputGlobalSettings);
+    (BackgroundReceiver.state = inputState),
+      (BackgroundReceiver.autoDark = new AutoDark(inputGlobalSettings));
     BackgroundReceiver.receiveContentUrl();
     BackgroundReceiver.receiveAutoDark();
     BackgroundReceiver.receiveRequestState();
@@ -51,7 +51,11 @@ class BackgroundReceiver extends Message {
     );
   }
 
-  public static handleReceiveContentUrl(message: any, tabId: number | undefined, frameId: number | undefined) {
+  public static handleReceiveContentUrl(
+    message: any,
+    tabId: number | undefined,
+    frameId: number | undefined,
+  ) {
     if (tabId !== undefined && frameId !== undefined) {
       BackgroundReceiver.urlTree.updateTab(tabId, () => {
         ContentAction.checkDarkMode(new Url(message.Data.Url), tabId, frameId);
@@ -98,7 +102,10 @@ class BackgroundReceiver extends Message {
       message.Data.Url === message.Data.FrameUrl &&
       message.Data.Url === BackgroundReceiver.currentUrl.getFull()
     ) {
-      BackgroundReceiver.autoDark.check(BackgroundReceiver.currentUrl, BackgroundReceiver.urlSettings);
+      BackgroundReceiver.autoDark.check(
+        BackgroundReceiver.currentUrl,
+        BackgroundReceiver.urlSettings,
+      );
     }
   }
 
@@ -117,9 +124,13 @@ class BackgroundReceiver extends Message {
   // public static handleRequestState(message: any) {
   public static handleRequestState() {
     BackgroundReceiver.state.update(
-      BackgroundReceiver.currentUrl, BackgroundReceiver.urlSettings, BackgroundReceiver.globalSettings, () => {
-      BackgroundSender.sendState(BackgroundReceiver.state);
-    });
+      BackgroundReceiver.currentUrl,
+      BackgroundReceiver.urlSettings,
+      BackgroundReceiver.globalSettings,
+      () => {
+        BackgroundSender.sendState(BackgroundReceiver.state);
+      },
+    );
   }
 
   //  End Receive Request State ------------------------------------------ }}}
@@ -184,10 +195,14 @@ class BackgroundReceiver extends Message {
 
   public static updatePopupAndContent() {
     BackgroundReceiver.state.update(
-      BackgroundReceiver.currentUrl, BackgroundReceiver.urlSettings, BackgroundReceiver.globalSettings, () => {
-      BackgroundSender.sendState(BackgroundReceiver.state);
-      ContentAction.checkDarkModeForActiveTab(BackgroundReceiver.currentUrl);
-    });
+      BackgroundReceiver.currentUrl,
+      BackgroundReceiver.urlSettings,
+      BackgroundReceiver.globalSettings,
+      () => {
+        BackgroundSender.sendState(BackgroundReceiver.state);
+        ContentAction.checkDarkModeForActiveTab(BackgroundReceiver.currentUrl);
+      },
+    );
   }
 
   //  End Receive Popup Toggle ------------------------------------------ }}}
@@ -218,7 +233,9 @@ class BackgroundReceiver extends Message {
         BackgroundReceiver.updatePopupAndContent();
         break;
       case SettingId.Group.StemUrl:
-        BackgroundReceiver.urlSettings.clearUrlStem(BackgroundReceiver.currentUrl);
+        BackgroundReceiver.urlSettings.clearUrlStem(
+          BackgroundReceiver.currentUrl,
+        );
         BackgroundReceiver.updatePopupAndContent();
         break;
       case SettingId.Group.Global:
@@ -249,7 +266,10 @@ class BackgroundReceiver extends Message {
         switch (message.Data.Field) {
           case SettingId.Field.Contrast:
             // Set Contrast value
-            BackgroundReceiver.urlSettings.setContrast(BackgroundReceiver.currentUrl, message.Data.Value);
+            BackgroundReceiver.urlSettings.setContrast(
+              BackgroundReceiver.currentUrl,
+              message.Data.Value,
+            );
             break;
         }
         break;
@@ -257,12 +277,16 @@ class BackgroundReceiver extends Message {
         switch (message.Data.Field) {
           case SettingId.Field.Contrast:
             // Set Contrast value for stem
-            BackgroundReceiver.urlSettings.setContrastStem(BackgroundReceiver.currentUrl, message.Data.Value);
+            BackgroundReceiver.urlSettings.setContrastStem(
+              BackgroundReceiver.currentUrl,
+              message.Data.Value,
+            );
             break;
         }
         break;
     }
 
+    BackgroundReceiver.updatePopupAndContent();
     ContentAction.checkDarkModeForActiveTab(BackgroundReceiver.currentUrl);
   }
 
