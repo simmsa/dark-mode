@@ -7,11 +7,8 @@ import DefaultState from "../DefaultState";
 import Message from "../Message";
 import SettingId from "../SettingId";
 
-const capitalize = (s: string): string => {
-  try {
-    return s[0].toUpperCase() + s.slice(1);
-  } catch (e) {
-    return s;
+import * as utils from "../utils";
+
   }
 };
 
