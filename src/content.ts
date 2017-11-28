@@ -8,6 +8,7 @@ class DarkModeContentManager {
     this.requestState();
     this.updateAttributes();
     this.setParentUrl();
+    this.setDarkAttribute("url", window.location);
     if (window.location !== window.parent.location) {
       this.setDarkAttribute("iframe", "true");
     } else {
