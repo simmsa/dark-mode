@@ -6,6 +6,7 @@ interface Theme {
     backgroundLight: string;
     backgroundVeryLight: string;
     primary: string;
+    primaryBackground: string;
     primaryLight: string;
     disabled: string;
   };
@@ -40,6 +41,7 @@ const theme: Theme = {
     },
     // Cyan A400
     primary: "#00E5FF",
+    primaryBackground: "#26C6DA",
     get primaryLight() {
       return lightenColor(this.primary, 0.2);
     },
