@@ -10,3 +10,17 @@ export const capitalize = (s: string): string => {
     return s;
   }
 };
+
+export const truncate = (input: string, maxChars: number = 25): string => {
+  const truncateChar = "…";
+
+  if (input.length < maxChars) {
+    return input;
+  } else {
+    const half = 2;
+    const sliceChars = maxChars / half;
+    return `${input.slice(0, sliceChars)}${truncateChar}${input.slice(
+      sliceChars * -1,
+    )}`;
+  }
+};
