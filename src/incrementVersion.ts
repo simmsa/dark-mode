@@ -21,7 +21,12 @@ incrementChoices["minor '" + semver.inc(currentVersion, "minor") + "'"] =
 incrementChoices["major '" + semver.inc(currentVersion, "major") + "'"] =
   "major";
 
-const filesToCommit = ["package.json", "package-lock.json", "manifest.json"];
+const filesToCommit = [
+  "package.json",
+  "package-lock.json",
+  "manifest.json",
+  "update.xml",
+];
 
 const updatePackageVersionInFile = (fname, versionNumber) => {
   const currentPackage = require(`../${fname}`);
