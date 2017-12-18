@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Dark Mode - Rest your eyes",
   "update_url": "https://www.github.com/simmsa/dark-mode",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "content_scripts": [
     {
       "matches": [
