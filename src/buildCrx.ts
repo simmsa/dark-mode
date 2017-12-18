@@ -10,15 +10,16 @@ const isDevBuild = args.length > 0 && args[0] === "--dev";
 // tslint:disable:no-var-requires
 const packageJson = require("../package.json");
 const sanitizedVersion = packageJson.version.replace(/\./g, "-");
-const crxFileName = `dark-mode-${isDevBuild
-  ? "dev-"
-  : ""}${sanitizedVersion}.crx`;
+let crxFileName = `dark-mode-${sanitizedVersion}.crx`;
 
 const crx = new ChromeExtension({
   // A link to the crx file of the current release
   codebase: `https://www.github.com/simmsa/dark-mode/releases/download/v${packageJson.version}/${crxFileName}`,
   privateKey: fs.readFileSync(path.join(__dirname, "..", "key.pem")),
 });
+
+// Add the dev suffix to the crx file name, but not to the update.xml file
+crxFileName = `dark-mode-${isDevBuild ? "dev-" : ""}${sanitizedVersion}.crx`;
 
 const extensionFiles = [
   path.join(__dirname, "..", "manifest.json"),
@@ -62,7 +63,7 @@ crx
       __dirname,
       "..",
       "ReleaseBuilds",
-      `dark-mode-${sanitizedVersion}.crx`,
+      crxFileName,
     );
 
     fs.writeFileSync(xmlPath, updateXml);
