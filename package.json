@@ -9,9 +9,10 @@
     "incrementVersion": "ts-node src/incrementVersion.ts",
     "less": "for file in styles/less/*.less; do lessc $file styles/css/`basename $file .less`.css ; done",
     "webpack": "webpack --config src/webpack.config.ts",
-    "webpackDev": "webpack --config src/webpack.config.ts --env.development",
-    "build": "npm run css && npm run less && npm run webpack",
-    "buildDev": "npm run css && npm run less && npm run webpackDev"
+    "buildCrx": "ts-node src/buildCrx",
+    "buildCrxDev": "ts-node src/buildCrx --dev",
+    "build": "npm run css && npm run less && npm run webpack && npm buildCrx",
+    "buildDev": "npm run css && npm run less && npm run webpack && npm run buildCrxDev"
   },
   "devDependencies": {
     "@types/chrome": "0.0.52",
