@@ -35,33 +35,34 @@ class GlobalSettings extends React.Component<GlobalSettingsProps, {}> {
           iconType="hue"
           tooltip="Invert the hue of all colors, attempting to make the page look 'normal'. Some rotated colors may seem off."
         />
-        <Switch
-          title="Auto Dark"
-          group={SettingId.Group.Global}
-          field={SettingId.Field.AutoDark}
-          isChecked={this.props.globalAutoDark}
-          iconType="autoDark"
-          tooltip="Automatically check each site and turn off dark mode on sites with dark themes"
-        />
-        <Switch
-          title="Log Auto Dark"
-          group={SettingId.Group.Global}
-          field={SettingId.Field.LogAutoDark}
-          isChecked={this.props.globalLogAutoDark}
-          iconType="log"
-          tooltip="Log auto dark actions"
-        />
-        <Switch
-          title="Notifications"
-          group={SettingId.Group.Global}
-          field={SettingId.Field.ShowNotifications}
-          isChecked={this.props.globalShowNotifications}
-          iconType="notifications"
-          tooltip="Show notifications for auto dark actions"
-        />
       </div>
     );
   }
 }
+
+// <Switch
+//   title="Auto Dark"
+//   group={SettingId.Group.Global}
+//   field={SettingId.Field.AutoDark}
+//   isChecked={this.props.globalAutoDark}
+//   iconType="autoDark"
+//   tooltip="Automatically check each site and turn off dark mode on sites with dark themes"
+// />
+// <Switch
+//   title="Log Auto Dark"
+//   group={SettingId.Group.Global}
+//   field={SettingId.Field.LogAutoDark}
+//   isChecked={this.props.globalLogAutoDark}
+//   iconType="log"
+//   tooltip="Log auto dark actions"
+// />
+// <Switch
+//   title="Notifications"
+//   group={SettingId.Group.Global}
+//   field={SettingId.Field.ShowNotifications}
+//   isChecked={this.props.globalShowNotifications}
+//   iconType="notifications"
+//   tooltip="Show notifications for auto dark actions"
+// />
 
 export default GlobalSettings;
