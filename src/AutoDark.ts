@@ -1,3 +1,31 @@
+/*
+ *  ____             _      __  __           _
+ * |  _ \  __ _ _ __| | __ |  \/  | ___   __| | ___
+ * | | | |/ _` | '__| |/ / | |\/| |/ _ \ / _` |/ _ \
+ * | |_| | (_| | |  |   <  | |  | | (_) | (_| |  __/
+ * |____/ \__,_|_|  |_|\_\ |_|  |_|\___/ \__,_|\___|
+ *
+ * Copyright (c) 2015-present, Andrew Simms
+ * Author: Andrew Simms <simms.andrew@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 import * as resemble from "resemblejs";
 
 import ContentAction from "./ContentAction";
@@ -55,9 +83,7 @@ class AutoDark {
   ) {
     // captureVisibleTab cannot capture screenshots of background tabs
     // so the url we are checking must match the current url
-    if (
-      !AutoDark.throttle(AutoDark.ResembleLastRun, AutoDark.runInterval)
-    ) {
+    if (!AutoDark.throttle(AutoDark.ResembleLastRun, AutoDark.runInterval)) {
       chrome.tabs.captureVisibleTab(screenshot => {
         resemble(screenshot).onComplete(data => {
           urlSettings.setCheckedAutoDark(currentUrl);
@@ -111,22 +137,21 @@ class AutoDark {
           type: "basic",
         },
         () => {
-          chrome.notifications.onButtonClicked.addListener((
-            notifId,
-            buttonIndex,
-            ) => {
-            // Yes Click
-            if (buttonIndex === 0) {
-              chrome.notifications.clear(notifId);
-              AutoDark.toggleStemNotification(url);
-            }
+          chrome.notifications.onButtonClicked.addListener(
+            (notifId, buttonIndex) => {
+              // Yes Click
+              if (buttonIndex === 0) {
+                chrome.notifications.clear(notifId);
+                AutoDark.toggleStemNotification(url);
+              }
 
-            // No Click
-            if (buttonIndex === 1) {
-              ContentAction.toggleDarkMode(url);
-              chrome.notifications.clear(notifId);
-            }
-          });
+              // No Click
+              if (buttonIndex === 1) {
+                ContentAction.toggleDarkMode(url);
+                chrome.notifications.clear(notifId);
+              }
+            },
+          );
         },
       );
     }
@@ -145,23 +170,23 @@ class AutoDark {
         {
           buttons: [{ title: "Yes" }, { title: "No" }],
           iconUrl: "img/dark-mode-on-128.png",
-          message: "Turn off dark mode for all " + currentUrl.getDomain() + " urls?",
+          message:
+            "Turn off dark mode for all " + currentUrl.getDomain() + " urls?",
           title: "Dark Mode",
           type: "basic",
         },
         () => {
-          chrome.notifications.onButtonClicked.addListener((
-            notifId,
-            buttonIndex,
-            ) => {
-            // Yes Click
-            if (buttonIndex === 0) {
-              ContentAction.toggleDarkModeStem(currentUrl);
-              chrome.notifications.clear(notifId);
-            } else {
-              chrome.notifications.clear(notifId);
-            }
-          });
+          chrome.notifications.onButtonClicked.addListener(
+            (notifId, buttonIndex) => {
+              // Yes Click
+              if (buttonIndex === 0) {
+                ContentAction.toggleDarkModeStem(currentUrl);
+                chrome.notifications.clear(notifId);
+              } else {
+                chrome.notifications.clear(notifId);
+              }
+            },
+          );
         },
       );
     }
