@@ -27,7 +27,7 @@
   "web_accessible_resources": [
     "styles/css/dark-mode.css"
   ],
-  "description": "Make websites easier on your eyes.",
+  "description": "Making the web easier to read.",
   "icons": {
     "16": "img/dark-mode-on-16.png",
     "48": "img/dark-mode-on-48.png",
