@@ -170,7 +170,7 @@ const main = async () => {
     })).shouldUpload;
 
     if (pushToMaster) {
-      console.log("Pushing To Master");
+      console.log("Pushing to origin...");
       exec("git push origin master");
     }
 
