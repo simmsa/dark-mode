@@ -149,6 +149,9 @@ const main = async () => {
 
     const completeCommit = `v${nextVersionNumber}: ${commitTitle}\n\n${formattedBulletPoints}`;
 
+    console.log(`Building ${nextVersionNumber} crx file...`);
+    exec("npm run build");
+
     filesToUpdateVersion.map(fname => {
       updatePackageVersionInFile(fname, nextVersionNumber);
     });
@@ -183,9 +186,6 @@ const main = async () => {
     if (!uploadToWeb) {
       return;
     }
-
-    console.log(`Building ${nextVersionNumber}...`);
-    exec("npm run build");
 
     const env = dotenv.config().parsed;
     const ghToken = env.GITHUB_TOKEN;
