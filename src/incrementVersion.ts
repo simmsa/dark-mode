@@ -56,6 +56,12 @@ const filesToCommit = [
   "update.xml",
 ];
 
+const filesToUpdateVersion = [
+  "package.json",
+  "package-lock.json",
+  "manifest.json",
+];
+
 const updatePackageVersionInFile = (fname, versionNumber) => {
   const currentPackage = require(`../${fname}`);
 
@@ -143,7 +149,7 @@ const main = async () => {
 
     const completeCommit = `v${nextVersionNumber}: ${commitTitle}\n\n${formattedBulletPoints}`;
 
-    filesToCommit.map(fname => {
+    filesToUpdateVersion.map(fname => {
       updatePackageVersionInFile(fname, nextVersionNumber);
     });
 
