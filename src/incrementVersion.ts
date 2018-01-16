@@ -141,13 +141,19 @@ const main = async () => {
       }
     }
 
+    const hasBulletPoints = bulletPoints.length > 0;
+
     const formattedBulletPoints = bulletPoints
       .map(point => {
         return `* ${point}`;
       })
       .join("\n");
 
-    const completeCommit = `v${nextVersionNumber}: ${commitTitle}\n\n${formattedBulletPoints}`;
+    const commitBulletPoints = hasBulletPoints
+      ? `\n\n${formattedBulletPoints}`
+      : "";
+
+    const completeCommit = `v${nextVersionNumber}: ${commitTitle}${commitBulletPoints}`;
 
     console.log(`Building ${nextVersionNumber} crx file...`);
     exec("npm run build");
@@ -200,7 +206,7 @@ const main = async () => {
       `${githubApiUrl}/releases?access_token=${ghToken}`,
       {
         body: JSON.stringify({
-          body: formattedBulletPoints,
+          body: hasBulletPoints ? formattedBulletPoints : "",
           draft: false,
           name: commitTitle,
           prerelease: false,
