@@ -137,9 +137,11 @@ export default class CssBuilder {
     if (invert === undefined && hue === undefined && contrast === undefined) {
       return `${CssBuilder.filter}: none !important;`;
     }
-    const invertStr = invert ? "invert()" : "invert(0%)";
+    const invertStr = invert ? "invert(100%)" : "invert(0%)";
     const hueStr = hue ? "180deg" : "0deg";
-    return `${CssBuilder.filter}: ${invertStr} hue-rotate(${hueStr}) contrast(${contrast}%) !important;`;
+    return `${
+      CssBuilder.filter
+    }: ${invertStr} hue-rotate(${hueStr}) contrast(${contrast}%) !important;`;
   }
 
   //  End Element Creation and Selection ---------------------------------}}}
