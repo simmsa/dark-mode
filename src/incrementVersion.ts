@@ -155,12 +155,12 @@ const main = async () => {
 
     const completeCommit = `v${nextVersionNumber}: ${commitTitle}${commitBulletPoints}`;
 
-    console.log(`Building ${nextVersionNumber} crx file...`);
-    exec("npm run build");
-
     filesToUpdateVersion.map(fname => {
       updatePackageVersionInFile(fname, nextVersionNumber);
     });
+
+    console.log(`Building ${nextVersionNumber} crx file...`);
+    exec("npm run build");
 
     exec("git add " + filesToCommit.join(" "), { encoding: "utf8" });
     exec(`git commit -m "${completeCommit}"`);
