@@ -38,16 +38,45 @@ const isDevBuild = args.length > 0 && args[0] === "--dev";
 // tslint:disable:no-var-requires
 const packageJson = require("../package.json");
 const sanitizedVersion = packageJson.version.replace(/\./g, "-");
-let crxFileName = `dark-mode-${sanitizedVersion}.crx`;
+
+interface ExtFile {
+  fileName: string;
+  devFileName: string;
+  path: string;
+  devPath: string;
+}
+
+// tslint:disable:object-literal-sort-keys
+const buildFileName = (ext: string): ExtFile => {
+  return {
+    fileName: `dark-mode-${sanitizedVersion}.${ext}`,
+    devFileName: `dark-mode-${
+      isDevBuild ? "dev-" : ""
+    }${sanitizedVersion}.${ext}`,
+    get path() {
+      return path.join(__dirname, "..", "ReleaseBuilds", this.fileName);
+    },
+    get devPath() {
+      return path.join(__dirname, "..", "ReleaseBuilds", this.devFileName);
+    },
+  };
+};
+
+const files = {
+  crx: buildFileName("crx"),
+  zip: buildFileName("zip"),
+};
+
+// let crxFileName = `dark-mode-${sanitizedVersion}.crx`;
+// let zipFileName = `dark-mode-${sanitizedVersion}.zip`;
 
 const crx = new ChromeExtension({
   // A link to the crx file of the current release
-  codebase: `https://www.github.com/simmsa/dark-mode/releases/download/v${packageJson.version}/${crxFileName}`,
+  codebase: `https://www.github.com/simmsa/dark-mode/releases/download/v${
+    packageJson.version
+  }/${files.crx.fileName}`,
   privateKey: fs.readFileSync(path.join(__dirname, "..", "key.pem")),
 });
-
-// Add the dev suffix to the crx file name, but not to the update.xml file
-crxFileName = `dark-mode-${isDevBuild ? "dev-" : ""}${sanitizedVersion}.crx`;
 
 const extensionFiles = [
   path.join(__dirname, "..", "manifest.json"),
@@ -82,18 +111,17 @@ const extensionFiles = [
 
 crx
   .load(extensionFiles)
-  .then(crxBuild => crxBuild.pack())
+  .then(crxBuild => crxBuild.loadContents())
+  .then(zipBuffer => {
+    fs.writeFileSync(files.zip.devPath, zipBuffer);
+    return zipBuffer;
+  })
+  .then(zipBuffer => crx.pack(zipBuffer))
   .then(crxBuffer => {
     const updateXml = crx.generateUpdateXML();
 
     const xmlPath = path.join(__dirname, "..", "update.xml");
-    const extensionPath = path.join(
-      __dirname,
-      "..",
-      "ReleaseBuilds",
-      crxFileName,
-    );
 
     fs.writeFileSync(xmlPath, updateXml);
-    fs.writeFileSync(extensionPath, crxBuffer);
+    fs.writeFileSync(files.crx.devPath, crxBuffer);
   });
