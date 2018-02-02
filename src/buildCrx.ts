@@ -114,9 +114,11 @@ crx
   .then(crxBuild => crxBuild.loadContents())
   .then(zipBuffer => {
     fs.writeFileSync(files.zip.devPath, zipBuffer);
-    return zipBuffer;
-  })
-  .then(zipBuffer => crx.pack(zipBuffer))
+  });
+
+crx
+  .load(extensionFiles)
+  .then(crxBuild => crxBuild.pack())
   .then(crxBuffer => {
     const updateXml = crx.generateUpdateXML();
 
