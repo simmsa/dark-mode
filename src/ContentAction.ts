@@ -75,30 +75,32 @@ class ContentAction {
   // is called from the content page some insane amount of function calls
   // would happen
   public static getStateForActiveTab(url: Url) {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tab) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, tab => {
       console.log("tab: ", tab);
       // Frame id of 0 is the base frame
       const tabId = tab[0].id;
 
       if (tabId !== undefined) {
-          ContentAction.urlTree.updateTab(tabId, () => {
-            const frameData: Array<{frameId: number, parentUrls: any}> = ContentAction.urlTree.getAllFrameData(tabId);
-            if (frameData !== undefined) {
-              frameData.map((frame) => {
-                ContentAction.getStateForUrl(
-                  url,
-                  tabId,
-                  frame.frameId,
-                  frame.parentUrls,
-                  // frameData[frame].frameId,
-                  // frameData[frame].parentUrls,
-                );
-              });
-            }
-          });
-        }
-      },
-    );
+        ContentAction.urlTree.updateTab(tabId, () => {
+          const frameData: Array<{
+            frameId: number;
+            parentUrls: any;
+          }> = ContentAction.urlTree.getAllFrameData(tabId);
+          if (frameData !== undefined) {
+            frameData.map(frame => {
+              ContentAction.getStateForUrl(
+                url,
+                tabId,
+                frame.frameId,
+                frame.parentUrls,
+                // frameData[frame].frameId,
+                // frameData[frame].parentUrls,
+              );
+            });
+          }
+        });
+      }
+    });
   }
 
   public static getStateForUrl(
