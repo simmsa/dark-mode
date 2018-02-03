@@ -242,6 +242,27 @@ const main = async () => {
     exec(
       `curl ${contentType} ${auth} --data-binary @${crxFLocation} ${uploadUrl}`,
     );
+
+    const uploadToChromeStore = (await inquirer.prompt({
+      message: "Would you like to upload this to the chrome web store?",
+      name: "shouldUpload",
+      type: "confirm",
+    })).shouldUpload;
+
+    if (!uploadToChromeStore) {
+      return;
+    }
+
+    console.log("Uploading release to Chrome Web Store...");
+
+    const chromeApiKey = env.CHROME_WEBSTORE_API_KEY;
+    const chromeAppId = env.CHROME_WEBSTORE_APP_ID;
+    const zipFName = `dark-mode-${nextVersionNumber.replace(/\./g, "-")}.zip`;
+    const zipFLocation = `ReleaseBuilds/${zipFName}`;
+    const chromeHeaders = `-H "Authorization: Bearer ${chromeApiKey}" -H "x-goog-api-version: 2"`;
+    const storeUrl = `https://www.googleapis.com/upload/chromewebstore/v1.1/items/${chromeAppId}`;
+
+    exec(`curl ${chromeHeaders} -X POST -T ${zipFLocation} -v ${storeUrl}`);
   } catch (e) {
     throw e;
   }
