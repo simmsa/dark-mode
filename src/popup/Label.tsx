@@ -37,6 +37,7 @@ interface LabelProps {
   children: string;
   iconType: IconType;
   hasTooltip?: boolean;
+  hasSemicolon?: boolean;
   iconRotateDeg?: number;
   iconColor?: string;
   tooltipRotateDeg?: number;
@@ -58,7 +59,9 @@ class Label extends React.PureComponent<LabelProps, {}> {
           color={this.props.iconColor}
         />
         <Typography style={{ marginLeft: "8px", marginRight: "8px" }}>
-          {`${this.props.children}:`}
+          {`${this.props.children}${
+            this.props.hasSemicolon !== false ? ":" : ""
+          }`}
         </Typography>
         {this.props.hasTooltip ? (
           <PopupIcon
