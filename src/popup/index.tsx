@@ -46,12 +46,18 @@ import UrlSettings from "./UrlSettings";
 
 const themeType: "light" | "dark" = "dark";
 
+// From reactjs.org
+// tslint:disable:max-line-length
+const fontStack: string = `-apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif`;
+
 export const muiTheme = createMuiTheme({
+  fontFamily: fontStack,
   palette: {
     primary: cyan,
     type: themeType,
   },
   typography: {
+    fontFamily: fontStack,
     htmlFontSize: 9,
   },
   zIndex: {
@@ -101,64 +107,67 @@ class Settings extends React.Component<{}, SettingsState> {
   public render() {
     return (
       <MuiThemeProvider theme={muiTheme}>
-        <Collapse text="Current Url" isOpen={true} iconType="here">
-          <UrlSettings
-            title="Current Url Settings"
-            identifier={SettingId.Group.CurrentUrl}
-            urlDark={this.state.data.CurrentUrl.Dark}
-            urlHue={this.state.data.CurrentUrl.Hue}
-            urlContrast={this.state.data.CurrentUrl.Contrast}
-            tooltipValue={
-              "Settings that apply only to: " + this.state.data.CurrentUrl.Url
-            }
+        <div style={{ fontFamily: fontStack }}>
+          <Collapse text="Current Url" isOpen={true} iconType="here">
+            <UrlSettings
+              title="Current Url Settings"
+              identifier={SettingId.Group.CurrentUrl}
+              urlDark={this.state.data.CurrentUrl.Dark}
+              urlHue={this.state.data.CurrentUrl.Hue}
+              urlContrast={this.state.data.CurrentUrl.Contrast}
+              tooltipValue={
+                "Settings that apply only to: " + this.state.data.CurrentUrl.Url
+              }
+            />
+          </Collapse>
+          <Collapse
+            text={`${utils.capitalize(
+              utils.truncate(this.state.data.StemUrl.UrlStem),
+            )}`}
+            iconType="settings"
+          >
+            <UrlSettings
+              title={
+                utils.capitalize(this.state.data.StemUrl.UrlStem) + " Settings"
+              }
+              identifier={SettingId.Group.StemUrl}
+              urlDark={this.state.data.StemUrl.Dark}
+              urlHue={this.state.data.StemUrl.Hue}
+              urlContrast={this.state.data.StemUrl.Contrast}
+              tooltipValue={
+                "Toggle dark mode for all websites starting with " +
+                this.state.data.StemUrl.UrlStem +
+                "."
+              }
+            />
+          </Collapse>
+          <Collapse text="Global Settings" iconType="global">
+            <GlobalSettings
+              globalDark={this.state.data.Global.Dark}
+              globalAutoDark={this.state.data.Global.AutoDark}
+              globalLogAutoDark={this.state.data.Global.LogAutoDark}
+              globalShowNotifications={this.state.data.Global.ShowNotifications}
+              globalHue={this.state.data.Global.Hue}
+              globalContrast={this.state.data.Global.Contrast}
+              keyboardShortcut={this.state.data.Global.Shortcut}
+            />
+          </Collapse>
+          <RowWithLink
+            text="Questions? "
+            linkText="View the wiki!"
+            link="https://github.com/simmsa/dark-mode/wiki"
+            iconType="help"
           />
-        </Collapse>
-        <Collapse
-          text={`${utils.capitalize(
-            utils.truncate(this.state.data.StemUrl.UrlStem),
-          )}`}
-          iconType="settings"
-        >
-          <UrlSettings
-            title={
-              utils.capitalize(this.state.data.StemUrl.UrlStem) + " Settings"
-            }
-            identifier={SettingId.Group.StemUrl}
-            urlDark={this.state.data.StemUrl.Dark}
-            urlHue={this.state.data.StemUrl.Hue}
-            urlContrast={this.state.data.StemUrl.Contrast}
-            tooltipValue={
-              "Toggle dark mode for all websites starting with " +
-              this.state.data.StemUrl.UrlStem +
-              "."
-            }
+          <RowWithLink
+            text="Problems? "
+            linkText="File an issue!"
+            link={`https://github.com/simmsa/dark-mode/issues/new?body=v${
+              chrome.runtime.getManifest().version
+            }`}
+            iconType="bug"
           />
-        </Collapse>
-        <Collapse text="Global Settings" iconType="global">
-          <GlobalSettings
-            globalDark={this.state.data.Global.Dark}
-            globalAutoDark={this.state.data.Global.AutoDark}
-            globalLogAutoDark={this.state.data.Global.LogAutoDark}
-            globalShowNotifications={this.state.data.Global.ShowNotifications}
-            globalHue={this.state.data.Global.Hue}
-            globalContrast={this.state.data.Global.Contrast}
-            keyboardShortcut={this.state.data.Global.Shortcut}
-          />
-        </Collapse>
-        <RowWithLink
-          text="Questions? "
-          linkText="View the wiki!"
-          link="https://github.com/simmsa/dark-mode/wiki"
-          iconType="help"
-        />
-        <RowWithLink
-          text="Problems? "
-          linkText="File an issue!"
-          link={`https://github.com/simmsa/dark-mode/issues/new?body=v${chrome.runtime.getManifest()
-            .version}`}
-          iconType="bug"
-        />
-        <Footer />
+          <Footer />
+        </div>
       </MuiThemeProvider>
     );
   }
