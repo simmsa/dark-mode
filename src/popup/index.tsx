@@ -155,7 +155,7 @@ class Settings extends React.Component<{}, SettingsState> {
           <RowWithLink
             text="Questions? "
             linkText="View the wiki!"
-            link="https://github.com/simmsa/dark-mode/wiki"
+            link="https://github.com/simmsa/dark-mode#usage"
             iconType="help"
           />
           <RowWithLink
