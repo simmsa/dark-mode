@@ -28,9 +28,7 @@
 
 import * as React from "react";
 
-import Grid from "material-ui/Grid";
-import Typography from "material-ui/Typography";
-
+import Label from "./Label";
 import Row from "./Row";
 
 import PopupIcon, { IconType } from "./PopupIcon";
@@ -53,31 +51,13 @@ class RowWithLink extends React.Component<RowWithLinkProps, {}> {
         target="_blank"
       >
         <Row
-          wideRight={true}
+          veryWideLeft={true}
           flexHeight={true}
-          flexDirection="normal"
-          left={<PopupIcon iconType={this.props.iconType} />}
-          right={
-            <Grid
-              style={{
-                height: "60px",
-              }}
-              container={true}
-              direction="row"
-              alignItems="center"
-              justify="space-between"
-            >
-              <Grid item={true} xs={10}>
-                <Typography>
-                  {this.props.text}
-                  {this.props.linkText}
-                </Typography>
-              </Grid>
-              <Grid item={true} xs={2} alignItems="flex-end">
-                <PopupIcon iconType="rightArrow" style={{ fontSize: 30 }} />
-              </Grid>
-            </Grid>
-          }
+          left={
+            <Label iconType={this.props.iconType} hasSemicolon={false}>
+              {`${this.props.text} ${this.props.linkText}`}
+            </Label>}
+          right={<PopupIcon iconType="rightArrow" style={{ fontSize: 30 }} />}
         />
       </a>
     );
