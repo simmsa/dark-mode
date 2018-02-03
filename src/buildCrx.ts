@@ -62,6 +62,31 @@ const buildFileName = (ext: string): ExtFile => {
   };
 };
 
+const originalManifest = require("../manifest.json");
+
+const addUpdateUrlToManifest = () => {
+  const newJson = {
+    update_url:
+      "https://raw.githubusercontent.com/simmsa/dark-mode/master/update.xml",
+  };
+  const manifest = originalManifest;
+  const updatedManifest = {
+    ...manifest,
+    newJson,
+  };
+
+  fs.writeFileSync("../manifest.json", stringifyManifest(updatedManifest));
+};
+
+const removeUpdateUrlFromManifest = () => {
+  fs.writeFileSync("../manifest.json", originalManifest);
+};
+
+const stringifyManifest = (input): string => {
+  const jsonSpaces = 2;
+  return JSON.stringify(input, undefined, jsonSpaces);
+};
+
 const files = {
   crx: buildFileName("crx"),
   zip: buildFileName("zip"),
@@ -120,6 +145,8 @@ crx
     fs.writeFileSync(files.zip.devPath, zipBuffer);
   });
 
+addUpdateUrlToManifest();
+
 crx
   .load(extensionFiles)
   .then(crxBuild => crxBuild.pack())
@@ -131,3 +158,5 @@ crx
     fs.writeFileSync(xmlPath, updateXml);
     fs.writeFileSync(files.crx.devPath, crxBuffer);
   });
+
+removeUpdateUrlFromManifest();
