@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <gupdate xmlns='http://www.google.com/update2/response' protocol='2.0'>
   <app appid='omioaafckojnbcfifffbbdodccdkdcgc'>
-    <updatecheck codebase='https://www.github.com/simmsa/dark-mode/releases/download/v0.5.5/dark-mode-0-5-5.crx' version='0.5.5' />
+    <updatecheck codebase='https://www.github.com/simmsa/dark-mode/releases/download/v0.5.6/dark-mode-0-5-6.crx' version='0.5.6' />
   </app>
 </gupdate>
