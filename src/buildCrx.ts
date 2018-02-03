@@ -107,6 +107,10 @@ const extensionFiles = [
   path.join(__dirname, "..", "img", "dark-mode-on-16.png"),
 
   path.join(__dirname, "..", "img", "dark-mode-logo-w-text.svg"),
+
+  path.join(__dirname, "..", "fonts", "MaterialIcons-Regular.ttf"),
+  path.join(__dirname, "..", "fonts", "MaterialIcons-Regular.woff"),
+  path.join(__dirname, "..", "fonts", "MaterialIcons-Regular.woff2"),
 ];
 
 crx
