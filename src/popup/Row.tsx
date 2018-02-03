@@ -38,6 +38,7 @@ interface RowProps {
   left: any;
   right: any;
   wideLeft?: boolean;
+  veryWideLeft?: boolean;
   wideRight?: boolean;
   equalWidth?: boolean;
   flexHeight?: boolean;
@@ -52,9 +53,11 @@ class Row extends React.Component<RowProps, {}> {
     const leftWidth: widthRange =
       this.props.right === undefined
         ? 11
-        : this.props.wideLeft
-          ? 9
-          : this.props.wideRight ? 2 : this.props.equalWidth ? 6 : 5;
+        : this.props.veryWideLeft
+          ? 11
+          : this.props.wideLeft
+            ? 9
+            : this.props.wideRight ? 2 : this.props.equalWidth ? 6 : 5;
     const rightWidth: widthRange = (maxWidth - leftWidth) as widthRange;
 
     const bgColor = this.props.backgroundColor || theme.colors.background;
