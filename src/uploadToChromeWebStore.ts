@@ -4,7 +4,7 @@ import * as inquirer from "inquirer";
 
 import fetch from "node-fetch";
 
-const exec = child_process.execSync;
+const exec = child_process.spawnSync;
 
 const env = dotenv.config().parsed;
 
@@ -69,11 +69,11 @@ const uploadToChromeWebStore = async (zipFLocation: string) => {
   console.log("Publishing new release...");
 
   const publishResult = await fetch(
-    `https://googleapis.com/chromewebstore/v1.1/${chromeAppId}/publish`,
+    `https://www.googleapis.com/chromewebstore/v1.1/items/${chromeAppId}/publish`,
     {
       headers: {
         "Authorization": `Bearer ${chromeWebStoreToken}`,
-        "X-Goog-Api-Version": "2",
+        "x-goog-api-aersion": "2",
       },
       method: "POST",
     },
