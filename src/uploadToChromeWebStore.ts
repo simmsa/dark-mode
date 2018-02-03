@@ -65,6 +65,24 @@ const uploadToChromeWebStore = async (zipFLocation: string) => {
   console.log("Uploading zip bundle to chrome web store...");
 
   exec(`curl ${chromeHeaders} -X PUT -T ${zipFLocation} -v ${storeUrl}`);
+
+  console.log("Publishing new release...");
+
+  const publishResult = await fetch(
+    `https://googleapis.com/chromewebstore/v1.1/${chromeAppId}/publish`,
+    {
+      headers: {
+        "Authorization": `Bearer ${chromeWebStoreToken}`,
+        "X-Goog-Api-Version": "2",
+      },
+      method: "POST",
+    },
+  );
+
+  const publishResultJson = await publishResult.json();
+
+  console.log(publishResultJson);
+  console.log("Chrome web store release upload complete!");
 };
 
 export default uploadToChromeWebStore;
