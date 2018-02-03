@@ -35,6 +35,8 @@ import fetch from "node-fetch";
 import * as semver from "semver";
 import * as wordwrap from "wordwrap";
 
+import uploadToChromeWebStore from "./uploadToChromeWebStore";
+
 // tslint:disable:no-var-requires
 const currentVersion = require("../package").version;
 const commitLineNumChars = 72;
@@ -183,65 +185,63 @@ const main = async () => {
       exec("git push origin master");
     }
 
-    const uploadToWeb = (await inquirer.prompt({
+    const uploadReleaseToGithub = (await inquirer.prompt({
       message: "Would you like to upload this to github as a release?",
       name: "shouldUpload",
       type: "confirm",
     })).shouldUpload;
 
-    if (!uploadToWeb) {
-      return;
+    if (uploadReleaseToGithub) {
+      const env = dotenv.config().parsed;
+      const ghToken = env.GITHUB_TOKEN;
+      const baseGitHubUrl = (accessPoint: string) =>
+        `https://${accessPoint}.github.com/repos/simmsa/dark-mode`;
+      const githubApiUrl = baseGitHubUrl("api");
+      const githubUploadUrl = baseGitHubUrl("uploads");
+
+      console.log("Uploading github release...");
+
+      const uploadResult = await fetch(
+        `${githubApiUrl}/releases?access_token=${ghToken}`,
+        {
+          body: JSON.stringify({
+            body: hasBulletPoints ? formattedBulletPoints : "",
+            draft: false,
+            name: commitTitle,
+            prerelease: false,
+            tag_name: `v${nextVersionNumber}`,
+          }),
+          method: "POST",
+        },
+      );
+
+      const uploadJson = await uploadResult.json();
+      const releaseId = uploadJson.id;
+
+      const successStatus = 201;
+      if (uploadResult.status !== successStatus) {
+        console.log("Failed github release upload!");
+        return;
+      }
+
+      console.log("Metadata uploaded successfully!");
+      console.log("Uploading release crx...");
+
+      const crxFName = `dark-mode-${nextVersionNumber.replace(/\./g, "-")}.crx`;
+      const crxFLocation = `ReleaseBuilds/${crxFName}`;
+
+      const uploadUrl = `${githubUploadUrl}/releases/${releaseId}/assets?name=${crxFName}`;
+
+      const contentType = '-H "Content-Type: application/zip"';
+      const auth = `-H "Authorization: token ${ghToken}"`;
+
+      // We use `curl` because `node-fetch` and the github api don't get along
+      // with file uploads. It seems to be related to chunked uploads and file
+      // streams
+      exec(
+        `curl ${contentType} ${auth} --data-binary @${crxFLocation} ${uploadUrl}`,
+      );
     }
-
-    const env = dotenv.config().parsed;
-    const ghToken = env.GITHUB_TOKEN;
-    const baseGitHubUrl = (accessPoint: string) =>
-      `https://${accessPoint}.github.com/repos/simmsa/dark-mode`;
-    const githubApiUrl = baseGitHubUrl("api");
-    const githubUploadUrl = baseGitHubUrl("uploads");
-
-    console.log("Uploading github release...");
-
-    const uploadResult = await fetch(
-      `${githubApiUrl}/releases?access_token=${ghToken}`,
-      {
-        body: JSON.stringify({
-          body: hasBulletPoints ? formattedBulletPoints : "",
-          draft: false,
-          name: commitTitle,
-          prerelease: false,
-          tag_name: `v${nextVersionNumber}`,
-        }),
-        method: "POST",
-      },
-    );
-
-    const uploadJson = await uploadResult.json();
-    const releaseId = uploadJson.id;
-
-    const successStatus = 201;
-    if (uploadResult.status !== successStatus) {
-      console.log("Failed github release upload!");
-      return;
-    }
-
-    console.log("Metadata uploaded successfully!");
-    console.log("Uploading release crx...");
-
-    const crxFName = `dark-mode-${nextVersionNumber.replace(/\./g, "-")}.crx`;
-    const crxFLocation = `ReleaseBuilds/${crxFName}`;
-
-    const uploadUrl = `${githubUploadUrl}/releases/${releaseId}/assets?name=${crxFName}`;
-
-    const contentType = '-H "Content-Type: application/zip"';
-    const auth = `-H "Authorization: token ${ghToken}"`;
-
-    // We use `curl` because `node-fetch` and the github api don't get along
-    // with file uploads. It seems to be related to chunked uploads and file
-    // streams
-    exec(
-      `curl ${contentType} ${auth} --data-binary @${crxFLocation} ${uploadUrl}`,
-    );
 
     const uploadToChromeStore = (await inquirer.prompt({
       message: "Would you like to upload this to the chrome web store?",
@@ -249,20 +249,12 @@ const main = async () => {
       type: "confirm",
     })).shouldUpload;
 
-    if (!uploadToChromeStore) {
-      return;
+    if (uploadToChromeStore) {
+      const zipFName = `dark-mode-${nextVersionNumber.replace(/\./g, "-")}.zip`;
+      const zipFLocation = `ReleaseBuilds/${zipFName}`;
+
+      await uploadToChromeWebStore(zipFLocation);
     }
-
-    console.log("Uploading release to Chrome Web Store...");
-
-    const chromeApiKey = env.CHROME_WEBSTORE_API_KEY;
-    const chromeAppId = env.CHROME_WEBSTORE_APP_ID;
-    const zipFName = `dark-mode-${nextVersionNumber.replace(/\./g, "-")}.zip`;
-    const zipFLocation = `ReleaseBuilds/${zipFName}`;
-    const chromeHeaders = `-H "Authorization: Bearer ${chromeApiKey}" -H "x-goog-api-version: 2"`;
-    const storeUrl = `https://www.googleapis.com/upload/chromewebstore/v1.1/items/${chromeAppId}`;
-
-    exec(`curl ${chromeHeaders} -X POST -T ${zipFLocation} -v ${storeUrl}`);
   } catch (e) {
     throw e;
   }
