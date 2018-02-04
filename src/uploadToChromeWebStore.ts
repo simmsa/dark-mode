@@ -4,7 +4,7 @@ import * as inquirer from "inquirer";
 
 import fetch from "node-fetch";
 
-const exec = child_process.spawnSync;
+const exec = child_process.execSync;
 
 const env = dotenv.config().parsed;
 
