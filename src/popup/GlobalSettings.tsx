@@ -60,6 +60,7 @@ class GlobalSettings extends React.Component<GlobalSettingsProps, {}> {
           group={SettingId.Group.Global}
           field={SettingId.Field.Hue}
           isChecked={this.props.globalHue}
+          isDisabled={!this.props.globalDark}
           iconType="hue"
           tooltip="Invert the hue of all colors, attempting to make the page look 'normal'. Some rotated colors may seem off."
         />
