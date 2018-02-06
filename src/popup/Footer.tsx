@@ -74,14 +74,18 @@ class Footer extends React.Component<FooterProps, FooterState> {
 
     const currentKb = this.state.kbInUse;
     const maxKb = this.convertBytesToKb(chrome.storage.local.QUOTA_BYTES);
-    const percent = Math.floor(currentKb / maxKb);
+    const ratioToPercent = 100;
+    const percentDigits = 2;
+    const percent = (currentKb / maxKb * ratioToPercent).toPrecision(
+      percentDigits,
+    );
     const kbLabel = "KiB";
 
     switch (type) {
       case "percentage":
         return `${percent}%`;
       case "ratio":
-        return `${currentKb}${kbLabel}/${maxKb}${kbLabel}`;
+        return `${currentKb}${kbLabel} / ${maxKb}${kbLabel}`;
     }
   }
 
