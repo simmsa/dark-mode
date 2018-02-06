@@ -31,11 +31,15 @@ import * as React from "react";
 import Grid from "material-ui/Grid";
 import Typography from "material-ui/Typography";
 
+interface FooterProps {
+  versionString: string;
+}
+
 interface FooterState {
   kbInUse: number;
 }
 
-class Footer extends React.Component<{}, FooterState> {
+class Footer extends React.Component<FooterProps, FooterState> {
   constructor(props) {
     super(props);
 
@@ -97,7 +101,7 @@ class Footer extends React.Component<{}, FooterState> {
           container={true}
         >
           <Typography style={{ fontColor, fontSize: 20 }}>
-            {`Dark Mode v${chrome.runtime.getManifest().version}`}
+            {`Dark Mode ${this.props.versionString}`}
           </Typography>
         </Grid>
         <Grid

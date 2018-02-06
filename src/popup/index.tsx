@@ -41,6 +41,7 @@ import * as utils from "../utils";
 import Collapse from "./Collapse";
 import Footer from "./Footer";
 import GlobalSettings from "./GlobalSettings";
+import Header from "./Header";
 import RowWithLink from "./RowWithLink";
 import UrlSettings from "./UrlSettings";
 
@@ -49,6 +50,8 @@ const themeType: "light" | "dark" = "dark";
 // From reactjs.org
 // tslint:disable:max-line-length
 const fontStack: string = `-apple-system, system-ui, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif`;
+
+const versionString = "v" + chrome.runtime.getManifest().version;
 
 export const muiTheme = createMuiTheme({
   fontFamily: fontStack,
@@ -108,6 +111,7 @@ class Settings extends React.Component<{}, SettingsState> {
     return (
       <MuiThemeProvider theme={muiTheme}>
         <div style={{ fontFamily: fontStack }}>
+          <Header versionString={versionString} />
           <Collapse text="Current Url" isOpen={true} iconType="here">
             <UrlSettings
               title="Current Url Settings"
@@ -161,12 +165,10 @@ class Settings extends React.Component<{}, SettingsState> {
           <RowWithLink
             text="Problems? "
             linkText="File an issue!"
-            link={`https://github.com/simmsa/dark-mode/issues/new?body=v${
-              chrome.runtime.getManifest().version
-            }`}
+            link={`https://github.com/simmsa/dark-mode/issues/new?body=v${versionString}`}
             iconType="bug"
           />
-          <Footer />
+          <Footer versionString={versionString} />
         </div>
       </MuiThemeProvider>
     );

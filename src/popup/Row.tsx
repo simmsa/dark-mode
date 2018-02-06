@@ -43,6 +43,7 @@ interface RowProps {
   equalWidth?: boolean;
   flexHeight?: boolean;
   flexDirection?: string;
+  shortRow?: boolean;
 }
 
 class Row extends React.Component<RowProps, {}> {
@@ -64,11 +65,13 @@ class Row extends React.Component<RowProps, {}> {
     const dividerColor =
       this.props.dividerColor || theme.colors.backgroundLight;
 
+    const rowHeight = this.props.shortRow ? 42 : 60;
+
     const height = this.props.flexHeight
       ? {
-          minHeight: "60px",
+          minHeight: `${rowHeight}px`,
         }
-      : { height: "60px" };
+      : { height: `${rowHeight}px` };
 
     return (
       <Grid
