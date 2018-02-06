@@ -39,6 +39,7 @@ import SettingId from "../SettingId";
 import * as utils from "../utils";
 
 import Collapse from "./Collapse";
+import ErrorBoundary from "./ErrorBoundary";
 import Footer from "./Footer";
 import GlobalSettings from "./GlobalSettings";
 import Header from "./Header";
@@ -188,4 +189,12 @@ class Settings extends React.Component<{}, SettingsState> {
   }
 }
 
-ReactDOM.render(<Settings />, document.getElementById("reactContainer"));
+const WrappedApp = () => {
+  return (
+    <ErrorBoundary>
+      <Settings />
+    </ErrorBoundary>
+  );
+};
+
+ReactDOM.render(<WrappedApp />, document.getElementById("reactContainer"));
