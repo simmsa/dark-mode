@@ -77,8 +77,21 @@ class Settings extends React.Component<{}, SettingsState> {
   constructor() {
     super();
     const defaultState = new DefaultState();
+    const defaultData = defaultState.pack();
+
+    const popupInitialData = {
+      Dark: undefined,
+      Hue: undefined,
+    };
+
+    const data = {
+      CurrentUrl: { ...defaultData.CurrentUrl, ...popupInitialData },
+      Global: { ...defaultData.Global, ...popupInitialData },
+      StemUrl: { ...defaultData.StemUrl, ...popupInitialData },
+    };
+
     this.state = {
-      data: defaultState.pack(),
+      data,
     };
     this.initListener();
   }

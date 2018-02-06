@@ -119,15 +119,21 @@ const Switch = withStyles(styles)(
                 alignContent="center"
                 justify={"flex-end"}
               >
-                <MaterialUiSwitch
-                  disabled={this.props.isDisabled}
-                  classes={{
-                    bar: this.props.classes.bar,
-                    checked: this.props.classes.checked,
-                    root: this.props.classes.root,
-                  }}
-                  checked={this.props.isDisabled ? false : this.props.isChecked}
-                />
+                {this.props.isChecked !== undefined ? (
+                  <MaterialUiSwitch
+                    disabled={this.props.isDisabled}
+                    classes={{
+                      bar: this.props.classes.bar,
+                      checked: this.props.classes.checked,
+                      root: this.props.classes.root,
+                    }}
+                    checked={
+                      this.props.isDisabled ? false : this.props.isChecked
+                    }
+                  />
+                ) : (
+                  undefined
+                )}
               </Grid>
             </ButtonBase>
           }
