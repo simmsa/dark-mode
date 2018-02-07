@@ -326,7 +326,7 @@ class UrlSettings extends PersistentStorage {
     let result = true;
 
     // Convert `arguments` into a mappable array
-    Array.prototype.slice.call(arguments).map((arg) => {
+    Array.prototype.slice.call(arguments).map(arg => {
       if (arg === true) {
         result = false;
       }
@@ -451,7 +451,8 @@ class UrlSettings extends PersistentStorage {
 
     // The stem -> field exists, run toggle
     if (this.allArgsFalse(stem, stemField)) {
-      this.dataObject[urlStem][field] = choice === "toggle" ? !this.dataObject[urlStem][field] : value;
+      this.dataObject[urlStem][field] =
+        choice === "toggle" ? !this.dataObject[urlStem][field] : value;
       // if (choice === "toggle") {
       //   this.dataObject[urlStem][field] = !this.dataObject[urlStem][field];
       // } else {
@@ -571,7 +572,7 @@ class UrlSettings extends PersistentStorage {
     }
     currentState.BaseFrameIsDark = true;
 
-    rawUrls.map((nextUrl) => {
+    rawUrls.map(nextUrl => {
       const parsedUrl = new Url(nextUrl);
       const nextState = this.getUrlState(parsedUrl);
 
