@@ -276,19 +276,27 @@ class UrlSettings extends PersistentStorage {
   public getContrast(url: Url): number {
     const result = this.checkUrlForField(url, SettingId.Field.Contrast);
     const stemResult = this.checkUrlStemForField(url, SettingId.Field.Contrast);
+    const globalContrast = this.globalSettings.getContrast();
     if (result !== QueryResult.Undefined) {
       return result;
     } else if (stemResult !== QueryResult.Undefined) {
       return stemResult;
+    } else if (globalContrast !== undefined) {
+      return globalContrast;
     }
+
     return SettingId.Default.Contrast;
   }
 
   public getContrastStem(url: Url): number {
     const result = this.checkUrlStemForField(url, SettingId.Field.Contrast);
+    const globalContrast = this.globalSettings.getContrast();
     if (result !== QueryResult.Undefined) {
       return result;
+    } else if (globalContrast !== undefined) {
+      return globalContrast;
     }
+
     return SettingId.Default.Contrast;
   }
 

@@ -56,8 +56,7 @@ class State extends DefaultState {
     this.globalLogAutoDark = globalSettings.checkLogAutoDark();
     this.globalShowNotifications = globalSettings.checkShowNotifications();
     this.globalHue = globalSettings.checkHue();
-    const globalContrast = 99;
-    this.globalContrast = globalContrast;
+    this.globalContrast = globalSettings.getContrast();
     this.updateKeyboardShortcut(callback);
   }
 

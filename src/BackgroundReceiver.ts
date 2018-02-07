@@ -312,6 +312,13 @@ class BackgroundReceiver extends Message {
             break;
         }
         break;
+      case SettingId.Group.Global:
+        switch (message.Data.Field) {
+          case SettingId.Field.Contrast:
+            BackgroundReceiver.globalSettings.setContrast(message.Data.Value);
+            break;
+        }
+        break;
     }
 
     BackgroundReceiver.updatePopupAndContent();

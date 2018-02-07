@@ -30,6 +30,7 @@ import * as React from "react";
 
 import SettingId from "../SettingId";
 
+import Slider from "./Slider";
 import Switch from "./Switch";
 
 interface GlobalSettingsProps {
@@ -63,6 +64,17 @@ class GlobalSettings extends React.Component<GlobalSettingsProps, {}> {
           isDisabled={!this.props.globalDark}
           iconType="hue"
           tooltip="Invert the hue of all colors, attempting to make the page look 'normal'. Some rotated colors may seem off."
+        />
+        <Slider
+          label="Contrast"
+          iconType="contrast"
+          tooltip="Adjust the difference between dark and light colors"
+          field={SettingId.Field.Contrast}
+          group={SettingId.Group.Global}
+          min={SettingId.Default.ContrastMin}
+          max={SettingId.Default.ContrastMax}
+          value={this.props.globalContrast}
+          isDisabled={!this.props.globalDark}
         />
       </div>
     );

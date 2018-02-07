@@ -39,7 +39,15 @@ class GlobalSettings extends PersistentStorage {
   }
 
   private toggleField(field: string, defaultValue: boolean): void {
-    this.dataObject[field] = typeof this.getField(field) !== "undefined" ? !this.getField(field) : !defaultValue;
+    this.dataObject[field] =
+      typeof this.getField(field) !== "undefined"
+        ? !this.getField(field)
+        : !defaultValue;
+    this.save();
+  }
+
+  private setField(field: string, value: any): void {
+    this.dataObject[field] = value;
     this.save();
   }
 
@@ -82,6 +90,17 @@ class GlobalSettings extends PersistentStorage {
 
   public toggleHue(): void {
     return this.toggleField(SettingId.Field.Hue, SettingId.Default.Hue);
+  }
+
+  public getContrast(): number {
+    return this.checkField(
+      SettingId.Field.Contrast,
+      SettingId.Default.Contrast,
+    );
+  }
+
+  public setContrast(newValue: number): void {
+    this.setField(SettingId.Field.Contrast, newValue);
   }
 
   // Notifications
