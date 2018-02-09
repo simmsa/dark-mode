@@ -49,16 +49,28 @@ class DarkModeContentManager {
   }
 
   private addIsDarkClassToElementsWithBackgroundImage() {
-    document.addEventListener("DOMContentLoaded", () => {
+    const findAndMarkBGImages = () => {
       const divs = document.querySelectorAll("div");
       Object.keys(divs).map(divKey => {
         const div: HTMLDivElement = divs[divKey];
         const divStyle = window.getComputedStyle(div);
-        const divStyleBgImage = divStyle.backgroundImage;
-        if (divStyleBgImage && divStyleBgImage.match(/url.*jpg/)) {
+        const bgImage = divStyle.backgroundImage;
+        if (bgImage && bgImage.match(/url.*jpg.*/i)) {
           div.classList.add("no-dark");
         }
       });
+    };
+
+    // Try to mark some background elements early to avoid inverted
+    // bagckground images while the page is still loading css/js
+    document.addEventListener("DOMContentLoaded", () => {
+      findAndMarkBGImages();
+    });
+
+    // Mark the rest of the background images after css/js has loaded and
+    // finished executing
+    window.addEventListener("load", () => {
+      findAndMarkBGImages();
     });
   }
 
