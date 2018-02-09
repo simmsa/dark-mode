@@ -62,7 +62,7 @@ class DarkModeContentManager {
     };
 
     // Try to mark some background elements early to avoid inverted
-    // bagckground images while the page is still loading css/js
+    // background images while the page is still loading css/js
     document.addEventListener("DOMContentLoaded", () => {
       findAndMarkBGImages();
     });
