@@ -165,7 +165,12 @@ const main = async () => {
     exec("npm run build");
 
     exec("git add " + filesToCommit.join(" "), { encoding: "utf8" });
-    exec(`git commit -m "${completeCommit}"`);
+    exec(
+      `git commit -m "${completeCommit
+        .replace(/`/g, "\\`")
+        .replace(/"/g, '\\"')
+        .toString()}"`,
+    );
     exec("git tag " + "v" + nextVersionNumber);
 
     exec(`echo "${formattedBulletPoints}" | pbcopy`);
