@@ -23,6 +23,7 @@
     "crx-webpack-plugin": "^0.1.5",
     "dotenv": "^4.0.0",
     "inquirer": "^3.3.0",
+    "jest": "^22.2.2",
     "jsonfile": "^4.0.0",
     "less": "^2.7.3",
     "semver": "^5.4.1",
