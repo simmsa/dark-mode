@@ -21,6 +21,16 @@ function! EchoErrors(job_id, exit_code, event)
     endif
 endfunction
 
+function! RunNearestTest()
+  if test#exists()
+    echo(printf('Running tests for file: %s...', expand('%:t')))
+    execute('TestFile')
+  else
+    echo('Running test suite...')
+    execute('TestSuite')
+  endif
+endfunction
+
 augroup dark_mode
     au!
     au FileType json,javascript,typescript set shiftwidth=2 tabstop=2
@@ -30,3 +40,4 @@ augroup END
 nnoremap <silent> gd :YcmCompleter GoToDefinition<CR>
 nnoremap <silent> gt :YcmCompleter GetType<CR>
 nnoremap <silent> gm :YcmCompleter GetDoc<CR>
+nnoremap <silent> mt :call RunNearestTest()<CR>
