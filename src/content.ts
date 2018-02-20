@@ -31,6 +31,7 @@ import ContentSender from "./ContentSender";
 class DarkModeContentManager {
   private parentUrl: string;
   private isDark: boolean;
+  private divsSelected: number = 0;
 
   constructor() {
     this.requestState();
@@ -51,6 +52,15 @@ class DarkModeContentManager {
   private addIsDarkClassToElementsWithBackgroundImage() {
     const findAndMarkBGImages = () => {
       const divs = document.querySelectorAll("div");
+
+      // This is an expensive operation and we should only proceed if the page
+      // has actually changed. We inaccuratly check this by comparing the
+      // number of divs checked the last time we called this function.
+      if (divs.length === this.divsSelected) {
+        return;
+      }
+      this.divsSelected = divs.length;
+
       Object.keys(divs).map(divKey => {
         const div: HTMLDivElement = divs[divKey];
         const divStyle = window.getComputedStyle(div);
