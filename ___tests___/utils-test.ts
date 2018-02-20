@@ -31,3 +31,41 @@ describe("`ParseIntBase10` utility", () => {
     expect(console.trace).toBeCalled();
   });
 });
+
+describe("`truncate` utility", () => {
+  test("Truncates a word correctly", () => {
+    expect(utils.truncate("testing", 2)).toBe("t…g");
+  });
+
+  test("Truncates odd lengths correctly", () => {
+    expect(utils.truncate("testing", 3)).toBe("t…g");
+  });
+
+  test("Truncates longer lengths correctly", () => {
+    expect(utils.truncate("testing", 4)).toBe("te…ng");
+  });
+
+  test("Doesn't truncate words shorter than the threshold", () => {
+    expect(utils.truncate("test", 6)).toBe("test");
+  });
+
+  test("Handles words at the truncate threshold correctly", () => {
+    expect(utils.truncate("test", 4)).toBe("test");
+  });
+
+  test("Handles small `maxChars` correctly", () => {
+    expect(utils.truncate("testing", 2)).toBe("t…g");
+    expect(utils.truncate("test", 1)).toBe("t…t");
+  });
+
+  test("Handles small input correctly", () => {
+    expect(utils.truncate("tes", 3)).toBe("tes");
+    expect(utils.truncate("te", 2)).toBe("te");
+    expect(utils.truncate("t", 1)).toBe("t");
+  });
+
+  test("Logs errors when input is invalid", () => {
+    expect(utils.truncate("t", 0)).toBe("t");
+    expect(console.trace).toBeCalled();
+  });
+});
