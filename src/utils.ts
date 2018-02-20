@@ -54,9 +54,14 @@ export const capitalize = (s: string): string => {
 
 export const truncate = (input: string, maxChars: number = 25): string => {
   const truncateChar = "…";
+  const minChars = 3;
 
   if (input.length < maxChars) {
     return input;
+  if (input.length <= maxChars) {
+    return input;
+  } else if (maxChars < minChars) {
+    return `${input.slice(0, 1)}${truncateChar}${input.slice(-1)}`;
   } else {
     const half = 2;
     const sliceChars = maxChars / half;
