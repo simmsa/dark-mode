@@ -26,9 +26,22 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import LogError from "./LogError";
+
 export const ParseIntBase10 = (input: string): number => {
   const base = 10;
-  return parseInt(input, base);
+  const result = parseInt(input, base);
+  const isNaNResult = 0;
+
+  if (isNaN(result)) {
+    LogError(
+      `ParseIntBase10 cannot convert "${input}" to a base ten integer and returned "${isNaNResult}" instead`,
+    );
+
+    return isNaNResult;
+  }
+
+  return result;
 };
 
 export const capitalize = (s: string): string => {
