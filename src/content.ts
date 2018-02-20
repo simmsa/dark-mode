@@ -55,7 +55,15 @@ class DarkModeContentManager {
         const div: HTMLDivElement = divs[divKey];
         const divStyle = window.getComputedStyle(div);
         const bgImage = divStyle.backgroundImage;
-        if (bgImage && bgImage.match(/url.*jpg.*/i)) {
+        const hasBgImage = bgImage && bgImage.match(/url.*jpg.*/i);
+        // To avoid tricky inversions we don't invert divs with many children
+        // because they negatively affect future inversions and often dont
+        // REQUIRE inversion
+        const maxDivChildren = 3;
+        const childDivCount = div.getElementsByTagName("div").length;
+        const hasMinimalChildDivs = childDivCount < maxDivChildren;
+
+        if (hasBgImage && hasMinimalChildDivs) {
           div.classList.add("no-dark");
         }
       });
