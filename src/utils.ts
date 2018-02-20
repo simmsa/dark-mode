@@ -56,8 +56,11 @@ export const truncate = (input: string, maxChars: number = 25): string => {
   const truncateChar = "…";
   const minChars = 3;
 
-  if (input.length < maxChars) {
+  if (maxChars <= 0) {
+    LogError("Cannot truncate less than one character");
     return input;
+  }
+
   if (input.length <= maxChars) {
     return input;
   } else if (maxChars < minChars) {
