@@ -27,6 +27,7 @@
  */
 
 import ContentSender from "./ContentSender";
+import CssBuilder from "./CssBuilder";
 
 class DarkModeContentManager {
   private parentUrl: string;
@@ -47,6 +48,7 @@ class DarkModeContentManager {
     }
     this.setIFramesDark();
     this.addIsDarkClassToElementsWithBackgroundImage();
+    this.invertInsideShadowDom();
   }
 
   private addIsDarkClassToElementsWithBackgroundImage() {
@@ -89,6 +91,42 @@ class DarkModeContentManager {
     // finished executing
     window.addEventListener("load", () => {
       findAndMarkBGImages();
+    });
+  }
+
+  private invertInsideShadowDom() {
+    const invertElements = CssBuilder.iFrameUnInvertElements;
+    const execute = () => {
+      invertElements.map(element => {
+        const shadowDomElements = document.querySelectorAll(
+          // Is there a way to select all shadow elements (*::shadow doesn't
+          // work)
+          `twitterwidget::shadow ${element}`,
+        );
+
+        // tslint:disable:prefer-for-of
+        for (let i = 0; i < shadowDomElements.length; i++) {
+          const shadowDomElement = shadowDomElements[i];
+          // Preserve the existing style
+          const currentStyle = shadowDomElement.getAttribute("style");
+          shadowDomElement.setAttribute(
+            "style",
+            `${currentStyle || ""} ${CssBuilder.buildFilter(
+              true,
+              true,
+              CssBuilder.iFrameContrast,
+            )}`,
+          );
+        }
+      });
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      execute();
+    });
+
+    window.addEventListener("load", () => {
+      execute();
     });
   }
 

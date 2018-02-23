@@ -53,7 +53,7 @@ export default class CssBuilder {
 
   private static specialCases = [".no-dark img"];
 
-  private static iFrameUnInvertElements = [
+  public static iFrameUnInvertElements = [
     "img",
     "video", // Fixes twitter embedded videos, but has other side effects?
     "body *[style*=url]",
@@ -101,11 +101,6 @@ export default class CssBuilder {
 
   private static siteSelector(url: string, elements: string[]): string {
     const selector = `html[data-dark-mode-active="true"][data-dark-mode-url*="${url}"]`;
-    return CssBuilder.buildSelector(selector, elements);
-  }
-
-  private static shadowRootSelector(elements: string[]) {
-    const selector = "twitterwidget::shadow";
     return CssBuilder.buildSelector(selector, elements);
   }
 
@@ -170,10 +165,6 @@ export default class CssBuilder {
     }
 
     ${CssBuilder.darkSelector(Dark, false, CssBuilder.unInvertElements)} {
-        ${CssBuilder.buildFilter(Dark, Hue, CssBuilder.iFrameContrast)}
-    }
-
-    ${CssBuilder.shadowRootSelector(CssBuilder.unInvertElements)}{
         ${CssBuilder.buildFilter(Dark, Hue, CssBuilder.iFrameContrast)}
     }
 
