@@ -19,12 +19,8 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
-    "testRegex": "(/___tests___/.*)",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js"
-    ]
+    "testRegex": "(/tests/.*)",
+    "moduleFileExtensions": ["ts", "tsx", "js"]
   },
   "devDependencies": {
     "@types/chrome": "0.0.52",
