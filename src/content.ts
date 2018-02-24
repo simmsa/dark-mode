@@ -96,7 +96,7 @@ class DarkModeContentManager {
 
   private invertInsideShadowDom() {
     const invertElements = CssBuilder.iFrameUnInvertElements;
-    const execute = () => {
+    const callback = () => {
       const hasShadowDomElement =
         document.querySelectorAll("twitterwidget").length > 0;
 
@@ -128,13 +128,9 @@ class DarkModeContentManager {
       });
     };
 
-    document.addEventListener("DOMContentLoaded", () => {
-      execute();
-    });
-
-    window.addEventListener("load", () => {
-      execute();
-    });
+    const topParent = document.getElementsByTagName("html")[0];
+    const observer = new MutationObserver(callback);
+    observer.observe(topParent, { childList: true, subtree: true });
   }
 
   private setParentUrl() {
