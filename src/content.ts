@@ -97,6 +97,13 @@ class DarkModeContentManager {
   private invertInsideShadowDom() {
     const invertElements = CssBuilder.iFrameUnInvertElements;
     const execute = () => {
+      const hasShadowDomElement =
+        document.querySelectorAll("twitterwidget").length > 0;
+
+      if (!hasShadowDomElement) {
+        return;
+      }
+
       invertElements.map(element => {
         const shadowDomElements = document.querySelectorAll(
           // Is there a way to select all shadow elements (*::shadow doesn't
