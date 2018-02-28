@@ -75,6 +75,7 @@ export default class CssBuilder {
   private static siteRules = {
     "blog.mozilla.org": ["#masthead"],
     "example.com": [".test"],
+    "twitter.com": [".gallery-overlay", ".Gallery-media"],
   };
 
   private static buildSelector(selector: string, elements: string[]): string {
