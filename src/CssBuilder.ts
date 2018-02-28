@@ -104,6 +104,14 @@ export default class CssBuilder {
     return CssBuilder.buildSelector(selector, elements);
   }
 
+  private static inverseSiteSelector(url: string, elements: string[]): string {
+    const selector = `html[data-dark-mode-active="true"][data-dark-mode-url*="${url}"]`;
+    return CssBuilder.buildSelector(
+      selector,
+      elements.map(element => element + " > *"),
+    );
+  }
+
   public static buildSiteRules(): string {
     const invertRules = Object.keys(CssBuilder.siteRules)
       .map(url => {
@@ -115,8 +123,11 @@ export default class CssBuilder {
 
     const unInvertRules = Object.keys(CssBuilder.siteRules)
       .map(url => {
-        return `${CssBuilder.siteSelector(url, CssBuilder.siteRules[url])} > * {
-        ${CssBuilder.buildFilter(true, true, CssBuilder.iFrameContrast)}
+        return `${CssBuilder.inverseSiteSelector(
+          url,
+          CssBuilder.siteRules[url],
+        )} {
+        ${CssBuilder.buildFilter(false, false, CssBuilder.iFrameContrast)}
     }`;
       })
       .join("\n\n    ");
