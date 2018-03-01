@@ -41,7 +41,6 @@ export default class CssBuilder {
     "img",
     "video",
     "body *[style*=url]",
-    "canvas",
     'object[type="application/x-shockwave-flash"]',
     'embed[type="application/x-shockwave-flash"]',
     "body div[style*=url]",
