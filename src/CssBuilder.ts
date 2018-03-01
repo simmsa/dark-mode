@@ -75,6 +75,7 @@ export default class CssBuilder {
     "blog.mozilla.org": ["#masthead"],
     "example.com": [".test"],
     "twitter.com": [".gallery-overlay", ".Gallery-media"],
+    "upwork.com": [".hero-visitor-banner"],
   };
 
   private static buildSelector(selector: string, elements: string[]): string {
