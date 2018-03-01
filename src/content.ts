@@ -76,7 +76,7 @@ class DarkModeContentManager {
         // To avoid tricky inversions we don't invert divs with many children
         // because they negatively affect future inversions and often dont
         // REQUIRE inversion
-        const maxDivChildren = 3;
+        const maxDivChildren = 10;
         const childDivCount = div.getElementsByTagName("div").length;
         const hasMinimalChildDivs = childDivCount < maxDivChildren;
 
