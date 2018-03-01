@@ -209,6 +209,18 @@ class DarkModeContentManager {
     }
     this.setDarkAttribute("active", "true");
   }
+
+  public activateDarkMode() {
+    this.updateAttributes(true);
+    this.invertInsideShadowDom();
+  }
+
+  public deactivateDarkMode() {
+    this.updateAttributes(false);
+    this.invertInsideShadowDom();
+    // Stop listening for shadow dom events
+    this.onPageChangeObserver.disconnect();
+  }
 }
 
 // We add this to `window` so it can be accessed as a global variable from the

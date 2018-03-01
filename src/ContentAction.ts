@@ -178,9 +178,10 @@ class ContentAction {
   }
 
   private static buildJsString(Dark: boolean) {
-    return `
-            window.darkModeContentManager.updateAttributes(${Dark});
-        `;
+    if (Dark === false) {
+      return `window.darkModeContentManager.deactivateDarkMode()`;
+    }
+    return `window.darkModeContentManager.activateDarkMode()`;
   }
 
   private static passError(error: string, passableErrors: string[]) {
