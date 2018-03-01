@@ -96,37 +96,40 @@ class DarkModeContentManager {
 
   private invertInsideShadowDom() {
     const invertElements = CssBuilder.iFrameUnInvertElements;
-    const callback = () => {
-      const hasShadowDomElement =
-        document.querySelectorAll("twitterwidget").length > 0;
+    const hasShadowDomElement =
+      document.querySelectorAll("twitterwidget").length > 0;
 
-      if (!hasShadowDomElement) {
-        return;
-      }
+    if (!hasShadowDomElement) {
+      return;
+    }
 
-      invertElements.map(element => {
-        const shadowDomElements = document.querySelectorAll(
-          // Is there a way to select all shadow elements (*::shadow doesn't
-          // work)
-          `twitterwidget::shadow ${element}`,
+    invertElements.map(element => {
+      const shadowDomElements = document.querySelectorAll(
+        // Is there a way to select all shadow elements (*::shadow doesn't
+        // work)
+        `twitterwidget::shadow ${element}`,
+      );
+
+      // tslint:disable:prefer-for-of
+      for (let i = 0; i < shadowDomElements.length; i++) {
+        const shadowDomElement = shadowDomElements[i];
+        // Preserve the existing style
+        const currentStyle = shadowDomElement.getAttribute("style") || "";
+        const darkStyle = CssBuilder.buildFilter(
+          true,
+          true,
+          CssBuilder.iFrameContrast,
         );
 
-        // tslint:disable:prefer-for-of
-        for (let i = 0; i < shadowDomElements.length; i++) {
-          const shadowDomElement = shadowDomElements[i];
-          // Preserve the existing style
-          const currentStyle = shadowDomElement.getAttribute("style");
-          shadowDomElement.setAttribute(
-            "style",
-            `${currentStyle || ""} ${CssBuilder.buildFilter(
-              true,
-              true,
-              CssBuilder.iFrameContrast,
-            )}`,
-          );
-        }
-      });
-    };
+        const newStyle =
+          this.isDark === false
+            ? currentStyle.replace(darkStyle, "")
+            : `${currentStyle.replace(darkStyle, "")} ${darkStyle}`;
+
+        shadowDomElement.setAttribute("style", newStyle);
+      }
+    });
+  }
 
     const topParent = document.getElementsByTagName("html")[0];
     const observer = new MutationObserver(callback);
