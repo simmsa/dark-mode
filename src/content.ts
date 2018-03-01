@@ -33,6 +33,7 @@ class DarkModeContentManager {
   private parentUrl: string;
   private isDark: boolean;
   private divsSelected: number = 0;
+  private onPageChangeObserver: MutationObserver;
 
   constructor() {
     this.requestState();
@@ -49,6 +50,10 @@ class DarkModeContentManager {
     this.setIFramesDark();
     this.addIsDarkClassToElementsWithBackgroundImage();
     this.invertInsideShadowDom();
+
+    this.invertInsideShadowDom = this.invertInsideShadowDom.bind(this);
+
+    this.onPageChange(this.invertInsideShadowDom);
   }
 
   private addIsDarkClassToElementsWithBackgroundImage() {
@@ -131,9 +136,13 @@ class DarkModeContentManager {
     });
   }
 
+  private onPageChange(callback: () => void) {
     const topParent = document.getElementsByTagName("html")[0];
-    const observer = new MutationObserver(callback);
-    observer.observe(topParent, { childList: true, subtree: true });
+    this.onPageChangeObserver = new MutationObserver(callback);
+    this.onPageChangeObserver.observe(topParent, {
+      childList: true,
+      subtree: true,
+    });
   }
 
   private setParentUrl() {
