@@ -121,13 +121,10 @@ class Url {
         }).toString();
 
         this.full = url.toString();
-      } catch (e) {
-        if (debug) {
-          console.log(
-            "Error parsing potential url: " + input + " Error is: " + e,
-          );
         }
-        this.stem = this.domain = this.normal = this.full = this.defaultUrl;
+      } catch (e) {
+        // Return something unique
+        this.stem = this.domain = this.normal = this.full = input;
       }
     }
     this.setShouldUpdateMenu(input);
