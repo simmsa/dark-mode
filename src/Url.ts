@@ -45,15 +45,17 @@ class Url {
 
   private updateBlacklist = ["chrome://", "chrome-extension://", "about:blank"];
 
-  private parseBlacklist = ["chrome://", "chrome-extension://", "file://"];
+  private parseBlacklist = ["chrome://", "chrome-extension://"];
 
-  private autoDarkModeBlacklist = [".pdf"];
+  private autoDarkModeBlacklist = this.parseBlacklist.concat([".pdf"]);
 
   constructor(newUrl?: string) {
-    if (newUrl) {
+    if (typeof newUrl !== "undefined") {
       this.parse(newUrl);
     } else {
-      this.parse(this.defaultUrl);
+      this.stem = this.domain = this.normal = this.full = this.defaultUrl;
+      this.shouldAutoDark = true;
+      this.shouldUpdateMenu = false;
     }
   }
 
@@ -90,6 +92,7 @@ class Url {
     }
   }
 
+  // Tries to parse the unique parts of a url
   public parse(input: string | undefined) {
     // If the url has not changed, do nothing
     if (input === this.full || typeof input === "undefined") {
@@ -105,23 +108,67 @@ class Url {
     } else {
       try {
         const url = new URI(input).normalize();
-        this.stem = new URI({
-          hostname: url.hostname(),
-          protocol: url.protocol(),
-        }).toString();
+        const hostname = url.hostname();
+        const protocol = url.protocol();
+        const path = url.path();
+        const dummyString = "test";
+        this.stem =
+          hostname && protocol
+            ? new URI({
+                hostname,
+                protocol,
+              }).toString()
+            : protocol !== ""
+              ? new URI({ protocol, hostname: dummyString })
+                  .toString()
+                  .replace(dummyString, "")
+              : input;
 
         // If the subdomain is not www start the domain with that
         const subdomain = url.subdomain();
-        this.domain = subdomain !== "www" && subdomain.length > 0 ? subdomain + "." + url.domain() : url.domain();
+        this.domain =
+          subdomain !== "www" && subdomain.length > 0
+            ? subdomain + "." + url.domain()
+            : url.domain();
 
-        this.normal = new URI({
-          hostname: url.hostname(),
-          path: url.path(),
-          protocol: url.protocol(),
-        }).toString();
-
-        this.full = url.toString();
+        if (protocol === "file") {
+          this.domain = path;
         }
+
+        if (this.domain === "") {
+          this.domain = input;
+        }
+
+        // We need the path parts raw (not normalized) hence the reparse
+        const pathParts = new URI(input).path().split("/");
+
+        // Many webapps use these characters as unique identifiers in urls. It
+        // seems desirable to remove paths with these chars, because this
+        // gives a less unique url is more in line with what the user
+        // intended.
+        const removeFinalPathPattern = new RegExp("[+@!]");
+        const normalizedPath: string =
+          pathParts.length <= 1
+            ? pathParts.join("")
+            : pathParts
+                .map(section => {
+                  return section.match(removeFinalPathPattern) ? "" : section;
+                })
+                .filter(section => section.length > 0)
+                .join("/");
+
+        this.normal =
+          path && hostname && protocol
+            ? new URI({
+                hostname: url.hostname(),
+                path: normalizedPath,
+                protocol: url.protocol(),
+              }).toString()
+            : protocol === "file"
+              ? new URI({ protocol, path }).toString()
+              : input;
+
+        this.full = input;
       } catch (e) {
         // Return something unique
         this.stem = this.domain = this.normal = this.full = input;
