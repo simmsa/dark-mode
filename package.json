@@ -1,5 +1,5 @@
 {
-  "version": "0.5.15",
+  "version": "0.5.16",
   "repository": {
     "type": "git",
     "url ": "git+https://github.com/simmsa/dark-mode.git"
@@ -7,15 +7,12 @@
   "scripts": {
     "css": "ts-node src/CssBuilder.ts > styles/css/dark-mode.css",
     "incrementVersion": "ts-node src/incrementVersion.ts",
-    "less":
-      "for file in styles/less/*.less; do lessc $file styles/css/`basename $file .less`.css ; done",
+    "less": "for file in styles/less/*.less; do lessc $file styles/css/`basename $file .less`.css ; done",
     "webpack": "webpack --config src/webpack.config.ts",
     "buildCrx": "ts-node src/buildCrx",
     "buildCrxDev": "ts-node src/buildCrx --dev",
-    "build":
-      "npm run css && npm run less && npm run webpack && npm run buildCrx",
-    "buildDev":
-      "npm run css && npm run less && npm run webpack && npm run buildCrxDev",
+    "build": "npm run css && npm run less && npm run webpack && npm run buildCrx",
+    "buildDev": "npm run css && npm run less && npm run webpack && npm run buildCrxDev",
     "test": "jest"
   },
   "jest": {
@@ -23,7 +20,11 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/tests/.*)",
-    "moduleFileExtensions": ["ts", "tsx", "js"]
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ]
   },
   "devDependencies": {
     "@types/chrome": "0.0.52",
