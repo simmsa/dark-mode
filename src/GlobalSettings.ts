@@ -35,7 +35,11 @@ class GlobalSettings extends PersistentStorage {
   }
 
   private getField(field: string): any {
-    return this.dataObject[field];
+    try {
+      return this.dataObject[field];
+    } catch (e) {
+      return undefined;
+    }
   }
 
   private toggleField(field: string, defaultValue: boolean): void {
