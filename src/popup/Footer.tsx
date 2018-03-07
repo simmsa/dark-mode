@@ -44,7 +44,7 @@ class Footer extends React.Component<FooterProps, FooterState> {
     super(props);
 
     this.state = {
-      kbInUse: 0,
+      kbInUse: -1,
     };
 
     this.checkBytesInUse = this.checkBytesInUse.bind(this);
@@ -68,7 +68,7 @@ class Footer extends React.Component<FooterProps, FooterState> {
   }
 
   private formatStorageRemaining(type: "percentage" | "ratio"): string {
-    if (this.state.kbInUse === 0) {
+    if (this.state.kbInUse === -1) {
       return "?";
     }
 
